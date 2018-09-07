@@ -3,20 +3,20 @@ import logging
 import click
 import coloredlogs
 
-from mutacc.utils.housekeeper_extract import findPath
-
+from . import export, add, delete, init
 LOG = logging.getLogger(__name__)
 
-@click.command()
-@click.argument('sample_id')
-def cli(sample_id):
+@click.group()
+@click.option('-d', '--database', default = 'mutaccDB')
+@click.pass_context
+def cli(context, database):
       
    coloredlogs.install(level='INFO')
-   LOG.info("Finding files for id: %s", sample_id)
 
-   paths = findPath(sample_id)
+   context.obj = {}
+   context.obj['database'] = database
 
-   for path in paths['paths']:
-
-      click.echo(path)
-
+cli.add_command(export.export)
+cli.add_command(add.add)
+cli.add_command(delete.delete)
+cli.add_command(init.init)

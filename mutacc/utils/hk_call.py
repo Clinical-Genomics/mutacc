@@ -1,5 +1,6 @@
+import subprocess
 
-def findPath(inHouseID):
+def findPath(internal_id):
 	
     """
 
@@ -16,10 +17,10 @@ def findPath(inHouseID):
 					
     """
 
-    paths = {'ID': inHouseID,
+    files = {'ID': internal_id,
              'paths': ['/path/to/bam/',
                      '/path/to/fastq']}
              
-    return paths
+    return files
 
 
