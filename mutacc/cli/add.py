@@ -1,6 +1,6 @@
 import click
 
-from mutacc.utils.hk_call import findPath
+from mutacc.utils.hk_call import find_files
 
 @click.command()
 @click.argument('internal_id')
@@ -10,8 +10,12 @@ def add(context, internal_id):
     """
         Adds content to DB
     """
-    files = findPath(internal_id)
+    files = find_files(internal_id = internal_id, tags = ("vcf-snv-clinical", "pedigree"))
 
-    for file in files['paths']:
-
-        click.echo('adding %s to %s' % (file, context.obj['database']))
+    for key in files.keys():
+        
+        click.echo('%s: ' % (key))
+        
+        for file in files[key]:
+            
+            click.echo('    %s' % (file))

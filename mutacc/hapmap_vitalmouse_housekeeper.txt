@@ -1,0 +1,58 @@
+2637 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_config.yaml | config
+2638 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_qc_sample_info.yaml | sampleinfo
+2639 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M.fam | pedigree
+2640 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_gvcf_vrecal_comb_vt_vep_parsed_snpeff_ranked_BOTH.selected.vcf.gz | vcf-clinical-bin
+2641 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_gvcf_vrecal_comb_vt_vep_parsed_snpeff_ranked_BOTH.selected.vcf.gz.tbi | vcf-clinical-bin-index
+2642 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_gvcf_vrecal_comb_vt_vep_parsed_snpeff_ranked_BOTH.vcf.gz | vcf-research-bin
+2643 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_gvcf_vrecal_comb_vt_vep_parsed_snpeff_ranked_BOTH.vcf.gz.tbi | vcf-research-bin-index
+2644 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/mip.pl_2016-12-30T11:04:41.log | log
+2645 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/meta.yaml | meta
+2646 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_comb_vep_parsed_ranked_SV.selected.vcf.gz | vcf-clinical-sv-bin
+2647 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_comb_vep_parsed_ranked_SV.selected.vcf.gz.tbi | vcf-clinical-sv-bin-index
+2648 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_comb_vep_parsed_ranked_SV.vcf.gz | vcf-research-sv-bin
+2649 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_comb_vep_parsed_ranked_SV.vcf.gz.tbi | vcf-research-sv-bin-index
+2650 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_qc_metrics.mod.yaml | qc
+2651 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_gvcf_BOTH.bcf | gbcf
+2652 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2016-12-30/643594-300M_sorted_md_brecal_gvcf_BOTH.bcf.csi | gbcf-index
+25738 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_config.yaml | mip-config
+25739 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_qc_sample_info.yaml | sampleinfo
+25740 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse.fam | pedigree
+25741 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/mip_2017-10-06T11:57:55.log | mip-log
+25742 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_qc_metrics.yaml | qcmetrics
+25743 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_haptc_BOTH.bcf | snv-gbcf
+25744 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_haptc_BOTH.bcf.csi | snv-gbcf-index
+25745 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse.ped_check.csv | peddy, ped-check
+25746 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse.peddy.ped | peddy, ped
+25747 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse.sex_check.csv | peddy, sex-check
+25748 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.selected.vcf.gz | vcf-snv-clinical
+25749 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.selected.vcf.gz.tbi | vcf-snv-clinical-index
+25750 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.vcf.gz | vcf-snv-research
+25751 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.vcf.gz.tbi | vcf-snv-research-index
+25752 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.selected.vcf.gz | vcf-sv-clinical
+25753 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.selected.vcf.gz.tbi | vcf-sv-clinical-index
+25754 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.vcf.gz | vcf-sv-research
+25755 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.vcf.gz.tbi | vcf-sv-research-index
+25756 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/ADM1059A4_lanes_8_sorted_md_brecal_coverage.bed | coverage, ADM1059A4
+25759 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/ADM1059A5_lanes_7_sorted_md_brecal_coverage.bed | coverage, ADM1059A5
+25762 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-06/ADM1059A6_lanes_8_sorted_md_brecal_coverage.bed | coverage, ADM1059A6
+26388 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_config.yaml | mip-config
+26389 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_qc_sample_info.yaml | sampleinfo
+26390 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse.fam | pedigree
+26391 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/mip_2017-10-11T10:25:59.log | mip-log
+26392 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_qc_metrics.yaml | qcmetrics
+26393 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_haptc_BOTH.bcf | snv-gbcf
+26394 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_haptc_BOTH.bcf.csi | snv-gbcf-index
+26395 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse.ped_check.csv | peddy, ped-check
+26396 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse.peddy.ped | peddy, ped
+26397 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse.sex_check.csv | peddy, sex-check
+26398 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.selected.vcf.gz | vcf-snv-clinical
+26399 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.selected.vcf.gz.tbi | vcf-snv-clinical-index
+26400 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.vcf.gz | vcf-snv-research
+26401 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_haptc_vrecal_comb_rhocall_vt_vep_parsed_snpeff_ranked_BOTH.vcf.gz.tbi | vcf-snv-research-index
+26402 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.selected.vcf.gz | vcf-sv-clinical
+26403 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.selected.vcf.gz.tbi | vcf-sv-clinical-index
+26404 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.vcf.gz | vcf-sv-research
+26405 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/vitalmouse_sorted_md_brecal_comb_vep_parsed_ranked_SV.vcf.gz.tbi | vcf-sv-research-index
+26406 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/ADM1059A4_lanes_8_sorted_md_brecal_coverage.bed | coverage, ADM1059A4
+26409 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/ADM1059A5_lanes_7_sorted_md_brecal_coverage.bed | coverage, ADM1059A5
+26412 | /mnt/hds/proj/bioinfo/bundles/vitalmouse/2017-10-11/ADM1059A6_lanes_8_sorted_md_brecal_coverage.bed | coverage, ADM1059A6
