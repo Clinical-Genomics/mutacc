@@ -3,7 +3,11 @@ import logging
 import click
 import coloredlogs
 
-from . import export, add, delete, init
+from .export import export as export_command
+from .importing import importing as import_command
+from .delete import delete as delete_command
+from .init import init as init_command
+
 LOG = logging.getLogger(__name__)
 
 @click.group()
@@ -16,7 +20,7 @@ def cli(context, database):
    context.obj = {}
    context.obj['database'] = database
 
-cli.add_command(export.export)
-cli.add_command(add.add)
-cli.add_command(delete.delete)
-cli.add_command(init.init)
+cli.add_command(export_command)
+cli.add_command(import_command)
+cli.add_command(delete_command)
+cli.add_command(init_command)
