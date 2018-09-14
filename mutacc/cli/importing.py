@@ -1,25 +1,17 @@
 import click
 
-from mutacc.utils.json_parse import parse_json
+from mutacc.utils.yaml_parse import yaml_parse
 
 @click.command('import')
-@click.option('--bam', multiple = True, type = click.Path(exists = True), help = 'path to .bam file')
-@click.option('--fastq', multiple = True, type = click.Path(exists = True), help = 'path to .fastq file')
-@click.option('--variant', help = 'Variant data as JSON string, or path to .json file')
-@click.option('--case', help = 'Metadata for the case as JSON string or path to .json file')
+@click.option('--case', type = click.Path(exists = True), help = " .yaml file for case. See README.md for information on what to include or example .yaml file in data/data.yaml")
+@click.option('--padding', type = click.IntRange(0, 5000), default = 300)
 @click.pass_context
-def importing(context, bam, fastq, variant, case):
+def importing(context, case, padding):
 
     """
         Import cases to the database
     """
             
-    case = parse_json(case)
-    variant = parse_json(variant)
-
-    for path in bam:
-        click.echo(path)
-    
+    case = yaml_parse(case)
+   
     click.echo(case)
-    click.echo(variant)
-
