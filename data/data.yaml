@@ -3,7 +3,7 @@
 #case:
 #The only required field for case is a 'case_id. 
 case: 
-    case_id: vitalmouse
+    case_id: '12345'
 
 #samples
 #A list of samples. For each of the samples a 'sample_id' must be given, together
@@ -11,34 +11,34 @@ case:
 #must be given. Each case can be filled with an arbitrary amount of meta data
 #for each sample
 samples: 
-  - sample_id: ADM1059A4
+  - sample_id: '1'
     analysis_type: wgs
     sex: male
     phenotype: affected
-    mother: ADM1059A6
-    father: ADM1059A5
+    mother: '3'
+    father: '2'
     fastq: 
       - /path/to/fastq1
       - /path/to/fastq2
     bam: /path/to/bam
 
-  - sample_id: ADM1059A4
+  - sample_id: '2'
     analysis_type: wgs
     sex: male
-    phenotype: affected
-    mother: ADM1059A6
-    father: ADM1059A5
+    phenotype: unaffected
+    mother: 0
+    father: 0
     fastq: 
       - /path/to/fastq1
       - /path/to/fastq2
     bam: /path/to/bam
 
-  - sample_id: ADM1059A4
+  - sample_id: '3'
     analysis_type: wgs
-    sex: male
-    phenotype: affected
-    mother: ADM1059A6
-    father: ADM1059A5
+    sex: female
+    phenotype: unaffected
+    mother: 0
+    father: 0
     fastq: 
       - /path/to/fastq1
       - /path/to/fastq2
@@ -47,10 +47,10 @@ samples:
 #variant:
 #'variant_id', 'chromosome', 'position', 'alt', 'ref' must be given.
 variant:
-    variant_id: 1234
-    chromosome: 4
+    variant_id: '1234'
+    chromosome: '4'
     position: 861261
-    ref: CGGCCAGCACCAGGGTCCCCACGGCGCGTCCCTTCAGGGCCTCCTCGGCCCAGGGCCTTGGTGAACACACGT
+    ref: CGGCACCAGGTGGTGACACACGT
     alt: C
 
 
