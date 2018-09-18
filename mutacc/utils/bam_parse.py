@@ -3,23 +3,33 @@
 
 import pysam
 
-def getOverlapingReads(fileName, chrom, start, n=0):
+def get_overlaping_reads(fileName, chrom, start, end, padding = 300):
+"""
+
+Extracts all read names from a bam file, overlapping the specified region.
+
+Args:
+
+    fileName (string): name of bam file
+    chrom (string): name of chromosome
+    start (int): start of region
+    end (int): end of region
+    padding (int): optional padding of region. i.e. Reads in the vicinity vill also be detected
+    depending on the padding parameter. 
+
+Returns:
+
+    reads (list): List of read identifiers. 
     
-    with pysam.AlignmentFile(fileName, 'rb') as file:
+"""
+    sam_file = pysam.AlignmentFile(fileName, 'rb')
         
-        reads = file.fetch(chrom, start - n, start + n)
+    reads = sam_file.fetch(reference = chrom, 
+            start = start - padding, 
+            end = end + padding)
     
     return [read.query_name for read in reads]
 
 
-
-if __name__ == '__main__':
-    
-    FILENAME = ''
-    CHROM = ''
-    START = 0
-    n = 0
-    
-    reads = getOverlapingReads(FILENAME, CHROM, START, n)
-    
+     
     
