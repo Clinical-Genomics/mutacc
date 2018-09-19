@@ -1,3 +1,4 @@
 Click
 pysam
 coloredlogs
+biopython
