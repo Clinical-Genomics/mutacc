@@ -47,7 +47,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
         #parse fastq and places in list fastqs
         #FastqGeneralIterator parses each record as a tuple with name, seq, and quality
-        #on index 0, 1, 3 respectively.
+        #on index 0, 1, 2 respectively.
         fastqs = [FastqGeneralIterator(handle) for handle in fastq_handles]
 
         #Iterates over parsed fastq files simultaneously
