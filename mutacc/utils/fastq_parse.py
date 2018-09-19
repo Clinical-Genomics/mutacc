@@ -13,7 +13,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
         Args:
             
-            fastq_files (list): List of fastqfiles
+            fastq_files (list): List of fastq files
             record_ids (set): Set of read names
             dir_path (string): path to directory where new fastq files are written to
         
@@ -23,8 +23,11 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
     """
 
-
+    #Save the file names for the fastq files to be used later
     file_names = [Path(file_name).name for file_name in fastq_files]
+
+    #expanduser() expands paths including '~' to the full path to the users home directory
+    #absolute() expands relative path to the absolute path 
     dir_path = Path(dir_path).expanduser().absolute()
 
     if not dir_path.exists():

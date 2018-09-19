@@ -34,7 +34,7 @@ def test_fastq_extract(tmpdir):
 
     #Compare the records in the files created by fastq_extract
     #with those in fastqs
-    for path, fastq in zip(paths,fastqs):
+    for path, fastq in zip(paths, fastqs):
 
         with open(path, 'r') as handle:
 
