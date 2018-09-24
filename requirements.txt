@@ -2,3 +2,4 @@ Click
 pysam
 coloredlogs
 biopython
+cyvcf2
