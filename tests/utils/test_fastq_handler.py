@@ -3,7 +3,7 @@ import random
 
 from Bio import SeqIO
 
-from mutacc.utils.fastq_parse import *
+from mutacc.utils.fastq_handler import *
 
 def test_fastq_extract(tmpdir):
     """

@@ -44,15 +44,9 @@ samples:
       - /path/to/fastq2
     bam: /path/to/bam
 
-#variant:
-#'variant_id', 'chromosome', 'position', 'alt', 'ref' must be given.
-variant:
-    variant_id: '1234'
-    chromosome: '4'
-    position: 861261
-    ref: CGGCACCAGGTGGTGACACACGT
-    alt: C
-
+#variants:
+#Must contain path to vcf file for variants of interest.
+variants: /path/to/vcf
 
                   
     

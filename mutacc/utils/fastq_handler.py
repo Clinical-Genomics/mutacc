@@ -4,6 +4,8 @@ from contextlib import ExitStack
 
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 
+from mutacc.parse.path_parse import parse_path, get_file_handle
+
 def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
     """
@@ -22,17 +24,17 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
             out_paths (list): List of paths to newly created fastq files
 
     """
+    
+    
+    fastq_files = [parse_path(fastq_file) for fastq_file in fastq_files]
 
     #Save the file names for the fastq files to be used later
     file_names = [Path(file_name).name for file_name in fastq_files]
 
     #expanduser() expands paths including '~' to the full path to the users home directory
     #absolute() expands relative path to the absolute path 
-    dir_path = Path(dir_path).expanduser().absolute()
+    dir_path = parse_path(dir_path, file_type = 'dir')
 
-    if not dir_path.exists():
-        raise FileNotFoundError('path not found:  %s' % (dir_path))
-    
     #Uses ExitStack context manager to manage a variable number of
     #files
     with ExitStack() as stack:
@@ -80,18 +82,5 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
     return out_paths
 
-
-def get_file_handle(file_name):
-    
-    file_name = Path(file_name).expanduser().absolute()
-
-
-    if file_name.name.endswith('.gz'):
-
-        return gzip.open(file_name, 'rt')
-    
-    else:
-
-        return open(file_name, 'r')
 
 
