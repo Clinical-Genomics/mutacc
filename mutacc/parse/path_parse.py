@@ -1,14 +1,14 @@
 from pathlib import Path
 
-def parse_path(path, type: str  = 'file'):
+def parse_path(path, file_type: str  = 'file'):
 
     path = Path(path).expanduser().absolute()
     
-    if type not in ['file', 'dir']:
+    if file_type not in ['file', 'dir']:
         
         raise Exception("argument 'type' must be 'file' or 'dir'")
     
-    if type == 'file':
+    if file_type == 'file':
 
         if not path.is_file():
 

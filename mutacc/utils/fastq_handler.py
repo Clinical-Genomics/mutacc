@@ -33,7 +33,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
     #expanduser() expands paths including '~' to the full path to the users home directory
     #absolute() expands relative path to the absolute path 
-    dir_path = parse_path(dir_path, type = 'dir')
+    dir_path = parse_path(dir_path, file_type = 'dir')
 
     #Uses ExitStack context manager to manage a variable number of
     #files
