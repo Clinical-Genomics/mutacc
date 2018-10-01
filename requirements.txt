@@ -3,3 +3,4 @@ pysam
 coloredlogs
 biopython
 cyvcf2
+mongo-adapter
