@@ -60,7 +60,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
             #position in the two files
             #Example: if records[0][0] is 'ST-E00266:38:H2TF5CCXX:8:1101:2563:2170 1:N:0:CGCGCATT',
             # records[0][0].split()[0] is 'ST-E00266:38:H2TF5CCXX:8:1101:2563:2170'
-            if records[0][0].split()[0] in record_ids:
+            if records[0][0].split()[0].split("/")[0] in record_ids:
 
                 #Writes current records from each fastq file to corresponding output file
                 for record, out_handle in zip(records, out_handles):
@@ -68,7 +68,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
                     out_handle.write("@%s\n%s\n+\n%s\n" % (record[0], record[1], record[2]))
                 
                 #removes found record name from the record_ids set
-                record_ids.remove(records[0][0].split()[0])
+                record_ids.remove(records[0][0].split()[0].split("/")[0]) 
                 
                 #If record_ids is empty all records have been found so there is no need to iterate
                 #further over the fastq files

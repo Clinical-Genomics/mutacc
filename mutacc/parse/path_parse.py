@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import gzip
 def parse_path(path, file_type: str  = 'file'):
 
     path = Path(path).expanduser().absolute()
