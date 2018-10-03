@@ -1,5 +1,6 @@
 import pytest
 import random
+import gzip
 
 from Bio import SeqIO
 
@@ -36,7 +37,7 @@ def test_fastq_extract(tmpdir):
     #with those in fastqs
     for path, fastq in zip(paths, fastqs):
 
-        with open(path, 'r') as handle:
+        with gzip.open(path, 'rt') as handle:
 
            test_fastq = list(SeqIO.parse(handle, 'fastq'))
            
