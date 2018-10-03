@@ -8,16 +8,16 @@ for variant calling. Using raw reads that supports a known variant from a real
 NGS data, mutacc creates validation sets with true positives with the same
 properties as a real life NGS run.
 
-##Installation
+## Installation
 
 ```bash
 git clone https://github.com/adrosenbaum/mutacc
 cd mutacc
 python setup.py install
 ```
-##Usage
+## Usage
 
-###Populate the mutacc database
+### Populate the mutacc database
 
 To export data sets from the mutacc DB, the database must first be populated. To
 extract the raw reads supporting a known variant, mutacc takes use of all
@@ -103,7 +103,7 @@ file system. By default, the fastq files will be stored in the directory
 ~/mutacc_fastqs/. If another directory is wanted this can be required with the
 --mutacc_dir option or as an entry 'mutacc_dir' in the configuration file.
    
-###Export datasets from the database
+### Export datasets from the database
 TODO...
 
 ###Requirements
