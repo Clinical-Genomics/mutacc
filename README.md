@@ -27,7 +27,7 @@ interest.
 
 This information is specified as a 'case', represented in yaml format
 
-```python
+```yaml
 #EXAMPLE OF A CASE
 
 #THE CASE FIELD CONTAINS METADATA OF THE CASE ITSELF
@@ -74,7 +74,7 @@ variants: /path/to/vcf
  
 To import the case into the database 
 
-```bash
+```console
 mutacc import --case <case.yaml> 
 ```
 
@@ -82,18 +82,18 @@ This will try to establish a connection to an instance of mongodb, by default
 running on 'localhost' on port 27017. If this is not wanted, it can be specified
 with the -h and -p options.
  
-```bash
+```console
 mutacc -h <host> -p <port> import --case <case.yaml> 
 ```
 
 or in a configuration file e.g.
-```python
+```yaml
 #EXAMPLE OF A CONFIGURATION FILE
 host: <host>
 port: <port>
 ```
 
-```bash
+```console
 mutacc --config_file <config.yaml> import --case <case.yaml>
 ```
 
