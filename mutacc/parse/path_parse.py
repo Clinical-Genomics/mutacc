@@ -22,6 +22,15 @@ def parse_path(path, file_type: str  = 'file'):
 
     return path 
 
+def make_dir(path):
+
+    path = Path(path).expanduser().absolute()
+
+    if not path.is_dir():
+        
+        path.mkdir()
+
+    return path
 
 def get_file_handle(file_name):
     

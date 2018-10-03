@@ -1,4 +1,8 @@
+import logging
+
 import pymongo
+
+LOG = logging.getLogger(__name__)
 
 def insert_entire_case(mutacc_adapter, case):
     """
@@ -16,18 +20,6 @@ def insert_entire_case(mutacc_adapter, case):
     case_id = case.case_id
     sample_ids = case.sample_ids
 
-    #Check if case_id already exists in collection 'cases'    
-    if mutacc_adapter.case_exists(case_id):
-        
-        raise pymongo.errors.WriteError("Case %s already exists" % (case_id)) 
-    
-    #Check if any sample_id already exist in collection 'samples'
-    for sample_id in sample_ids:
-
-        if mutacc_adapter.sample_exists(sample_id):
-
-            raise pymongo.errors.WriteError("Sample %s already exists" % (sample_id))
-    
     #Store variants-, samples-, and case objects as variants, samples, and cases. 
     variants = case.variants_object
     samples = case.samples_object
@@ -57,5 +49,7 @@ def insert_entire_case(mutacc_adapter, case):
     case["samples"] = sample_ids
     
     #Insert case into db
+
     mutacc_adapter.add_case(case)
 
+    LOG.info("Case added to mutaccDB")

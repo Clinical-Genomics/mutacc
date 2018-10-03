@@ -31,6 +31,8 @@ def get_overlaping_reads(fileName, chrom, start, end):
             end = end)
     
     ids = [read.query_name for read in reads]
+    
+    sam_file.close()
 
     return set(ids)
      
