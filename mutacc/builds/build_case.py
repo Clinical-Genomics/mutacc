@@ -1,3 +1,4 @@
+import logging
 from bson.objectid import ObjectId
 
 from mutacc.utils.fastq_handler import fastq_extract
@@ -5,6 +6,9 @@ from mutacc.utils.bam_handler import get_overlaping_reads
 from mutacc.builds.build_variant import get_variants
 
 from mutacc.parse.yaml_parse import yaml_parse
+from mutacc.parse.path_parse import make_dir
+
+LOG = logging.getLogger(__name__)
 
 class CompleteCase:
     """
@@ -55,15 +59,21 @@ class CompleteCase:
             self.variants_object.append(variant_object) #Append the variant object to the list
 
 
-    def get_samples(self):
+    def get_samples(self, mutacc_dir):
         """
             Method makes a list of sample objects, ready to load into a mongodb. This includes
             looking for the raw reads responsible for the variants in the vcf for each sample,
             write them to fastq files, and add the path to these files in the sample object.
-        """
 
+            Args:
+
+                mutacc_dir(pathlib.Path): Path to directory where the new fastq files are to be
+                stored.
+        """
+        out_dir = make_dir(mutacc_dir.joinpath(self.case_id))
         self.samples_object = []
         for sample_object in self.samples:
+            
             
             bam_file = sample_object["bam_file"] #Get bam file fro sample
 
@@ -79,8 +89,16 @@ class CompleteCase:
                                                                chrom = variant["chrom"],
                                                                fileName = bam_file))
             
+            LOG.info("{} reads found for sample {}".format(len(read_ids), sample_object['sample_id']))
+
             #Given the read_ids, and the fastq files, the reads are extracted from the fastq files    
-            variant_fastq_files = fastq_extract(sample_object["fastq_files"], read_ids) 
+            LOG.info("Search in fastq file")
+            
+            sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
+
+            variant_fastq_files = fastq_extract(sample_object["fastq_files"], 
+                                                read_ids,
+                                                dir_path = sample_dir) 
             
             #Add path to fastq files with the reads containing the variant to the sample object
             sample_object["variant_fastq_files"] = variant_fastq_files

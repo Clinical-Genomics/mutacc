@@ -29,7 +29,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
     fastq_files = [parse_path(fastq_file) for fastq_file in fastq_files]
 
     #Save the file names for the fastq files to be used later
-    file_names = [Path(file_name).name for file_name in fastq_files]
+    file_names = [Path(file_name).name.split(".")[0] for file_name in fastq_files]
 
     #expanduser() expands paths including '~' to the full path to the users home directory
     #absolute() expands relative path to the absolute path 
@@ -44,14 +44,16 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
                 for fastq_file in fastq_files]
         
         #Opens fastq files to write found records.
-        out_handles = [stack.enter_context(open(dir_path.joinpath('ex_' + file_name), 'wt')) \
+        out_handles = [stack.enter_context(gzip.open(dir_path.joinpath(file_name + "_mutacc" +
+            ".fastq.gz"), 'wt')) \
                 for file_name in file_names]
 
         #parse fastq and places in list fastqs
         #FastqGeneralIterator parses each record as a tuple with name, seq, and quality
         #on index 0, 1, 2 respectively.
         fastqs = [FastqGeneralIterator(handle) for handle in fastq_handles]
-
+        
+        record_count = 0
         #Iterates over parsed fastq files simultaneously
         for records in zip(*fastqs):
             
@@ -75,6 +77,11 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
                 if len(record_ids) == 0:
 
                     break
+            
+            record_count += 1
+            if record_count%1e6 == 0:
+                #TO BE REPLACED WITH PROPER PROGRESS BAR/STATUS OF SOME KIND
+                print("##### {}M READS PROCESSED #####".format(record_count/1e6), end="\r")
 
     #Returns the file paths for the output fastq files, that should only contain the records
     #with its record name in record_ids
