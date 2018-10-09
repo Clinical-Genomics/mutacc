@@ -49,17 +49,16 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
                 for file_name in file_names]
         
         #Making buffers
-        out_buffers = [RecordBuffer(out_handle, buffer_size = 500) for out_handle in out_handles]
+        #out_buffers = [RecordBuffer(out_handle, buffer_size = buffer_size) for out_handle in out_handles]
 
         #parse fastq and places in list fastqs
         #FastqGeneralIterator parses each record as a tuple with name, seq, and quality
         #on index 0, 1, 2 respectively.
         fastqs = [FastqGeneralIterator(handle) for handle in fastq_handles]
         
-        record_count = 0
         records_found = 0
         #Iterates over parsed fastq files simultaneously
-        for records in zip(*fastqs):
+        for count, records in enumerate(zip(*fastqs)):
             
             #Checks if current record name exists in record_ids. This Check is only done for one of the
             #fastq files (records[0]). It is thus assumed that paired end reads exists on the same
@@ -71,9 +70,9 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
                 records_found += 1
 
                 #Writes current records from each fastq file to corresponding output file
-                for record, out_buffer in zip(records, out_buffers):
+                for record, out_handle in zip(records, out_handles):
 
-                    out_buffer.add("@%s\n%s\n+\n%s\n" % (record[0], record[1], record[2]))
+                    out_handle.write("@{}\n{}\n+\n{}\n".format(record[0], record[1], record[2]))
                 
                 #removes found record name from the record_ids set
                 record_ids.remove(records[0][0].split()[0].split("/")[0]) 
@@ -84,13 +83,12 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
                     break
             
-            record_count += 1
-            if record_count%1e6 == 0:
+            if count%1e6 == 0:
                 #TO BE REPLACED WITH PROPER PROGRESS BAR/STATUS OF SOME KIND
-                print("##### {}M READS PROCESSED: {} READS FOUND #####".format(record_count/1e6,
+                print("##### {}M READS PROCESSED: {} READS FOUND #####".format(count/1e6,
                     records_found), end="\r")
         
-        for out_buffer in out_buffers: out_buffer.flush()
+        #for out_buffer in out_buffers: out_buffer.flush()
 
     #Returns the file paths for the output fastq files, that should only contain the records
     #with its record name in record_ids
@@ -133,25 +131,24 @@ def fastq_exclude(fastq_files: list, record_ids: set, dir_path = ''):
             ".fastq.gz"), 'wt')) \
                 for file_name in file_names]
         
-        out_buffers = [RecordBuffer(out_handle, buffer_size = 500) for out_handle in out_handles]
+        #out_buffers = [RecordBuffer(out_handle, buffer_size = buffer_size) for out_handle in out_handles]
 
         fastqs = [FastqGeneralIterator(handle) for handle in fastq_handles]
         
         record_count = 0
-        for records in zip(*fastqs):
+        for count, records in enumerate(zip(*fastqs)):
             #only difference from extract function above; here we want to find records with read
             #names NOT IN the record_ids            
             if records[0][0].split()[0].split("/")[0] not in record_ids:
                 
-                for record, out_buffer in zip(records, out_buffers):
+                for record, out_handle in zip(records, out_handles):
 
-                    out_buffer.add("@%s\n%s\n+\n%s\n" % (record[0], record[1], record[2]))
+                    out_handle.write("@{}\n{}\n+\n{}\n".format(record[0], record[1], record[2]))
                 
-            record_count += 1
-            if record_count%1e6 == 0:
-                print("##### {}M READS PROCESSED #####".format(record_count/1e6), end="\r")
+            if count%1e6 == 0:
+                print("##### {}M READS PROCESSED #####".format(count/1e6), end="\r")
         
-        for out_buffer in out_buffers: out_buffer.flush()
+        #for out_buffer in out_buffers: out_buffer.flush()
 
         out_paths = [out_handle.name for out_handle in out_handles]
 
