@@ -7,10 +7,10 @@ from mutacc.parse.path_parse import parse_path
 #attempts to 
 class Variant:
 
-    def __init__(self, vcf_entry):
+    def __init__(self, vcf_entry, samples):
 
         self.entry = vcf_entry
-        
+        self.samples = samples
     def find_region(self, padding):
         """
             Given a vcf entry, this function attempts to return the relevant genomic regions
@@ -72,8 +72,15 @@ class Variant:
         """
             makes a dictionary of the variant to be loaded into a mongodb
         """
+        samples = [{ 'sample_id': self.samples[i], 
+                     'genotype': str(self.entry.genotypes[i]) } for i in
+                   range(len(self.samples))]
         self.variant = {
-
+                
+                "display_name": self.entry.CHROM + "_" +
+                                str(self.entry.POS) + "_" +
+                                self.entry.REF + "_" +
+                                self.entry.ALT[0],
                 "variant_type": self.vtype,
                 "alt": self.entry.ALT,
                 "ref": self.entry.REF,
@@ -81,8 +88,8 @@ class Variant:
                 "start": self.entry.start,
                 "end": self.entry.end,
                 "vcf_entry": str(self.entry),
-                "reads_region": self.region 
-                
+                "reads_region": self.region, 
+                "samples": samples
                 }
 
     @property
@@ -109,9 +116,11 @@ def get_variants(vcf_file):
 
     vcf = VCF(str(vcf_file), 'r')
 
+    samples = vcf.samples
+
     for entry in vcf:
 
-        yield Variant(entry)
+        yield Variant(entry, samples)
 
     vcf.close()
 

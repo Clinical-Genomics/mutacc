@@ -30,7 +30,7 @@ def insert_entire_case(mutacc_adapter, case):
     for variant in variants:
 
         variant["case"] = case_id
-        variant["samples"] = sample_ids
+        #variant["samples"] = sample_ids
 
     #Insert variants into db and save ObjectIds for the documents as variant_ids
     variant_ids = mutacc_adapter.add_variants(variants)    

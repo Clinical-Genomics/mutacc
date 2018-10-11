@@ -74,6 +74,8 @@ class BAMContext:
         for read in self.sam.fetch(chrom, start, end):
 
             if read.query_name not in self.reads.keys(): self.reads[read.query_name] = []
+            
+            if len(self.reads[read.query_name]) == self.ends: continue
 
             self.reads[read.query_name].append(read)
         

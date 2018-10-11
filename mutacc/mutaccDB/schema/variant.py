@@ -72,9 +72,27 @@ VARIANT_VALIDATOR = {
 
                     "items": {
                         
-                        "bsonType": "string"
+                        "bsonType": "object",
 
+                        "required": ["sample_id", "genotype"],
+
+                        "properties": {
+                            
+                            "sample_id": {
+                                
+                                "bsonType": "string"
+
+                                },
+                            
+                            "genotype": {
+                                
+                                "bsonType": "string"
+                                
                                 }
+                             
+                            }
+
+                        }
                         
                     },
 
