@@ -4,36 +4,13 @@ SAMPLE_VALIDATOR = {
             
             "bsonType": "object",
 
-            "required": ["sample_id", "variants", "case", "sex", "analysis_type", "bam_file",
-                "fastq_files", "variant_fastq_files"],
+            "required": ["sample_id", "sex", "analysis_type", "bam_file"],
 
             "properties": {
                 
                 "sample_id": {
                     
                     "bsonType": "string",
-
-                    },
-
-                "variants": {
-                    
-                    "bsonType": "array",
-
-                    "description": "array of of variant _id for variants in the sample",
-
-                    "items": {
-                        
-                        "bsonType": "objectId"
-                        
-                        }
-                    
-                    },
-
-                "case": {
-                    
-                    "bsonType": "string",
-
-                    "description": "case_id for the case that this sample belongs to"
 
                     },
 
@@ -84,7 +61,14 @@ SAMPLE_VALIDATOR = {
 
                             }
 
+                        },
+
+                "variant_bam_file": {
+                        
+                        "bsonType": "string"
+                        
                         }
+
 
                 }
 

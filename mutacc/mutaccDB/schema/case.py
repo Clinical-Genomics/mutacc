@@ -1,3 +1,7 @@
+from .sample import SAMPLE_VALIDATOR
+
+SAMPLE_OBJECT = SAMPLE_VALIDATOR["$jsonSchema"]
+
 CASE_VALIDATOR = {
         
         "$jsonSchema": {
@@ -18,14 +22,10 @@ CASE_VALIDATOR = {
                     
                     "bsonType": "array",
 
-                    "description": "array of sample_id for all samples in the case",
+                    "description": "array of sample objects in the case",
 
-                    "items": {
+                    "items": SAMPLE_OBJECT
 
-                        "bsonType": "string"
-
-                        }
-                    
                     },
 
                 "variants": {

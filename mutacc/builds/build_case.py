@@ -2,7 +2,7 @@ import logging
 from bson.objectid import ObjectId
 
 from mutacc.utils.fastq_handler import fastq_extract
-from mutacc.utils.bam_handler import get_overlaping_reads
+from mutacc.utils.bam_handler import get_overlaping_reads, BAMContext
 from mutacc.builds.build_variant import get_variants
 
 from mutacc.parse.yaml_parse import yaml_parse
@@ -76,32 +76,51 @@ class CompleteCase:
             
             
             bam_file = sample_object["bam_file"] #Get bam file fro sample
-
             
-            read_ids = set() #Holds the read_ids from the bam file
+            if sample_object.get("fastq_files"):
 
-            #For each variant, the reads spanning this genomic region in the bam file are found
-            for variant in self.variants_object:
+                read_ids = set() #Holds the read_ids from the bam file
+
+                #For each variant, the reads spanning this genomic region in the bam file are found
+                for variant in self.variants_object:
+                    
+                    
+                    read_ids = read_ids.union(get_overlaping_reads(start = variant["reads_region"]["start"], 
+                                                                   end = variant["reads_region"]["end"],
+                                                                   chrom = variant["chrom"],
+                                                                   fileName = bam_file))
                 
+                LOG.info("{} reads found for sample {}".format(len(read_ids), sample_object['sample_id']))
+
+                #Given the read_ids, and the fastq files, the reads are extracted from the fastq files    
+                LOG.info("Search in fastq file")
                 
-                read_ids = read_ids.union(get_overlaping_reads(start = variant["reads_region"]["start"], 
-                                                               end = variant["reads_region"]["end"],
-                                                               chrom = variant["chrom"],
-                                                               fileName = bam_file))
-            
-            LOG.info("{} reads found for sample {}".format(len(read_ids), sample_object['sample_id']))
+                sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
 
-            #Given the read_ids, and the fastq files, the reads are extracted from the fastq files    
-            LOG.info("Search in fastq file")
+                variant_fastq_files = fastq_extract(sample_object["fastq_files"], 
+                                                    read_ids,
+                                                    dir_path = sample_dir) 
+                
+                #Add path to fastq files with the reads containing the variant to the sample object
+                sample_object["variant_fastq_files"] = variant_fastq_files
             
-            sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
+            else:
 
-            variant_fastq_files = fastq_extract(sample_object["fastq_files"], 
-                                                read_ids,
-                                                dir_path = sample_dir) 
-            
-            #Add path to fastq files with the reads containing the variant to the sample object
-            sample_object["variant_fastq_files"] = variant_fastq_files
+                with BAMContext(bam_file) as bam_handle:
+                    
+                    for variant in self.variants_object:
+
+                        bam_handle.find_reads_from_region(chrom = variant["chrom"],
+                                                          start = variant["reads_region"]["start"],
+                                                          end = variant["reads_region"]["end"])
+                    
+                    LOG.info("{} reads found for sample {}".format(bam_handle.record_number(), sample_object['sample_id']))
+                    
+                    sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
+
+                    variant_bam_file = bam_handle.dump_to_file(sample_dir)
+                    
+                    sample_object["variant_bam_file"] = variant_bam_file
 
             #Append sample object to list of samples
             self.samples_object.append(sample_object)
