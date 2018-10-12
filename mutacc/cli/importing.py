@@ -32,13 +32,6 @@ def importing(context, case, padding):
         LOG.warning("case_id not unique")        
         raise MongoWriteError("Case %s already exists" % (case.case_id)) 
     
-    #Check if any sample_id already exist in collection 'samples'
-    #for sample_id in case.sample_ids:
-    #
-    #    if adapter.sample_exists(sample_id):
-    #        LOG.warning("sample_id not unique")
-    #        raise MongoWriteError("Sample %s already exists" % (sample_id))
-
     case.get_variants(padding = padding)
     case.get_samples(context.obj['mutacc_dir'])
     case.get_case()

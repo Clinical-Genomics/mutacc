@@ -4,12 +4,18 @@ VARIANT_VALIDATOR = {
 
             "bsonType": "object",
 
-            "required": ["variant_type", "alt", "ref", "chrom", "start", "end", "vcf_entry", "samples",
+            "required": ["display_name", "variant_type", "alt", "ref", "chrom", "start", "end", "vcf_entry", "samples",
 
                 "case", "reads_region"],
 
             "properties": {
-                
+
+                "display_name": {
+                    
+                    "bsonType": "string"
+
+                    },
+
                 "variant_type": {
                     
                     "bsonType": "string"

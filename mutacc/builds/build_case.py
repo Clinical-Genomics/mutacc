@@ -77,6 +77,7 @@ class CompleteCase:
             
             bam_file = sample_object["bam_file"] #Get bam file fro sample
             
+            #If fastq files are given, the reads will be extracted from these.
             if sample_object.get("fastq_files"):
 
                 read_ids = set() #Holds the read_ids from the bam file
@@ -104,9 +105,12 @@ class CompleteCase:
                 #Add path to fastq files with the reads containing the variant to the sample object
                 sample_object["variant_fastq_files"] = variant_fastq_files
             
+            #If the fastq files is not given as input, the reads will be extracted from the bam
+            #instead.  
             else:
 
-                with BAMContext(bam_file) as bam_handle:
+                sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
+                with BAMContext(bam_file, sample_dir) as bam_handle:
                     
                     for variant in self.variants_object:
 
@@ -114,11 +118,9 @@ class CompleteCase:
                                                           start = variant["reads_region"]["start"],
                                                           end = variant["reads_region"]["end"])
                     
-                    LOG.info("{} reads found for sample {}".format(bam_handle.record_number(), sample_object['sample_id']))
-                    
-                    sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
+                    LOG.info("{} reads found for sample {}".format(bam_handle.record_number, sample_object['sample_id']))
 
-                    variant_bam_file = bam_handle.dump_to_file(sample_dir)
+                    variant_bam_file = bam_handle.out_file
                     
                     sample_object["variant_bam_file"] = variant_bam_file
 

@@ -72,8 +72,10 @@ class Variant:
         """
             makes a dictionary of the variant to be loaded into a mongodb
         """
+
+        #Find genotype and sample id for the samples given in the vcf file
         samples = [{ 'sample_id': self.samples[i], 
-                     'genotype': str(self.entry.genotypes[i]) } for i in
+                     'genotype': str(self.entry.genotypes[i][0])+"/"+str(self.entry.genotypes[i][1])} for i in
                    range(len(self.samples))]
         self.variant = {
                 
