@@ -77,6 +77,9 @@ class CompleteCase:
             
             bam_file = sample_object["bam_file"] #Get bam file fro sample
             
+            sample_dir = make_dir(
+                out_dir.joinpath(sample_object['sample_id'])
+                )
             #If fastq files are given, the reads will be extracted from these.
             if sample_object.get("fastq_files"):
 
@@ -85,22 +88,30 @@ class CompleteCase:
                 #For each variant, the reads spanning this genomic region in the bam file are found
                 for variant in self.variants_object:
                     
-                    
-                    read_ids = read_ids.union(get_overlaping_reads(start = variant["reads_region"]["start"], 
-                                                                   end = variant["reads_region"]["end"],
-                                                                   chrom = variant["chrom"],
-                                                                   fileName = bam_file))
+                    overlapping = get_overlaping_reads(
+                        start = variant["reads_region"]["start"], 
+                        end = variant["reads_region"]["end"],
+                        chrom = variant["chrom"],
+                        fileName = bam_file
+                    )
+
+                    read_ids = read_ids.union(overlapping)
                 
-                LOG.info("{} reads found for sample {}".format(len(read_ids), sample_object['sample_id']))
+                LOG.info("{} reads found for sample {}".format(
+                    len(read_ids), 
+                    sample_object['sample_id']
+                    )
+                )
 
                 #Given the read_ids, and the fastq files, the reads are extracted from the fastq files    
                 LOG.info("Search in fastq file")
                 
-                sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
 
-                variant_fastq_files = fastq_extract(sample_object["fastq_files"], 
-                                                    read_ids,
-                                                    dir_path = sample_dir) 
+                variant_fastq_files = fastq_extract(
+                    sample_object["fastq_files"], 
+                    read_ids,
+                    dir_path = sample_dir
+                    ) 
                 
                 #Add path to fastq files with the reads containing the variant to the sample object
                 sample_object["variant_fastq_files"] = variant_fastq_files
@@ -109,16 +120,21 @@ class CompleteCase:
             #instead.  
             else:
 
-                sample_dir = make_dir(out_dir.joinpath(sample_object['sample_id']))
                 with BAMContext(bam_file, sample_dir) as bam_handle:
                     
                     for variant in self.variants_object:
 
-                        bam_handle.find_reads_from_region(chrom = variant["chrom"],
-                                                          start = variant["reads_region"]["start"],
-                                                          end = variant["reads_region"]["end"])
+                        bam_handle.find_reads_from_region(
+                                chrom = variant["chrom"],
+                                start = variant["reads_region"]["start"],
+                                end = variant["reads_region"]["end"]
+                                )
                     
-                    LOG.info("{} reads found for sample {}".format(bam_handle.record_number, sample_object['sample_id']))
+                    LOG.info("{} reads found for sample {}".format(
+                        bam_handle.record_number, 
+                        sample_object['sample_id']
+                        )
+                    )
 
                     variant_bam_file = bam_handle.out_file
                     

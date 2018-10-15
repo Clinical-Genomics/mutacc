@@ -75,14 +75,24 @@ class Variant:
 
         #Find genotype and sample id for the samples given in the vcf file
         samples = [{ 'sample_id': self.samples[i], 
-                     'genotype': str(self.entry.genotypes[i][0])+"/"+str(self.entry.genotypes[i][1])} for i in
-                   range(len(self.samples))]
+                     'genotype': '/'.join(
+                        [
+                        str(self.entry.genotypes[i][0]),
+                        str(self.entry.genotypes[i][1])
+                        ]
+                    )
+                } for i in range(len(self.samples))]
+
         self.variant = {
                 
-                "display_name": self.entry.CHROM + "_" +
-                                str(self.entry.POS) + "_" +
-                                self.entry.REF + "_" +
-                                self.entry.ALT[0],
+                "display_name": '_'.join(
+                    [
+                        self.entry.CHROM, 
+                        str(self.entry.POS),
+                        self.entry.REF,
+                        self.entry.ALT[0]
+                    ]  
+                ),
                 "variant_type": self.vtype,
                 "alt": self.entry.ALT,
                 "ref": self.entry.REF,

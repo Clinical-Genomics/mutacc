@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
 
 import pysam
 
 from mutacc.parse.path_parse import parse_path
+
+LOG = logging.getLogger(__name__)
 
 def get_overlaping_reads(fileName, chrom, start, end):
     """
@@ -114,8 +117,7 @@ class BAMContext:
             #If mate is not found, the single read is not added to the out_bam file
             #(Unless ends argument in __init__ is not set to 1)
             except ValueError:
-                print("Mate not found for read {}".format(key),
-                        self.reads[key][0].next_reference_id)
+                LOG.warning("Mate not found for read {}".format(key))
         
         
     @property
@@ -147,7 +149,7 @@ class BAMContext:
         for count, read in enumerate(self.sam):
             
             if count%1e6 == 0:
-                print("##### {}M READS PROCESSED #####".format(count/1e6), end = "\r")
+                LOG.info("##### {}M READS PROCESSED #####\r".format(count/1e6))
 
             if read.query_name not in self.found_reads:
 

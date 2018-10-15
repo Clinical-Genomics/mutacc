@@ -1,10 +1,13 @@
 import gzip
+import logging
 from pathlib import Path
 from contextlib import ExitStack
 
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 
 from mutacc.parse.path_parse import parse_path, get_file_handle
+
+LOG = logging.getLogger(__name__)
 
 def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
@@ -85,8 +88,10 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
             
             if count%1e6 == 0:
                 #TO BE REPLACED WITH PROPER PROGRESS BAR/STATUS OF SOME KIND
-                print("##### {}M READS PROCESSED: {} READS FOUND #####".format(count/1e6,
-                    records_found), end="\r")
+                LOG.info("##### {}M READS PROCESSED: {} READS FOUND #####\r".format(
+                    count/1e6,
+                    records_found)
+                    )
         
         #for out_buffer in out_buffers: out_buffer.flush()
 
