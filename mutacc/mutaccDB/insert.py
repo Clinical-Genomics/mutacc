@@ -25,28 +25,18 @@ def insert_entire_case(mutacc_adapter, case):
     samples = case.samples_object
     case = case.case_object
     
-    #add case_id and sample_ids fields for variant objects, pointing to the case, and samples where
+    #add case_id field for variant objects, pointing to the case where
     #the variants come from
     for variant in variants:
 
         variant["case"] = case_id
-        variant["samples"] = sample_ids
 
     #Insert variants into db and save ObjectIds for the documents as variant_ids
     variant_ids = mutacc_adapter.add_variants(variants)    
     
-    #Add variant_ids and case_id to sample objects
-    for sample in samples:
-
-        sample["variants"] = variant_ids
-        sample["case"] = case_id
-    
-    #Insert sample objects into db
-    mutacc_adapter.add_samples(samples)
-
-    #Add variant_ids and sample_ids to case object
+    #Add variant_ids and sample objects to case object
     case["variants"] = variant_ids
-    case["samples"] = sample_ids
+    case["samples"] = samples
     
     #Insert case into db
 

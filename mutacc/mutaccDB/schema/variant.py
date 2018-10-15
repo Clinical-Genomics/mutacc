@@ -4,12 +4,18 @@ VARIANT_VALIDATOR = {
 
             "bsonType": "object",
 
-            "required": ["variant_type", "alt", "ref", "chrom", "start", "end", "vcf_entry", "samples",
+            "required": ["display_name", "variant_type", "alt", "ref", "chrom", "start", "end", "vcf_entry", "samples",
 
                 "case", "reads_region"],
 
             "properties": {
-                
+
+                "display_name": {
+                    
+                    "bsonType": "string"
+
+                    },
+
                 "variant_type": {
                     
                     "bsonType": "string"
@@ -72,9 +78,27 @@ VARIANT_VALIDATOR = {
 
                     "items": {
                         
-                        "bsonType": "string"
+                        "bsonType": "object",
 
+                        "required": ["sample_id", "genotype"],
+
+                        "properties": {
+                            
+                            "sample_id": {
+                                
+                                "bsonType": "string"
+
+                                },
+                            
+                            "genotype": {
+                                
+                                "bsonType": "string"
+                                
                                 }
+                             
+                            }
+
+                        }
                         
                     },
 

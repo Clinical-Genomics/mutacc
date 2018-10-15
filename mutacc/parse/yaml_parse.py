@@ -2,7 +2,7 @@ import yaml
 
 from mutacc.parse.path_parse import parse_path
 
-SAMPLE = ["sample_id", "mother", "father", "bam_file","fastq_files"]
+SAMPLE = ["sample_id", "sex", "mother", "father", "bam_file"]
 class YAMLFieldsError(Exception):
 
     def __init__(self, message):

@@ -33,13 +33,8 @@ class MutaccAdapter(MongoAdapter):
 
             self.db.create_collection("cases", validator = CASE_VALIDATOR)
 
-        if "samples" not in self.db.collection_names():
-
-            self.db.create_collection("samples", validator = SAMPLE_VALIDATOR)
-  
         self.variants_collection = self.db.variants
         self.cases_collection = self.db.cases
-        self.samples_collection = self.db.samples
 
     def add_variants(self, variants):
         """
@@ -65,17 +60,6 @@ class MutaccAdapter(MongoAdapter):
         """
         self.cases_collection.insert_one(case)
 
-    def add_samples(self, samples):
-        """
-            Adds samples to collection 'samples'
-
-            Args:
-                samples(list): list of samples, represented as dictionaries, containing information
-                about the samples.
-                
-        """
-        self.samples_collection.insert_many(samples)
-
     def case_exists(self, case_id):
         """
             Check if collection with field 'case_id': case_id exists.
@@ -91,16 +75,3 @@ class MutaccAdapter(MongoAdapter):
 
         return False
 
-    def sample_exists(self, sample_id):    
-        """
-            Check if sample with 'sample_id': sample_id exists.
-
-            Args:
-                sample_id(str): name of sample
-            Returns:
-                exists(bool): True if exists, else False
-        """
-        if self.samples_collection.find({"sample_id": sample_id}).count() > 0:
-            return True
-
-        return False
