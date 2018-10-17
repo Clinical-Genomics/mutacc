@@ -4,7 +4,7 @@ from mutacc.parse.path_parse import parse_path
 
 #A function for correctly parsing a vcf entry for the regions to look for in the bam file will be
 # necessary. This will be the case for more complex structural variants. the find_region function
-#attempts to 
+#attempts to
 class Variant:
 
     def __init__(self, vcf_entry, samples):
@@ -14,14 +14,14 @@ class Variant:
     def find_region(self, padding):
         """
             Given a vcf entry, this function attempts to return the relevant genomic regions
-            to where the reads aligned that supports the given variant. 
-            
-            Args: 
-                
+            to where the reads aligned that supports the given variant.
+
+            Args:
+
                 padding (int): given in bp, extends the region for where to look for reads in the
                 alignment files.
 
-            Returns: 
+            Returns:
 
                 vtype (str): variant type
                 region (dict): dictionary holding the start and end coordinates for a genomic region
@@ -34,28 +34,28 @@ class Variant:
             vtype = self.entry.INFO.get("SVTYPE").upper()
 
             if vtype != "BND":
-                
+
                 region = {"start": self.entry.start - padding,
                           "end": self.entry.end + padding}
 
             #Find the region for variant with an 'SVTYPE' ID in the INFO field of the vcf entry
             else:
-                
+
                 #Depending on the direction of the break end, the region is extended either upstreams
                 #or downstream of the position of the break end.
                 if "[" in self.entry.ALT[0]:
 
                     region = {"start": self.entry.start - padding,
-                              "end": self.entry.end}
-                
-                else:
-
-                    region = {"start": self.entry.start,
                               "end": self.entry.end + padding}
 
-        #For variants with an ID 'TYPE' in the INFO field         
+                else:
+
+                    region = {"start": self.entry.start - padding,
+                              "end": self.entry.end + padding}
+
+        #For variants with an ID 'TYPE' in the INFO field
         elif self.entry.INFO.get("TYPE"):
-       
+
             vtype = self.entry.INFO.get("TYPE")
             region = {"start": self.entry.start - padding,
                       "end": self.entry.end + padding}
@@ -65,7 +65,7 @@ class Variant:
             vtype = 'None'
             region = {"start": self.entry.start - padding,
                       "end": self.entry.end + padding}
-        self.vtype = vtype 
+        self.vtype = vtype
         self.region = region
 
     def build_variant_object(self):
@@ -74,7 +74,7 @@ class Variant:
         """
 
         #Find genotype and sample id for the samples given in the vcf file
-        samples = [{ 'sample_id': self.samples[i], 
+        samples = [{ 'sample_id': self.samples[i],
                      'genotype': '/'.join(
                         [
                         str(self.entry.genotypes[i][0]),
@@ -84,14 +84,14 @@ class Variant:
                 } for i in range(len(self.samples))]
 
         self.variant = {
-                
+
                 "display_name": '_'.join(
                     [
-                        self.entry.CHROM, 
+                        self.entry.CHROM,
                         str(self.entry.POS),
                         self.entry.REF,
                         self.entry.ALT[0]
-                    ]  
+                    ]
                 ),
                 "variant_type": self.vtype,
                 "alt": self.entry.ALT,
@@ -100,7 +100,7 @@ class Variant:
                 "start": self.entry.start,
                 "end": self.entry.end,
                 "vcf_entry": str(self.entry),
-                "reads_region": self.region, 
+                "reads_region": self.region,
                 "samples": samples
                 }
 
@@ -111,7 +111,7 @@ class Variant:
 
 
 def get_variants(vcf_file):
-    
+
     """
 
         Given a vcf file, this function parses through the file and yields the variant with all
@@ -121,7 +121,7 @@ def get_variants(vcf_file):
             vcf_file (string): Path to vcf file
 
         Yields:
-            variant (mutacc.builds.build_variant.Variant): Variant object      
+            variant (mutacc.builds.build_variant.Variant): Variant object
     """
 
     vcf_file = parse_path(vcf_file)
@@ -135,5 +135,3 @@ def get_variants(vcf_file):
         yield Variant(entry, samples)
 
     vcf.close()
-
-

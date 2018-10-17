@@ -38,17 +38,3 @@ def overlapping_region(single_region, region_list):
         if overlaps(single_region, region):
             overlapping = True
     return overlapping
-
-
-if __name__ == "__main__":
-
-    region_list = [
-        {"chrom": "4", "start": 50, "end":150},
-        {"chrom": "4", "start": 250, "end": 350},
-        {"chrom": "5", "start": 550, "end": 650}
-    ]
-
-    single_region = {"chrom": "5", "start": 775, "end": 875}
-    result = overlapping_region(single_region, region_list)
-
-    print(result)

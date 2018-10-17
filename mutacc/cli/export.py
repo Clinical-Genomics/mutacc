@@ -13,17 +13,24 @@ LOG = logging.getLogger(__name__)
 @click.option('--case_query')
 @click.option('--variant_query')
 @click.option('--background')
+@click.option('--threads', type = int)
+@click.option('--temp_dir',
+              default = './',
+              help = "Dir to hold temporary files")
 @click.pass_context
-def export(context, case_query, variant_query, background):
+def export(context, case_query, variant_query, background, threads, temp_dir):
 
     """
         exports dataset from DB
     """
 
+    #Get mongo adapter from context
     adapter = context.obj['adapter']
 
+    #Query the cases in mutaccDB
     cases = mutacc_query(adapter, case_query, variant_query)
 
+    #Abort if no cases correspond to query
     num_cases = len(cases["cases"])
     if num_cases == 0:
         LOG.warning("No cases were found")
@@ -35,23 +42,23 @@ def export(context, case_query, variant_query, background):
             )
         )
 
+    #make object make_set from MakeSet class
     make_set = MakeSet(**cases)
 
+    #load background files given in yaml file as dictionary
     with open(background, "r") as in_handle:
         background = yaml.load(in_handle)
 
-    make_set.exclude_from_background(out_dir = "/Users/adam.rosenbaum/Desktop",
+    #Exclude reads from the background bam files
+    make_set.exclude_from_background(out_dir = temp_dir,
                                      backgrounds = background)
+    #Merge the background files with excluded reads with the bam Files
+    #Holding the reads for the regions of the variants to be included in
+    #validation set
+    synthetics = make_set.merge_files(
+        out_dir = "/Users/adam.rosenbaum/Desktop",
+        threads = threads
+        )
 
-
-    #for case in cases["cases"]:
-
-    #    click.echo(organize_samples(case["samples"]))
-
-    #for variant in cases["variants"]:
-
-    #    click.echo(variant)
-
-    #for region in cases["regions"]:
-
-    #    click.echo(region)
+    for synthetic in synthetics:
+        LOG.info("Synthetic datasets created in {}".format(synthetic))
