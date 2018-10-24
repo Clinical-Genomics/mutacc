@@ -76,13 +76,15 @@ class BAMContext:
         if self.out_dir: self.out_bam.close()
 
         try:
-
             os.remove(self.names_temp)
-
         except AttributeError:
             pass
 
+    def find_read_names_from_region(self, chrom, start, end):
 
+        read_names = [read.query_name for read in self.sam.fetch(chrom, start, end)]
+
+        self.found_reads = self.found_reads.union(set(read_names))
 
     def find_reads_from_region(self, chrom, start, end):
         """
@@ -108,9 +110,18 @@ class BAMContext:
 
                 self.reads[read.query_name].append(read)
 
+                #If both mates are found
                 if len(self.reads[read.query_name]) == self.ends:
 
                     self.found_reads = self.found_reads.union({read.query_name})
+
+                    #Make sure the two reads is not the sameself.
+                    #May happen if the region overlaps
+                    if str(self.reads[read.query_name][0]) == \
+                       str(self.reads[read.query_name][1]):
+
+                        self.reads.pop(read.query_name)
+                        continue
 
                     #Write to file only if a out_dir is given in __init__
                     if self.out_dir:
@@ -125,7 +136,8 @@ class BAMContext:
         for key in keys:
 
             try:
-                self.reads[key].append(self.sam.mate(self.reads[key][0]))
+                mate = self.sam.mate(self.reads[key][0])
+                self.reads[key].append(mate)
 
                 if self.out_dir:
                     for mate in self.reads[key]: self.out_bam.write(mate)
@@ -153,36 +165,18 @@ class BAMContext:
 
         return str(self.out_name)
 
-    def dump_to_exclude_file(self, out_dir):
-        """
-            Writes bam file, excluding the reads in self.reads
-
-            Args:
-                out_dir(str): path to directory
-        """
-        self.make_names_temp()
-        out_dir = parse_path(out_dir, file_type = "dir")
-        out_name = str(out_dir.joinpath("ex_" + self.file_name))
-
-        LOG.info("Using picard to exclude reads in {}".format(self.file_name))
-
-        #Subprocess to run
-        picard_cmd = ['picard',
-                      'FilterSamReads',
-                      'READ_LIST_FILE=' + str(self.names_temp),
-                      'FILTER=excludeReadList',
-                      'I=' + str(self.bam_file),
-                      'O=' + str(out_name)]
-
-        subprocess.call(picard_cmd)
-
-        return str(out_name)
-
     def make_names_temp(self):
+        """
+            Make temporary file holding each read name on separate line
+        """
         with tempfile.NamedTemporaryFile('wt', delete=False) as temp_file:
-
+            #Add line in beginning in case no reads are found
+            #seqkit grep -f will not work on empty file.
+            temp_file.write("####NAMES####\n")
             for name in self.found_reads:
 
                 temp_file.write(name + "\n")
 
-                self.names_temp = temp_file.name
+            self.names_temp = temp_file.name
+
+        return self.names_temp

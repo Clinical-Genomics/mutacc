@@ -4,6 +4,7 @@ import json
 import pymongo
 
 from mutacc.utils.region_handler import overlapping_region
+from mutacc.utils.pedigree import make_family_from_case
 
 LOG = logging.getLogger(__name__)
 
@@ -20,8 +21,10 @@ def mutacc_query(mutacc_adapter, case_query, variant_query):
             variant_query(str): String of valid JSON
 
         Returns:
-            (dict): dictionary containing a list of cases, list of variants,
-            and list of regions
+            cases (list(mutacc.utils.pedigree.Family)): list of cases, parsed
+            with the Family class from mutacc.utils.pedigree, where each object
+            also contains a list of the regions, and a list of complete variant
+            information for Each variant found in the case
     """
     #If a case_query is given, find the cases for the query
     if case_query:
@@ -79,10 +82,12 @@ def mutacc_query(mutacc_adapter, case_query, variant_query):
             case_regions.append(region)
 
         if not overlaps:
-            final_cases.append(case)
+            #Add the regions and variants to each case before parsing
+            #with make_family_from_case
+            case['variant_regions'] = case_regions
+            case['extended_variants'] = case_variants
+            final_cases.append(make_family_from_case(case))
             final_variants.extend(case_variants)
             final_regions.extend(case_regions)
 
-    return {"cases": final_cases,
-            "variants": final_variants,
-            "regions": final_regions}
+    return final_cases
