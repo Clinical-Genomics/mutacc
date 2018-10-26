@@ -11,16 +11,16 @@ from mutacc.builds.build_dataset import MakeSet
 LOG = logging.getLogger(__name__)
 
 @click.command()
-@click.option('-c','--case_query')
-@click.option('-v','--variant_query')
-@click.option('-b','--background_bam')
-@click.option('-f','--background_fastq')
-@click.option('-f2','--background_fastq2')
+@click.option('-c','--case-query')
+@click.option('-v','--variant-query')
+@click.option('-b','--background-bam')
+@click.option('-f','--background-fastq')
+@click.option('-f2','--background-fastq2')
 @click.option('-m', '--member',
               type = click.Choice(['father','mother','child','affected']),
               default = 'single')
-@click.option('--out_dir', default = './')
-@click.option('--temp_dir',
+@click.option('--out-dir', default = './')
+@click.option('--temp-dir',
               default = './',
               help = "Dir to hold temporary files")
 @click.pass_context
