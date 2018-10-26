@@ -14,7 +14,7 @@ class MutaccAdapter(MongoAdapter):
         """
             Setup mongodb for mutacc. Creates the collections (samples, cases, variants) with
             validators if the do not already exist
-            
+
             Args:
                 db_name(str): Name of database (defaults to 'mutacc')
 
@@ -28,7 +28,7 @@ class MutaccAdapter(MongoAdapter):
         if "variants" not in self.db.collection_names():
 
             self.db.create_collection("variants", validator = VARIANT_VALIDATOR)
-            
+
         if "cases" not in self.db.collection_names():
 
             self.db.create_collection("cases", validator = CASE_VALIDATOR)
@@ -39,7 +39,7 @@ class MutaccAdapter(MongoAdapter):
     def add_variants(self, variants):
         """
             Adds variants to collection 'variants'
-            
+
             Args:
                 variants(list): List of variants, represented as dictionaries, to be uploaded to
                 collection 'variants'
@@ -63,7 +63,7 @@ class MutaccAdapter(MongoAdapter):
     def case_exists(self, case_id):
         """
             Check if collection with field 'case_id': case_id exists.
-            
+
             Args:
                 case_id(str): name of case
             Returns:
@@ -75,3 +75,18 @@ class MutaccAdapter(MongoAdapter):
 
         return False
 
+
+    def find_cases(self, query):
+
+        return [case for case in self.cases_collection.find(query)]
+
+    def find_case(self, query):
+
+        return self.cases_collection.find_one(query)
+    def find_variants(self, query):
+
+        return [variant for variant in self.variants_collection.find(query)]
+
+    def find_variant(self, query):
+
+        return self.variants_collection.find_one(query)

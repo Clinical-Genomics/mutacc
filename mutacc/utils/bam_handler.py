@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import logging
+import subprocess
+import tempfile
+import os
 
 import pysam
 
@@ -19,18 +20,18 @@ def get_overlaping_reads(fileName, chrom, start, end):
             end (int): end of region
 
         Returns:
-            reads (set): set of read names. 
+            reads (set): set of read names.
     """
     fileName = parse_path(fileName)
 
     sam_file = pysam.AlignmentFile(fileName, 'rb')
-        
-    reads = sam_file.fetch(reference = chrom, 
-            start = start, 
+
+    reads = sam_file.fetch(reference = chrom,
+            start = start,
             end = end)
-    
+
     ids = [read.query_name for read in reads]
-    
+
     sam_file.close()
 
     return set(ids)
@@ -42,19 +43,26 @@ class BAMContext:
     def __init__(self, bam_file, out_dir = None, ends:int = 2):
         """
             Args:
-                bam_file(str): path to bam file 
+                bam_file(str): path to bam file
                 ends(int): 2 if paired end reads, 1 if not
         """
-        bam_file = parse_path(bam_file)
-        self.file_name = bam_file.name
-        self.sam = pysam.AlignmentFile(bam_file, 'rb') #Make AlignmentFile object
+        self.bam_file = parse_path(bam_file)
+        self.file_name = self.bam_file.name
+        self.sam = pysam.AlignmentFile(self.bam_file, 'rb') #Make AlignmentFile object
         self.reads = {} #Dictionary to store read pairs under their query_name as key
-        self.ends = ends 
+        self.ends = ends
         self.found_reads = set() #Set of query names where both mates are found
+        self.out_dir = out_dir
         if out_dir: #If out_dir is given, open a file to write found records
+
             self.out_dir = parse_path(out_dir, file_type = "dir")
             self.out_name = out_dir.joinpath("mutacc_" + self.file_name)
-            self.out_bam = pysam.AlignmentFile(self.out_name, 'wb', template = self.sam)
+
+            self.out_bam = pysam.AlignmentFile(
+                self.out_name,
+                'wb',
+                template = self.sam
+            )
 
     def __enter__(self):
 
@@ -63,13 +71,24 @@ class BAMContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
 
         self.sam.close()
-        
+
         #If out_dir is given, also close the out_bam file created in __init__
         if self.out_dir: self.out_bam.close()
 
+        try:
+            os.remove(self.names_temp)
+        except AttributeError:
+            pass
+
+    def find_read_names_from_region(self, chrom, start, end):
+
+        read_names = [read.query_name for read in self.sam.fetch(chrom, start, end)]
+
+        self.found_reads = self.found_reads.union(set(read_names))
+
     def find_reads_from_region(self, chrom, start, end):
         """
-            Given a region defined by chrom, start, end, find all reads, and mates to those reads 
+            Given a region defined by chrom, start, end, find all reads, and mates to those reads
             overlapping with this region.
 
             Args:
@@ -81,34 +100,46 @@ class BAMContext:
         for read in self.sam.fetch(chrom, start, end):
             #If name of read not among the keys in reads dict AND if both mates have not been found
             #allready make list to hold mates
-            if read.query_name not in self.reads.keys() and read.query_name not in self.found_reads: 
-                
+            if read.query_name not in self.reads.keys() and \
+               read.query_name not in self.found_reads:
+
                 self.reads[read.query_name] = []
             #If both mates are not found allready, append read to mate list in reads
             #and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
-            if read.query_name not in self.found_reads:       
+            if read.query_name not in self.found_reads:
 
                 self.reads[read.query_name].append(read)
 
-                if len(self.reads[read.query_name]) == self.ends: 
+                #If both mates are found
+                if len(self.reads[read.query_name]) == self.ends:
 
                     self.found_reads = self.found_reads.union({read.query_name})
-                    
+
+                    #Make sure the two reads is not the sameself.
+                    #May happen if the region overlaps
+                    if str(self.reads[read.query_name][0]) == \
+                       str(self.reads[read.query_name][1]):
+
+                        self.reads.pop(read.query_name)
+                        continue
+
                     #Write to file only if a out_dir is given in __init__
                     if self.out_dir:
-                        for mate in self.reads[read.query_name]: self.out_bam.write(mate)
+                        for mate in self.reads[read.query_name]:
+                            self.out_bam.write(mate)
 
                     self.reads.pop(read.query_name)
 
-        
+
         #Find the mates of the reads not found in the same region
         keys = list(self.reads.keys())
         for key in keys:
-            
-            try:
-                self.reads[key].append(self.sam.mate(self.reads[key][0]))
 
-                if self.out_dir: 
+            try:
+                mate = self.sam.mate(self.reads[key][0])
+                self.reads[key].append(mate)
+
+                if self.out_dir:
                     for mate in self.reads[key]: self.out_bam.write(mate)
                 self.reads.pop(key)
                 self.found_reads = self.found_reads.union({key})
@@ -117,9 +148,13 @@ class BAMContext:
             #If mate is not found, the single read is not added to the out_bam file
             #(Unless ends argument in __init__ is not set to 1)
             except ValueError:
-                LOG.warning("Mate not found for read {}".format(key))
-        
-        
+                LOG.warning("Mate not found for read {}, {}".format(
+                    key,
+                    self.reads[key][0].next_reference_id
+                    )
+                )
+
+
     @property
     def record_number(self):
 
@@ -130,30 +165,18 @@ class BAMContext:
 
         return str(self.out_name)
 
-    #This method may be implemented using picard FilterSamReads or another faster command line
-    #option later, rather than using pysam. Currently this iterates through all records in a bam
-    #file and writes the records with names not given in self.found_reads to a new bam. This is
-    #however not much more efficient than to search for reads in fastq files.
-    def dump_to_exclude_file(self, out_dir):
+    def make_names_temp(self):
         """
-            Writes bam file, excluding the reads in self.reads
-
-            Args:
-                out_dir(str): path to directory
+            Make temporary file holding each read name on separate line
         """
+        with tempfile.NamedTemporaryFile('wt', delete=False) as temp_file:
+            #Add line in beginning in case no reads are found
+            #seqkit grep -f will not work on empty file.
+            temp_file.write("####NAMES####\n")
+            for name in self.found_reads:
 
-        out_dir = parse_path(out_dir, file_type = "dir")
-        out_name = out_dir.joinpath("mutacc_" + self.file_name)
-        out_bam = pysam.AlignmentFile(out_name, 'wb', template = self.sam)
+                temp_file.write(name + "\n")
 
-        for count, read in enumerate(self.sam):
-            
-            if count%1e6 == 0:
-                LOG.info("##### {}M READS PROCESSED #####\r".format(count/1e6))
+            self.names_temp = temp_file.name
 
-            if read.query_name not in self.found_reads:
-
-                out_bam.write(read)
-
-        out_names.close()                
-
+        return self.names_temp

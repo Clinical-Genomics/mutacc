@@ -4,3 +4,4 @@ coloredlogs
 biopython
 cyvcf2
 mongo-adapter
+ped_parser
