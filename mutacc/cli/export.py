@@ -71,6 +71,7 @@ def export(context,
                   "fastq_files": [background_fastq]}
     if background_fastq2: background["fastq_files"].append(background_fastq2)
 
+    temp_dir = make_dir(temp_dir)
     make_set.exclude_from_background(out_dir = temp_dir,
                                      background = background,
                                      member = member)
