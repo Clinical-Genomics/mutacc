@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "3.6"
+
+services:
+  - mongodb
+
+script:
+  - py.test tests/
+
+install:
+  - pip install cython
+  - pip install -r requirements.txt

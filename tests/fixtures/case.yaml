@@ -1,8 +1,8 @@
 #Minimalistic example of case yaml file:
 
 #case:
-#The only required field for case is a 'case_id. 
-case: 
+#The only required field for case is a 'case_id.
+case:
     case_id: '12345'
 
 #samples
@@ -10,17 +10,14 @@ case:
 #with pedigree information ('mother', 'father'). A list of fastq files and a bam file
 #must be given. Each case can be filled with an arbitrary amount of meta data
 #for each sample
-samples: 
+samples:
   - sample_id: '1'
     analysis_type: wgs
     sex: male
     phenotype: affected
     mother: '3'
     father: '2'
-    fastq: 
-      - /path/to/fastq1
-      - /path/to/fastq2
-    bam: /path/to/bam
+    bam_file: 'tests/fixtures/reduced_ref_4_1000000_10002000.bam'
 
   - sample_id: '2'
     analysis_type: wgs
@@ -28,10 +25,7 @@ samples:
     phenotype: unaffected
     mother: 0
     father: 0
-    fastq: 
-      - /path/to/fastq1
-      - /path/to/fastq2
-    bam: /path/to/bam
+    bam_file: 'tests/fixtures/reduced_ref_4_1000000_10002000.bam'
 
   - sample_id: '3'
     analysis_type: wgs
@@ -39,14 +33,8 @@ samples:
     phenotype: unaffected
     mother: 0
     father: 0
-    fastq: 
-      - /path/to/fastq1
-      - /path/to/fastq2
-    bam: /path/to/bam
+    bam_file: 'tests/fixtures/reduced_ref_4_1000000_10002000.bam'
 
 #variant:
 #'variant_id', 'chromosome', 'position', 'alt', 'ref' must be given.
-variants: /path/to/vcf
-
-                  
-    
+variants: 'tests/fixtures/vcf_test.vcf'
