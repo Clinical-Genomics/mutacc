@@ -108,20 +108,18 @@ class BAMContext:
             #and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
             if read.query_name not in self.found_reads:
 
-                self.reads[read.query_name].append(read)
+                if len(self.reads[read.query_name]) == 0:
+                    self.reads[read.query_name].append(read)
+
+                #Make sure the two reads is not the sameself.
+                #May happen if the region overlaps
+                elif str(self.reads[read.query_name][0]) != str(read):
+                    self.reads[read.query_name].append(read)
 
                 #If both mates are found
                 if len(self.reads[read.query_name]) == self.ends:
 
                     self.found_reads = self.found_reads.union({read.query_name})
-
-                    #Make sure the two reads is not the sameself.
-                    #May happen if the region overlaps
-                    if str(self.reads[read.query_name][0]) == \
-                       str(self.reads[read.query_name][1]):
-
-                        self.reads.pop(read.query_name)
-                        continue
 
                     #Write to file only if a out_dir is given in __init__
                     if self.out_dir:

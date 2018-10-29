@@ -1,6 +1,5 @@
 import logging
 from bson.objectid import ObjectId
-import subprocess
 
 from mutacc.utils.fastq_handler import fastq_extract
 from mutacc.utils.bam_handler import get_overlaping_reads, BAMContext
@@ -8,6 +7,8 @@ from mutacc.builds.build_variant import get_variants
 
 from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.parse.path_parse import make_dir, parse_path
+
+from mutacc.subprocessing.bam_to_fastq import bam_to_fastq
 
 LOG = logging.getLogger(__name__)
 
@@ -148,20 +149,8 @@ class CompleteCase:
                 fastq2 = str(sample_dir.joinpath(file_name.split('.')[0] + '_R2.fastq.gz'))
 
                 #Use picard SamToFastq to convert from bam to paired end fastqs
-                picard_cmd = [
-                    'picard',
-                    'SamToFastq',
-                    'I=' + variant_bam_file,
-                    'F=' + fastq1,
-                    'F2=' + fastq2
-                ]
 
-                LOG.info("Converting bam to fastq using \n {}".format(
-                        ' '.join(picard_cmd)
-                    )
-                )
-
-                subprocess.call(picard_cmd)
+                bam_to_fastq(variant_bam_file, fastq1, fastq2)
 
                 sample_object["variant_fastq_files"] = [fastq1, fastq2]
             #Append sample object to list of samples

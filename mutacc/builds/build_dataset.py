@@ -5,6 +5,8 @@ import os
 
 from mutacc.utils.bam_handler import BAMContext
 
+from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
+
 from mutacc.parse.path_parse import make_dir, parse_path
 
 LOG = logging.getLogger(__name__)
@@ -68,33 +70,17 @@ class MakeSet():
             name_file = bam_handle.make_names_temp()
             self.excluded_backgrounds = []
             for fastq_file in fastq_files:
+
                 fastq_path = str(fastq_file)
                 out_name = str(member) + "_" + str(fastq_file.name)
                 out_path = str(out_dir.joinpath(out_name))
 
                 #Here command line tool seqkit grep is used
-                seqkit_cmd = [
-                    "seqkit",
-                    "grep",
-                    "-v",
-                    "--pattern-file",
-                    name_file,
-                    "-o",
-                    out_path,
-                    fastq_path
-                ]
-
-                LOG.info("excluding reads from {}".format(fastq_path))
-                subprocess.call(seqkit_cmd)
+                exclude_from_fastq(name_file, out_path, fastq_path)
 
                 self.excluded_backgrounds.append(out_path)
 
-                #Create excluded bam_file and add to background dictionaries
-                #background_file = bam_handle.dump_to_exclude_file(out_dir)
-                #background["excluded_bam"] = background_file
 
-        #orgainize the background files ackording their pedigree
-        #self.backgrounds = organize_samples(backgrounds)
 
     def merge_fastqs(self, out_dir, member):
         """
