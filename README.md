@@ -83,15 +83,18 @@ done by specifying the fastq files as such
 To import the case into the database
 
 ```console
-mutacc import --case <case.yaml>
+mutacc import --padding 600 --case <case.yaml>
 ```
 
 This will try to establish a connection to an instance of mongodb, by default
 running on 'localhost' on port 27017. If this is not wanted, it can be specified
 with the --host and --port options.
 
+the --padding option takes the number of basepairs that the desired region is
+padded with.
+
 ```console
-mutacc -h <host> -p <port> import --case <case.yaml>
+mutacc -h <host> -p <port> import --padding 600 --case <case.yaml>
 ```
 
 If authentication is required, this can be specified with the --username and
