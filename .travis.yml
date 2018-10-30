@@ -23,3 +23,6 @@ install:
   - conda install --yes -c bioconda seqkit
   - conda install --yes -c bioconda picard  
   - pip install -r requirements.txt
+
+notifications:
+  email: false      

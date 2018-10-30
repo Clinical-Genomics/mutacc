@@ -1,4 +1,5 @@
 # mutacc
+[![Build Status](https://travis-ci.org/adrosenbaum/mutacc.png)](https://travis-ci.org/adrosenbaum/mutacc)
 
 ## The mutation accumulation database
 
