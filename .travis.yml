@@ -18,9 +18,8 @@ before_install:
    
 install:
   
-  - conda create -n mutacc_testenv --yes python=3.6
+  - conda create -n mutacc_testenv --yes python=3.6 numpy cython
   - source activate mutacc_testenv
   - conda install --yes -c bioconda seqkit
   - conda install --yes -c bioconda picard  
-  - pip install cython
   - pip install -r requirements.txt
