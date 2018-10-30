@@ -20,7 +20,7 @@ install:
   
   - conda create -n mutacc_testenv python=3.6
   - source activate mutacc_testenv
-  - conda install -c bioconda seqkit
-  - conda install -c bioconda picard  
+  - conda install --yes -c bioconda seqkit
+  - conda install --yes -c bioconda picard  
   - pip install cython
   - pip install -r requirements.txt
