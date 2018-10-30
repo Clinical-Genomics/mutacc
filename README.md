@@ -41,7 +41,7 @@ samples:
     analysis_type: 'wgs' #REQUIRED
     sex: 'male'          #REQUIRED
     mother: 'sample2'    #REQUIRED (CAN BE 0 if no mother)
-    father: 'sample3'    #REQUIRED (CAN BE 0 if no mother)
+    father: 'sample3'    #REQUIRED (CAN BE 0 if no father)
     bam_file: /path/to/sorted_bam #REQUIRED
     phenotype: 'affected'
 
@@ -130,20 +130,20 @@ export:
     required, the option can be passed with the 'affected' argument, use the
     reads from only one of the affected samples from each case.
 
-  -c/--case-query
+  -c/--case-query \
     Query to search among the case collection in the mongodb. A json string,
     with valid mongodb query language.
 
-  -v/--variant-query
+  -v/--variant-query \
     Query to search among the variants collection.
 
-  -b/--background-bam
+  -b/--background-bam \
     Path to the bam file for sample to be used as background
 
-  -f/--background-fastq
+  -f/--background-fastq \
     Path to fastq file for sample to be used as background
 
-  -f2/--background-fastq2
+  -f2/--background-fastq2 \
     Path to second fastq file (if paired end experiment)
 
 example:
@@ -169,8 +169,8 @@ after they are used. This can be changed with the --temp-dir option.
 
 ### Requirements
 
-Python >3.6
-picard
+Python >3.6 \
+picard \
 seqkit
 
 picard and seqkit are easiest to install using conda, i.e.
