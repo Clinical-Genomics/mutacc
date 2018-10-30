@@ -9,6 +9,11 @@ services:
 script:
   - py.test tests/
 
+before_install:
+
+  - sudo apt-get install picard
+
 install:
+             
   - pip install cython
   - pip install -r requirements.txt
