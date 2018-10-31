@@ -8,3 +8,4 @@ ped_parser
 PyYaml
 mongomock
 coveralls
+pytest-cov
