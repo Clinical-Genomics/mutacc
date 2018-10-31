@@ -1,0 +1,30 @@
+language: python
+
+python:
+  - "3.6"
+
+services:
+  - mongodb
+
+script:
+  - py.test -rxs --cov mutacc/ tests/
+
+before_install:
+  - wget -q http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p /home/travis/miniconda
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes --quiet conda
+
+install:
+
+  - conda create -n mutacc_testenv --yes python=3.6 numpy cython
+  - source activate mutacc_testenv
+  - conda install --yes -c bioconda seqkit picard
+  - pip install -r requirements.txt
+
+notifications:
+  email: false
+
+after_success:
+  - coveralls

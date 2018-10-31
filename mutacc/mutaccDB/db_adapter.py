@@ -1,4 +1,7 @@
+import sys
+
 import pymongo
+
 
 from mongo_adapter import MongoAdapter
 
@@ -25,13 +28,24 @@ class MutaccAdapter(MongoAdapter):
             self.db = self.client[db_name]
             self.db_name = db_name
 
-        if "variants" not in self.db.collection_names():
+        if "pytest" not in sys.modules:
 
-            self.db.create_collection("variants", validator = VARIANT_VALIDATOR)
+            if "variants" not in self.db.collection_names():
 
-        if "cases" not in self.db.collection_names():
+                self.db.create_collection("variants", validator = VARIANT_VALIDATOR)
 
-            self.db.create_collection("cases", validator = CASE_VALIDATOR)
+            if "cases" not in self.db.collection_names():
+
+                self.db.create_collection("cases", validator = CASE_VALIDATOR)
+        else:
+
+            if "variants" not in self.db.collection_names():
+
+                self.db.create_collection("variants")
+
+            if "cases" not in self.db.collection_names():
+
+                self.db.create_collection("cases")
 
         self.variants_collection = self.db.variants
         self.cases_collection = self.db.cases

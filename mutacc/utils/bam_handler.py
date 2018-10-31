@@ -53,7 +53,7 @@ class BAMContext:
         self.ends = ends
         self.found_reads = set() #Set of query names where both mates are found
         self.out_dir = out_dir
-        if out_dir: #If out_dir is given, open a file to write found records
+        if self.out_dir: #If out_dir is given, open a file to write found records
 
             self.out_dir = parse_path(out_dir, file_type = "dir")
             self.out_name = out_dir.joinpath("mutacc_" + self.file_name)

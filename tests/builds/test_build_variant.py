@@ -20,7 +20,7 @@ def test_get_variants():
         count += 1
         assert isinstance(variant, Variant)
 
-    assert count == 9
+    assert count == 7
 
 def test_Variant():
 

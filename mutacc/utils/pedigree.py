@@ -7,7 +7,7 @@ class Individual(ped_parser.Individual):
     """
     def __init__(self, ind, family='0', mother='0', father='0',sex='0',phenotype='0',
         genetic_models=None, proband='.', consultand='.', alive='.', variant_bam_file = '',
-        variant_fastq_files = ''):
+        variant_fastq_files = ['','']):
 
         super(Individual, self).__init__(
             ind,
@@ -133,7 +133,7 @@ def make_family_from_case(case):
 
         Args:
             case(dict): dictionary holding case information
-            
+
         Returns:
             case(mutacc.utils.pedigree.Family): Object from Family class
             where each sample from case is parsed with the Individual class
@@ -181,77 +181,3 @@ def make_family_from_case(case):
     fam.family_check()
 
     return fam
-
-if __name__ == '__main__':
-
-    c0 = {
-        'case_id': 'test_family0',
-        'variant_regions': [],
-        'extended_variants': [],
-        'samples': [
-            {
-                'sample_id': 'proband',
-                'father': 'father',
-                'mother': 'mother',
-                'sex': 'male',
-                'phenotype': 'affected',
-                'variant_bam_file': 'example_bam',
-                'variant_fastq_files': []
-            },
-            {
-                'sample_id': 'father',
-                'father': '0',
-                'mother': '0',
-                'sex': 'male',
-                'phenotype': 'unaffected',
-                'variant_bam_file': 'example_bam',
-                'variant_fastq_files': []
-            },
-            {
-                'sample_id': 'mother',
-                'father': '0',
-                'mother': '0',
-                'sex': 'female',
-                'phenotype': 'affected',
-                'variant_bam_file': 'example_bam',
-                'variant_fastq_files': []
-            }
-        ]
-    }
-
-
-
-    c1 = {
-        'case_id': 'test_family1',
-        'variant_regions': [],
-        'extended_variants': [],
-        'samples': [
-            {
-                'sample_id': 'single',
-                'father': '0',
-                'mother': '0',
-                'sex': 'male',
-                'phenotype': 'affected',
-                'variant_bam_file': 'example_bam',
-                'variant_fastq_files': []
-            }
-        ]
-    }
-
-
-    fam0 = make_family_from_case(c0)
-
-    fam1 = make_family_from_case(c1)
-
-    for f in [fam0, fam1]:
-
-        child = f.get_individual('child')
-        father = f.get_individual('father')
-        mother = f.get_individual('mother')
-        affected = f.get_individual('affected')
-        print("#####")
-        print(f.family_id)
-        print(str(father))
-
-        for ind in f.individuals:
-            print(str(ind))

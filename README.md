@@ -1,4 +1,6 @@
 # mutacc
+[![Build Status](https://travis-ci.org/adrosenbaum/mutacc.png)](https://travis-ci.org/adrosenbaum/mutacc)
+[![Coverage Status](https://coveralls.io/repos/github/adrosenbaum/mutacc/badge.svg?branch=master)](https://coveralls.io/github/adrosenbaum/mutacc?branch=master)
 
 ## The mutation accumulation database
 
@@ -22,8 +24,7 @@ python setup.py install
 To export data sets from the mutacc DB, the database must first be populated. To
 extract the raw reads supporting a known variant, mutacc takes use of all
 relevant files generated from a NGS experiment up to the variant calling itself.
-That is the bam file, and vcf file containing only the variants of
-interest.
+That is the bam file, and vcf file containing only the variants of interest.
 
 This information is specified as a 'case', represented in yaml format
 
