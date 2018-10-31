@@ -7,3 +7,4 @@ mongo-adapter
 ped_parser
 PyYaml
 mongomock
+coveralls
