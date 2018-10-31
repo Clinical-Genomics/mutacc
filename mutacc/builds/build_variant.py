@@ -29,14 +29,16 @@ class Variant:
 
         """
         #For variants with an ID 'SVTYPE' in the INFO field of the vcf entry
+        start, end = self.find_start_end()
+
         if self.entry.INFO.get("SVTYPE"):
 
             vtype = self.entry.INFO.get("SVTYPE").upper()
 
             if vtype != "BND":
 
-                region = {"start": self.entry.start - padding,
-                          "end": self.entry.end + padding}
+                region = {"start": start - padding,
+                          "end": end + padding}
 
             #Find the region for variant with an 'SVTYPE' ID in the INFO field of the vcf entry
             else:
@@ -45,28 +47,59 @@ class Variant:
                 #or downstream of the position of the break end.
                 if "[" in self.entry.ALT[0]:
 
-                    region = {"start": self.entry.start - padding,
-                              "end": self.entry.end + padding}
+                    region = {"start": start - padding,
+                              "end": end + padding}
 
                 else:
 
-                    region = {"start": self.entry.start - padding,
-                              "end": self.entry.end + padding}
+                    region = {"start": start - padding,
+                              "end": end + padding}
 
         #For variants with an ID 'TYPE' in the INFO field
         elif self.entry.INFO.get("TYPE"):
 
             vtype = self.entry.INFO.get("TYPE")
-            region = {"start": self.entry.start - padding,
-                      "end": self.entry.end + padding}
+            region = {"start": start - padding,
+                      "end": end + padding}
 
         else:
 
             vtype = 'None'
-            region = {"start": self.entry.start - padding,
-                      "end": self.entry.end + padding}
+            region = {"start": start - padding,
+                      "end": end + padding}
+
         self.vtype = vtype
         self.region = region
+
+    def find_start_end(self):
+        start = self.entry.start
+        if self.entry.INFO.get('END'):
+            end = self.entry.INFO.get('END')
+        else:
+            end = self.entry.end
+        return (int(start), int(end))
+
+    def find_genotypes(self):
+
+        if self.entry.genotypes:
+
+            samples = [{ 'sample_id': self.samples[i],
+                         'genotype': '/'.join(
+                            [
+                            str(self.entry.genotypes[i][0]),
+                            str(self.entry.genotypes[i][1])
+                            ]
+                        )
+                    } for i in range(len(self.samples))]
+
+        else:
+
+            samples = [{ 'sample_id': self.samples[i],
+                           'genotype': "0"
+                } for i in range(len(self.samples))]
+
+        return samples
+
 
     def build_variant_object(self):
         """
@@ -74,14 +107,7 @@ class Variant:
         """
 
         #Find genotype and sample id for the samples given in the vcf file
-        samples = [{ 'sample_id': self.samples[i],
-                     'genotype': '/'.join(
-                        [
-                        str(self.entry.genotypes[i][0]),
-                        str(self.entry.genotypes[i][1])
-                        ]
-                    )
-                } for i in range(len(self.samples))]
+        samples = self.find_genotypes()
 
         self.variant = {
 
