@@ -56,7 +56,7 @@ def cli(context, loglevel, username, password, host, port, mutacc_dir, config_fi
     mutacc_config['client'] = mutacc_client
     mutacc_config['adapter'] = MutaccAdapter(client = mutacc_client, db_name = 'mutacc')
 
-    directory = mutacc_dir or cli_config.get('mutacc_dir') or "~/mutacc_fastqs/"
+    directory = mutacc_dir or cli_config.get('mutacc_dir') or "~/mutacc_reads/"
     mutacc_config['mutacc_dir'] = make_dir(directory)
 
     context.obj = mutacc_config
