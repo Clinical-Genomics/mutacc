@@ -11,39 +11,39 @@ VARIANT_VALIDATOR = {
             "properties": {
 
                 "display_name": {
-                    
+
                     "bsonType": "string"
 
                     },
 
                 "variant_type": {
-                    
+
                     "bsonType": "string"
 
                     },
 
                 "alt": {
-                    
+
                     "bsonType": "array",
 
                     "items": {
-                        
+
                         "bsonType": "string"
-                        
+
                         }
 
                     },
-               
+
                 "ref": {
 
-                    "bsonType": "string"    
+                    "bsonType": "string"
 
                     },
 
                 "chrom": {
-                    
-                    "bsonType": "string" 
-                    
+
+                    "bsonType": "string"
+
                     },
 
                 "start": {
@@ -55,92 +55,61 @@ VARIANT_VALIDATOR = {
                     },
 
                 "end": {
-                    
+
                     "bsonType": "int",
 
                     "description": "End position for variant"
-                    
+
                     },
 
                 "vcf_entry": {
-                    
+
                     "bsonType": "string",
 
                     "description": "Full vcf entry for variant"
-                    
+
                     },
 
                 "samples": {
-                    
+
                     "bsonType": "array",
 
-                    "description": "Samples from case",
+                    "description": "Samples from vcf file with genotypes",
 
-                    "items": {
-                        
-                        "bsonType": "object",
-
-                        "required": ["sample_id", "genotype"],
-
-                        "properties": {
-                            
-                            "sample_id": {
-                                
-                                "bsonType": "string"
-
-                                },
-                            
-                            "genotype": {
-                                
-                                "bsonType": "string"
-                                
-                                }
-                             
-                            }
-
-                        }
-                        
                     },
 
                 "case": {
-                       
+
                     "bsonType": "string"
-                        
+
                     },
 
                 "reads_region": {
-                        
+
                         "bsonType": "object",
 
                         "required": ["start", "end"],
 
                         "properties": {
-                        
+
                             "start": {
-                                
+
                                 "bsonType": "int"
-                                
+
                             },
 
                             "end": {
-                                
-                                "bsonType": "int"    
-                                
-                            } 
+
+                                "bsonType": "int"
+
+                            }
 
                         }
-                        
+
                     }
 
                 }
 
             }
-            
+
         }
-
-
-
-
-   
-
-    

@@ -11,6 +11,13 @@ class Variant:
 
         self.entry = vcf_entry
         self.samples = samples
+
+    #At the moment there are a lot of if statements in this method checking
+    #the variant type, even though all the variants are treated the same at the
+    #moment. That is, the region to extract is simply the start and end positions
+    #as given in the vcf, + the padding that is wanted. I'm thinking that I'll
+    #leave it like this, in case we found out in the future that the variants
+    #need to be treated differently depending on the type. 
     def find_region(self, padding):
         """
             Given a vcf entry, this function attempts to return the relevant genomic regions
