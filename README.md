@@ -170,6 +170,14 @@ This can be changed with the --out-dir option. The background fastq files with
 the excluded reads will be placed in the current working directory, and removed
 after they are used. This can be changed with the --temp-dir option.
 
+### Remove case from database
+
+To remove a case from the mutacc DB, and all the generated bam, and fastq files
+generated from that case from disk, the remove command is used
+
+```console
+mutacc remove <case_id>
+```
 
 ### Requirements
 
