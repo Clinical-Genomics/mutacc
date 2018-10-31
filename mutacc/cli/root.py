@@ -1,9 +1,11 @@
 import logging
 import yaml
+import sys
 
 import coloredlogs
 import click
 import mongo_adapter
+import mongomock
 
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.db_adapter import MutaccAdapter
@@ -45,8 +47,20 @@ def cli(context, loglevel, username, password, host, port, mutacc_dir, config_fi
     mutacc_config['username'] = username or cli_config.get('username')
     mutacc_config['password'] = password or cli_config.get('password')
 
-    LOG.info("Establishing connection with host {}, on port {}".format(mutacc_config['host'], mutacc_config['port']))
-    mutacc_client = mongo_adapter.get_client(**mutacc_config)
+    LOG.info("Establishing connection with host {}, on port {}".format(
+        mutacc_config['host'], mutacc_config['port']
+        )
+    )
+
+    #FOR TESTING
+    if "pytest" not in sys.modules:
+
+        mutacc_client = mongo_adapter.get_client(**mutacc_config)
+
+    else:
+
+        mutacc_client = mongomock.MongoClient(port = 27017, host = 'localhost')
+
 
     if not mongo_adapter.check_connection(mutacc_client):
 
@@ -54,7 +68,10 @@ def cli(context, loglevel, username, password, host, port, mutacc_dir, config_fi
         context.abort()
 
     mutacc_config['client'] = mutacc_client
-    mutacc_config['adapter'] = MutaccAdapter(client = mutacc_client, db_name = 'mutacc')
+    mutacc_config['adapter'] = MutaccAdapter(
+        client = mutacc_client,
+        db_name = 'mutacc'
+    )
 
     directory = mutacc_dir or cli_config.get('mutacc_dir') or "~/mutacc_reads/"
     mutacc_config['mutacc_dir'] = make_dir(directory)
