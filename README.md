@@ -178,7 +178,6 @@ generated from that case from disk, the remove command is used
 ```console
 mutacc remove <case_id>
 ```
-
 ### Requirements
 
 Python >3.6 \
