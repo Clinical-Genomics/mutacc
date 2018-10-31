@@ -24,8 +24,7 @@ python setup.py install
 To export data sets from the mutacc DB, the database must first be populated. To
 extract the raw reads supporting a known variant, mutacc takes use of all
 relevant files generated from a NGS experiment up to the variant calling itself.
-That is the fastq files, bam file, and vcf file containing only the variants of
-interest.
+That is the bam file, and vcf file containing only the variants of interest.
 
 This information is specified as a 'case', represented in yaml format
 
@@ -42,57 +41,73 @@ samples:
   - sample_id: 'sample1' #REQUIRED
     analysis_type: 'wgs' #REQUIRED
     sex: 'male'          #REQUIRED
-    mother: 'sample2'    #REQUIRED (CAN BE None)
-    father: 'sample3'    #REQUIRED (CAN BE None)
-    fastq_files:         #REQUIRED (LIST OF FASTQ PATHS FOR SAMPLE)
-      - /path/to/fastq/fastq1
-      - /path/to/fastq/fastq2
+    mother: 'sample2'    #REQUIRED (CAN BE 0 if no mother)
+    father: 'sample3'    #REQUIRED (CAN BE 0 if no father)
     bam_file: /path/to/sorted_bam #REQUIRED
     phenotype: 'affected'
 
   - sample_id: 'sample2'
     analysis_type: 'wgs'
     sex: 'female'        
-    mother: None           
-    father: None         
-    fastq_files:    
-      - /path/to/fastq/fastq1
-      - /path/to/fastq/fastq2
+    mother: 0 #0 if no parent            
+    father: 0         
     bam_file: /path/to/sorted_bam
 
   - sample_id: 'sample2'
     analysis_type: 'wgs'
     sex: 'male'         
-    mother: None             
-    father: None            
-    fastq_files:       
-      - /path/to/fastq/fastq1
-      - /path/to/fastq/fastq2
+    mother: 0             
+    father: 0            
     bam_file: /path/to/sorted_bam
 
 #PATH TO VCF FILE CONTAINING VARIANTS OF INTEREST FROM CASE
 variants: /path/to/vcf
 ```
 
+This will find the reads from the bam files specified for each sample. If it
+is desired that the reads are found from the fastq files instead, this can be
+done by specifying the fastq files as such
+
+```yaml
+  - sample_id: 'sample1'
+    analysis_type: 'wgs'
+    sex: 'male'          
+    mother: 'sample2'    
+    father: 'sample3'    
+    bam_file: /path/to/sorted_bam
+    fastq_files:
+      - /path/to/fastq1
+      - /path/to/fastq2
+    phenotype: 'affected'
+```
+
 To import the case into the database
 
 ```console
-mutacc import --case <case.yaml>
+mutacc import --padding 600 --case <case.yaml>
 ```
 
 This will try to establish a connection to an instance of mongodb, by default
 running on 'localhost' on port 27017. If this is not wanted, it can be specified
-with the -h and -p options.
+with the --host and --port options.
+
+the --padding option takes the number of basepairs that the desired region is
+padded with.
 
 ```console
-mutacc -h <host> -p <port> import --case <case.yaml>
+mutacc -h <host> -p <port> import --padding 600 --case <case.yaml>
 ```
+
+If authentication is required, this can be specified with the --username and
+--password options.
 
 or in a configuration file e.g.
 ```yaml
 #EXAMPLE OF A CONFIGURATION FILE
 host: <host>
 port: <port>
+username: <username>
+password: <password>
 ```
 
 ```console
@@ -103,13 +118,74 @@ The generated fastq files containing the reads supporting the given variants
 will not be stored in the database itself, but pointed to a by a path to the
 file system. By default, the fastq files will be stored in the directory
 ~/mutacc_fastqs/. If another directory is wanted this can be required with the
---mutacc_dir option or as an entry 'mutacc_dir' in the configuration file.
+--mutacc-dir option or as an entry 'mutacc_dir' in the configuration file.
 
 ### Export datasets from the database
-TODO...
+The datasets are exported one sample at the time. At the moment, mutacc only
+supports father/mother/child-trios and single samples. To export a synthetic
+dataset, the export command is used together with options.
+
+export:
+
+  -m/--member [child|father|mother|affected]
+    specifies what family member to create a dataset for. Finds the correct
+    member in each case (if trio) in the database, and uses the reads from this
+    sample only to enrich the background samples. If a single sample dataset is
+    required, the option can be passed with the 'affected' argument, use the
+    reads from only one of the affected samples from each case.
+
+  -c/--case-query \
+    Query to search among the case collection in the mongodb. A json string,
+    with valid mongodb query language.
+
+  -v/--variant-query \
+    Query to search among the variants collection.
+
+  -b/--background-bam \
+    Path to the bam file for sample to be used as background
+
+  -f/--background-fastq \
+    Path to fastq file for sample to be used as background
+
+  -f2/--background-fastq2 \
+    Path to second fastq file (if paired end experiment)
+
+example:
+
+```console
+mutacc export -m affected -c '{}' -b <bam> -f <fastq1> -f2 <fastq2>
+```
+will find all the cases all the cases from the mutacc DB, and enrich the fastq
+files with the reads from a affected member of the case.
+
+to export a entire trio, this can be done by
+
+```console
+mutacc export -m child -c '{}' -b <bam> -f <fastq1_child> -f2 <fastq2_child>
+mutacc export -m father -c '{}' -b <bam> -f <fastq1_father> -f2 <fastq2_father>
+mutacc export -m mother -c '{}' -b <bam> -f <fastq1_mother> -f2 <fastq2_mother>
+```
+By default, the datasets will be created in the current working directory.
+This can be changed with the --out-dir option. The background fastq files with
+the excluded reads will be placed in the current working directory, and removed
+after they are used. This can be changed with the --temp-dir option.
+
 
 ### Requirements
 
-Python >3.6
+Python >3.6 \
+picard \
+seqkit
 
-see requirements.txt
+picard and seqkit are easiest to install using conda, i.e.
+
+```console
+conda install -c bioconda picard
+conda install -c bioconda seqkit
+```
+
+### Limitations
+mutacc is currently under development and only supports either single cases
+(cases with one sample) or mother/father/child trios. Furthermore, all cases
+uploaded, and exported from the mutacc DB are assumed to be paired-end reads
+experiments.
