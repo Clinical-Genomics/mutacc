@@ -10,8 +10,8 @@ from mutacc.mutaccDB.db_adapter import MutaccAdapter
 
 from .export import export as export_command
 from .importing import importing as import_command
-from .delete import delete as delete_command
-from .init import init as init_command
+from .remove_command import remove_command as remove_command
+
 
 
 LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
@@ -63,5 +63,4 @@ def cli(context, loglevel, username, password, host, port, mutacc_dir, config_fi
 
 cli.add_command(export_command)
 cli.add_command(import_command)
-cli.add_command(delete_command)
-cli.add_command(init_command)
+cli.add_command(remove_command)

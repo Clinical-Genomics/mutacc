@@ -1,4 +1,5 @@
 import sys
+import logging
 
 import pymongo
 
@@ -8,6 +9,9 @@ from mongo_adapter import MongoAdapter
 from mutacc.mutaccDB.schema.variant import VARIANT_VALIDATOR
 from mutacc.mutaccDB.schema.case import CASE_VALIDATOR
 from mutacc.mutaccDB.schema.sample import SAMPLE_VALIDATOR
+
+LOG = logging.getLogger(__name__)
+
 
 class MutaccAdapter(MongoAdapter):
     """
@@ -104,3 +108,14 @@ class MutaccAdapter(MongoAdapter):
     def find_variant(self, query):
 
         return self.variants_collection.find_one(query)
+
+    def remove_case(self, case_id):
+
+        case = self.find_case({"case_id": case_id})
+        if case:
+            LOG.info("removing case {}".format(case_id))
+            self.cases_collection.delete_one({"case_id": case_id})
+            self.variants_collection.delete_many({"case": case_id})
+        else:
+            LOG.warning("No case with case_id {}".format(case_id))
+        return case
