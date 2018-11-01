@@ -1,8 +1,15 @@
 import pytest
+from pathlib import Path
 
 import pysam
+import mongomock
 
 from mutacc.utils.pedigree import Individual
+from mutacc.mutaccDB.db_adapter import MutaccAdapter
+from mutacc.parse.yaml_parse import yaml_parse
+from mutacc.builds.build_case import CompleteCase
+from mutacc.mutaccDB.insert import insert_entire_case
+
 
 @pytest.fixture
 def read_ids_fixed(request):
@@ -55,3 +62,34 @@ def individuals_fixed(request):
     )
 
     return [child, father, mother]
+
+CASE_YAML = "tests/fixtures/case.yaml"
+@pytest.fixture
+def mock_adapter(request, tmpdir):
+
+    mutacc_dir = Path(str(tmpdir.mkdir("mutacc_test")))
+
+    client = mongomock.MongoClient(port = 27017, host = 'localhost')
+    adapter = MutaccAdapter(client = client, db_name = 'test')
+
+    case = yaml_parse(CASE_YAML)
+    case["case"]["case_id"] = "1111"
+    case = CompleteCase(case)
+
+    case.get_variants(padding = 200)
+    case.get_samples(mutacc_dir)
+    case.get_case()
+
+    insert_entire_case(adapter, case)
+
+    case = yaml_parse(CASE_YAML)
+    case["case"]["case_id"] = "2222"
+    case = CompleteCase(case)
+
+    case.get_variants(padding = 200)
+    case.get_samples(mutacc_dir)
+    case.get_case()
+
+    insert_entire_case(adapter, case)
+
+    return adapter
