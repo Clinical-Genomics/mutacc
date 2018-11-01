@@ -23,16 +23,16 @@ samples:
     analysis_type: wgs
     sex: male
     phenotype: unaffected
-    mother: 0
-    father: 0
+    mother: '0'
+    father: '0'
     bam_file: 'tests/fixtures/reduced_ref_4_1000000_10002000.bam'
 
   - sample_id: '3'
     analysis_type: wgs
     sex: female
     phenotype: unaffected
-    mother: 0
-    father: 0
+    mother: '0'
+    father: '0'
     bam_file: 'tests/fixtures/reduced_ref_4_1000000_10002000.bam'
 
 #variant:
