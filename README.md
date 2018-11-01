@@ -192,6 +192,7 @@ conda install -c bioconda seqkit
 ```
 
 ### Limitations
+
 mutacc is currently under development and only supports either single cases
 (cases with one sample) or mother/father/child trios. Furthermore, all cases
 uploaded, and exported from the mutacc DB are assumed to be paired-end reads
