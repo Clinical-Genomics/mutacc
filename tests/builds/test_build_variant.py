@@ -22,6 +22,22 @@ def test_get_variants():
 
     assert count == 7
 
+
+    count = 0
+    for variant in get_variants("tests/fixtures/vcf_NOTYPE_test.vcf"):
+        count += 1
+        assert isinstance(variant, Variant)
+
+    assert count == 7
+
+
+    count = 0
+    for variant in get_variants("tests/fixtures/vcf_TYPE_test.vcf"):
+        count += 1
+        assert isinstance(variant, Variant)
+
+    assert count == 7
+
 def test_Variant():
 
     for variant in get_variants("tests/fixtures/vcf_test.vcf"):

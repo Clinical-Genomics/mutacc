@@ -9,12 +9,7 @@ LOG = logging.getLogger(__name__)
 
 SAMPLE = ["sample_id", "sex", "mother", "father", "bam_file"]
 class YAMLFieldsError(Exception):
-
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return self.message
+    pass
 
 def yaml_parse(yaml_file):
 
@@ -29,10 +24,6 @@ def yaml_parse(yaml_file):
             print('Error loading yaml object: ', exc)
 
             raise
-
-    if len(yaml_dict.keys()) != 3:
-
-        raise YAMLFieldsError("Can only contain three field ('case', 'samples', and 'variants')")
 
     if set(yaml_dict.keys()) != set(['case','variants','samples']):
 
