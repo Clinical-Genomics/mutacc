@@ -116,13 +116,10 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    #packages=find_packages(exclude=('tests',)),
-    # If your package is a single module, use this instead of 'packages':
-    # py_modules=['mypackage'],
-
-     entry_points={
-         'console_scripts': ['mutacc=mutacc.cli.root:cli'],
-     },
+    packages=find_packages(exclude=('tests/','scripts/')),
+    entry_points={
+        'console_scripts': ['mutacc=mutacc.cli.root:cli'],
+    },
     install_requires=REQUIRED,
     include_package_data=True,
     license='MIT',

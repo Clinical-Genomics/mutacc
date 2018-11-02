@@ -26,7 +26,7 @@ LOG = logging.getLogger(__name__)
 @click.option('-h', '--host', default = 'localhost')
 @click.option('-p', '--port', default = 27017)
 @click.option('--mutacc-dir', help = "Directory to store reduced fastq files, will be created if not exists")
-@click.option('--config_file')
+@click.option('--config-file')
 @click.pass_context
 def cli(context, loglevel, username, password, host, port, mutacc_dir, config_file):
 
