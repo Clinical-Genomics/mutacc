@@ -6,6 +6,3 @@ cyvcf2<0.10.0
 mongo-adapter
 ped_parser
 PyYaml
-mongomock
-coveralls
-pytest-cov
