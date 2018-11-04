@@ -6,6 +6,7 @@ import os
 from mutacc.utils.bam_handler import BAMContext
 
 from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
+from mutacc.subprocessing.merge_fastqs import merge_fastqs as merge_fastqs_sub
 
 from mutacc.parse.path_parse import make_dir, parse_path
 
@@ -95,23 +96,32 @@ class MakeSet():
         for i in range(len(self.excluded_backgrounds)):
 
             #Simply use 'cat' command to merge files
-            merge_cmd = ["cat"]
-            merge_cmd.append(self.excluded_backgrounds[i])
+
+            fastq_list = [self.excluded_backgrounds[i]]
 
             for case in self.cases:
                 #Check if the case has the correct family member
                 sample = case.get_individual(member)
                 #Append fastq files only if case member exists in case
                 if sample:
-                    merge_cmd.append(sample.variant_fastq_files[i])
+                    fastq_list.append(sample.variant_fastq_files[i])
 
             file_name = parse_path(self.excluded_backgrounds[i]).name
             out_path = out_dir.joinpath("synthetic_"+file_name)
 
             LOG.info("Merging fastq files")
 
-            with open(out_path, "w") as out_handle:
-                subprocess.call(merge_cmd, stdout = out_handle)
+            try:
+                 merge_fastqs_sub(fastq_list, out_path)
+
+            except:
+                LOG.critical(
+                        "Files were not merged, background files in {} not removed".format(
+                            str(out_dir)
+                    )
+                )
+
+                raise
 
             synthetic_fastqs.append(out_path)
 
