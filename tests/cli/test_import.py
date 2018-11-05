@@ -8,6 +8,7 @@ from mutacc.cli.root import cli
 
 
 CASE_PATH = "tests/fixtures/case.yaml"
+CONFIG_PATH = "tests/fixtures/config.yaml"
 
 def test_importing(tmpdir):
 
@@ -43,3 +44,16 @@ def test_importing(tmpdir):
                     i
                 )
             ).exists()
+
+    #Test with config file
+    runner = CliRunner()
+    result = runner.invoke(cli, [
+            '--mutacc-dir', mutacc_dir,
+            '--config-file', CONFIG_PATH,
+            'import',
+            '--padding', '1500',
+            '--case', CASE_PATH
+        ]
+    )
+
+    assert result.exit_code == 0
