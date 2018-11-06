@@ -163,11 +163,11 @@ class BAMContext:
 
         return str(self.out_name)
 
-    def make_names_temp(self):
+    def make_names_temp(self, out_dir):
         """
             Make temporary file holding each read name on separate line
         """
-        with tempfile.NamedTemporaryFile('wt', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile('wt',dir=out_dir, delete=False) as temp_file:
             #Add line in beginning in case no reads are found
             #seqkit grep -f will not work on empty file.
             temp_file.write("####NAMES####\n")

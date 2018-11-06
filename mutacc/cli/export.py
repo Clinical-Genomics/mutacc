@@ -1,6 +1,8 @@
 
 import logging
 import yaml
+import tempfile
+from shutil import rmtree
 
 import click
 
@@ -20,9 +22,6 @@ LOG = logging.getLogger(__name__)
               type = click.Choice(['father','mother','child','affected']),
               default = 'single')
 @click.option('--out-dir', default = './')
-@click.option('--temp-dir',
-              default = './',
-              help = "Dir to hold temporary files")
 @click.pass_context
 def export(context,
            case_query,
@@ -31,8 +30,7 @@ def export(context,
            background_fastq,
            background_fastq2,
            member,
-           out_dir,
-           temp_dir):
+           out_dir):
 
     """
         exports dataset from DB
@@ -71,7 +69,11 @@ def export(context,
                   "fastq_files": [background_fastq]}
     if background_fastq2: background["fastq_files"].append(background_fastq2)
 
-    temp_dir = make_dir(temp_dir)
+    #Create temporary directory
+    temp_dir = tempfile.mkdtemp("_mutacc_tmp")
+
+    LOG.info("Temporay files stored in {}".format(temp_dir))
+
     make_set.exclude_from_background(out_dir = temp_dir,
                                      background = background,
                                      member = member)
@@ -85,6 +87,9 @@ def export(context,
         out_dir = out_dir,
         member = member
         )
+
+    #Remove temporary directory
+    rmtree(temp_dir)
 
     for synthetic in synthetics:
         LOG.info("Synthetic datasets created in {}".format(synthetic))

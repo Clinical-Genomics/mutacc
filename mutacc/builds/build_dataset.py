@@ -68,7 +68,7 @@ class MakeSet():
                 )
             )
 
-            name_file = bam_handle.make_names_temp()
+            name_file = bam_handle.make_names_temp(out_dir)
             self.excluded_backgrounds = []
             for fastq_file in fastq_files:
 
