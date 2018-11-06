@@ -20,7 +20,9 @@ LOG = logging.getLogger(__name__)
 @click.option('-f2','--background-fastq2')
 @click.option('-m', '--member',
               type = click.Choice(['father','mother','child','affected']),
-              default = 'single')
+              default = 'affected')
+@click.option('-s','--sex',
+              type = click.Choice(['male','female']))
 @click.option('--out-dir', default = './')
 @click.pass_context
 def export(context,
@@ -30,6 +32,7 @@ def export(context,
            background_fastq,
            background_fastq2,
            member,
+           sex,
            out_dir):
 
     """
@@ -40,17 +43,21 @@ def export(context,
     adapter = context.obj['adapter']
 
     #Query the cases in mutaccDB
-    cases = mutacc_query(adapter, case_query, variant_query)
+    samples, regions, variants = mutacc_query(
+        adapter,
+        case_query,
+        variant_query,
+        sex=sex,
+        member=member
+    )
 
     #Abort if no cases correspond to query
-    num_cases = len(cases)
+    num_cases = len(samples)
     if num_cases == 0:
         LOG.warning("No cases were found")
         context.abort()
 
-    num_variants = 0
-    for case in cases:
-        num_variants += len(case.variants)
+    num_variants = len(variants)
 
     LOG.info("{} cases found, with a total of {} variants.".format(
                 num_cases,
@@ -58,7 +65,7 @@ def export(context,
             )
 
     #make object make_set from MakeSet class
-    make_set = MakeSet(cases)
+    make_set = MakeSet(samples, regions)
 
     #load background files given in yaml file as dictionary
     #with open(background, "r") as in_handle:
@@ -84,8 +91,7 @@ def export(context,
     #validation set
     out_dir = make_dir(out_dir)
     synthetics = make_set.merge_fastqs(
-        out_dir = out_dir,
-        member = member
+        out_dir = out_dir
         )
 
     #Remove temporary directory
@@ -93,3 +99,21 @@ def export(context,
 
     for synthetic in synthetics:
         LOG.info("Synthetic datasets created in {}".format(synthetic))
+
+
+    #WRITE VCF FILE
+    vcf_file = out_dir.joinpath("synthetic_{}.vcf".format(member))
+    LOG.info("creating vcf file {}".format(str(vcf_file)))
+    with open(vcf_file, "w") as vcf_handle:
+
+        vcf_handle.write("##fileformat=VCFv4.2\n")
+        vcf_handle.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}\n".format(member))
+        for variant in variants:
+
+            vcf_entry = variant["vcf_entry"].split("\t")
+            entry = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tGT\t{}".format(
+                vcf_entry[0], vcf_entry[1], vcf_entry[2], vcf_entry[3],
+                vcf_entry[4], vcf_entry[5], vcf_entry[6], vcf_entry[7],
+                variant["genotype"]
+            )
+            vcf_handle.write(entry+"\n")

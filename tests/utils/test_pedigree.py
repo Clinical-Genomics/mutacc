@@ -21,9 +21,6 @@ def test_Family(individuals_fixed):
 
     family = Family(
         family_id = "family",
-        variants = [],
-        regions = []
-
     )
 
     for individual in individuals_fixed:
@@ -46,8 +43,6 @@ def test_make_family_from_case(individuals_fixed):
 
     c0 = {
         'case_id': 'test_family0',
-        'variant_regions': [],
-        'extended_variants': [],
         'samples': [
             {
                 'sample_id': 'proband',
@@ -81,8 +76,6 @@ def test_make_family_from_case(individuals_fixed):
 
     c1 = {
         'case_id': 'test_family1',
-        'variant_regions': [],
-        'extended_variants': [],
         'samples': [
             {
                 'sample_id': 'single',
@@ -100,10 +93,18 @@ def test_make_family_from_case(individuals_fixed):
     fam1 = make_family_from_case(c1)
 
     assert fam0.get_individual('child').individual_id == "proband"
+    assert fam0.get_individual('child').sex == 1
     assert fam0.get_individual('father').individual_id == "father"
     assert fam0.get_individual('mother').individual_id == "mother"
+    assert not fam0.get_individual('child', sex = 'female')
+    assert fam0.get_individual('child', sex = 'male').individual_id == "proband"
+    assert fam0.get_individual('affected', sex = 'female').individual_id == "mother"
+    assert fam0.get_individual('affected', sex = 'male').individual_id == "proband"
 
     assert (not fam1.get_individual('child'))
     assert (not fam1.get_individual('father'))
     assert (not fam1.get_individual('mother'))
     assert fam1.get_individual('affected').affected
+    assert not fam1.get_individual('affected', sex ='female')
+    assert fam1.get_individual('affected', sex ='male')
+    assert fam1.get_individual('affected', sex = 'male').individual_id == "single"

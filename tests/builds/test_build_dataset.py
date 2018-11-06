@@ -10,13 +10,13 @@ FASTQ1 = "tests/fixtures/fastq1.fastq"
 FASTQ2 = "tests/fixtures/fastq2.fastq"
 def test_MakeSet(mock_adapter, tmpdir):
 
-    cases = mutacc_query(
+    samples, regions, variants = mutacc_query(
         mock_adapter,
         case_query = '{}',
         variant_query = None
         )
 
-    make_set = MakeSet(cases)
+    make_set = MakeSet(samples, regions)
 
     background = {"bam_file": BAM,
                   "fastq_files": [FASTQ1, FASTQ2]}
@@ -24,7 +24,7 @@ def test_MakeSet(mock_adapter, tmpdir):
     temp_dir = Path(str(tmpdir.mkdir("export_tmp_test")))
     make_set.exclude_from_background(out_dir = temp_dir,
                                      background = background,
-                                     member = "affected")
+                                     member = 'affected')
 
 
     #Merge the background files with excluded reads with the bam Files
@@ -32,8 +32,7 @@ def test_MakeSet(mock_adapter, tmpdir):
     #validation set
     out_dir = Path(str(tmpdir.mkdir("export_out_test")))
     synthetics = make_set.merge_fastqs(
-        out_dir = out_dir,
-        member = "affected"
+        out_dir = out_dir
         )
     for synthetic in synthetics:
         assert Path(synthetic).exists()

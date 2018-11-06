@@ -72,7 +72,7 @@ VARIANT_VALIDATOR = {
 
                 "samples": {
 
-                    "bsonType": "array",
+                    "bsonType": "object",
 
                     "description": "Samples from vcf file with genotypes",
 

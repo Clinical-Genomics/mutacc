@@ -17,7 +17,7 @@ class Variant:
     #moment. That is, the region to extract is simply the start and end positions
     #as given in the vcf, + the padding that is wanted. I'm thinking that I'll
     #leave it like this, in case we found out in the future that the variants
-    #need to be treated differently depending on the type. 
+    #need to be treated differently depending on the type.
     def find_region(self, padding):
         """
             Given a vcf entry, this function attempts to return the relevant genomic regions
@@ -90,20 +90,16 @@ class Variant:
 
         if self.entry.genotypes:
 
-            samples = [{ 'sample_id': self.samples[i],
-                         'genotype': '/'.join(
-                            [
-                            str(self.entry.genotypes[i][0]),
-                            str(self.entry.genotypes[i][1])
-                            ]
-                        )
-                    } for i in range(len(self.samples))]
+            samples = {self.samples[i]: '/'.join(
+                    [
+                        str(self.entry.genotypes[i][0]),
+                        str(self.entry.genotypes[i][1])
+                    ]
+           ) for i in range(len(self.samples))}
 
         else:
 
-            samples = [{ 'sample_id': self.samples[i],
-                           'genotype': "0"
-                } for i in range(len(self.samples))]
+            samples = {self.samples[i]: "0" for i in range(len(self.samples))}
 
         return samples
 

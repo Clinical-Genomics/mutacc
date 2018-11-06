@@ -29,32 +29,38 @@ class Family(ped_parser.Family):
         Extension on ped_parser.Family to allow extra attributes
         regions and variants for each family
     """
-    def __init__(self, family_id, regions = [], variants = []):
+    def __init__(self, family_id):
 
         super(Family, self).__init__(family_id, individuals = {})
 
-        self.regions = regions
-        self.variants = variants
+    def get_child(self, sex = None):
 
-    @property
-    def get_child(self):
+        if sex:
+            if sex == "male":
+                sex = 1
+            elif sex == "female":
+                sex = 2
+            else:
+                sex = 0
 
         child = None
-
         for individual_id in self.individuals:
 
             individual = self.individuals[individual_id]
 
             if individual.has_both_parents:
 
-                child = individual
+                if sex:
+                    if individual.sex == sex:
+                        child = individual
+                else:
+                    child = individual
 
         return child
 
-    @property
     def get_father(self):
 
-        child = self.get_child
+        child = self.get_child()
         if not child:
 
             return None
@@ -72,10 +78,9 @@ class Family(ped_parser.Family):
 
         return father
 
-    @property
     def get_mother(self):
 
-        child = self.get_child
+        child = self.get_child()
 
         if not child:
             return None
@@ -93,21 +98,31 @@ class Family(ped_parser.Family):
 
         return mother
 
-    @property
-    def get_affected(self):
+    def get_affected(self, sex = None):
+
+        if sex:
+            if sex == "male":
+                sex = 1
+            elif sex == "female":
+                sex = 2
+            else:
+                sex = 0
 
         affected = None
-
         for individual_id in self.individuals:
             individual = self.individuals[individual_id]
 
             if individual.affected:
+                if sex:
+                    if individual.sex == sex:
+                        affected = individual
+                else:
 
-                affected = individual
+                    affected = individual
 
-        return individual
+        return affected
 
-    def get_individual(self, member):
+    def get_individual(self, member, sex = None):
 
         members = {'father',
                    'mother',
@@ -118,13 +133,13 @@ class Family(ped_parser.Family):
             raise ValueError('member must be father, mother, child, or affected')
 
         if member == 'father':
-            return self.get_father
+            return self.get_father()
         elif member == 'mother':
-            return self.get_mother
+            return self.get_mother()
         elif member == 'child':
-            return self.get_child
+            return self.get_child(sex=sex)
         elif member == 'affected':
-            return self.get_affected
+            return self.get_affected(sex=sex)
 
 def make_family_from_case(case):
     """
@@ -140,12 +155,8 @@ def make_family_from_case(case):
             and added to the Family object.
     """
     family_id = case['case_id']
-    variants = case['extended_variants']
-    regions = case['variant_regions']
     fam = Family(
             family_id = case['case_id'],
-            variants = case['extended_variants'],
-            regions = case['variant_regions']
             )
 
     for sample in case['samples']:

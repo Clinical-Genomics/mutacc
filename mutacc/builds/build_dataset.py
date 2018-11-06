@@ -19,19 +19,18 @@ class MakeSet():
         variants from the mutacc DB.
     """
 
-    def __init__(self, cases):
+    def __init__(self, samples, regions):
         """
             Args:
-                cases (list(dict)): list of cases. Each case is represented
-                    as a dictionary.
-                variants (list(dict)): list of variants. Each variant is
-                    represented as a dictionary.
+                samples (mutacc.utils.pedigree.Individual): list of samples. sample
+                    is parsed with the Individual class
                 regions (list(dict)): list of regions. Each region is
                     represented as a dictionary with keys 'chrom', 'start', 'end'
         """
-        self.cases = cases
+        self.samples = samples
+        self.regions = regions
 
-    def exclude_from_background(self, out_dir, background, member = 'affected'):
+    def exclude_from_background(self, out_dir, background, member):
 
         """
             for each background fastq file exclude the reads overlapping with
@@ -52,15 +51,9 @@ class MakeSet():
 
         with BAMContext(bam_file = bam_file) as bam_handle:
             #for each region, find the reads overlapping
-            for case in self.cases:
+            for region in self.regions:
 
-                #Exclude reads from case only if the correct member type is
-                #given
-                if case.get_individual(member):
-
-                    for region in case.regions:
-
-                        bam_handle.find_read_names_from_region(**region)
+                bam_handle.find_read_names_from_region(**region)
 
             LOG.info("{} reads to be excluded from {}".format(
                     bam_handle.record_number,
@@ -83,7 +76,7 @@ class MakeSet():
 
 
 
-    def merge_fastqs(self, out_dir, member):
+    def merge_fastqs(self, out_dir):
         """
             Merge the background file with the fastq_files Holding
             the reads supporting the variants
@@ -99,12 +92,9 @@ class MakeSet():
 
             fastq_list = [self.excluded_backgrounds[i]]
 
-            for case in self.cases:
-                #Check if the case has the correct family member
-                sample = case.get_individual(member)
-                #Append fastq files only if case member exists in case
-                if sample:
-                    fastq_list.append(sample.variant_fastq_files[i])
+            for sample in self.samples:
+
+                fastq_list.append(sample.variant_fastq_files[i])
 
             file_name = parse_path(self.excluded_backgrounds[i]).name
             out_path = out_dir.joinpath("synthetic_"+file_name)
