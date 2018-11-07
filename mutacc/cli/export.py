@@ -9,6 +9,7 @@ import click
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.query import mutacc_query
 from mutacc.builds.build_dataset import MakeSet
+from mutacc.utils.vcf_writer import vcf_writer
 
 LOG = logging.getLogger(__name__)
 
@@ -104,16 +105,5 @@ def export(context,
     #WRITE VCF FILE
     vcf_file = out_dir.joinpath("synthetic_{}.vcf".format(member))
     LOG.info("creating vcf file {}".format(str(vcf_file)))
-    with open(vcf_file, "w") as vcf_handle:
 
-        vcf_handle.write("##fileformat=VCFv4.2\n")
-        vcf_handle.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}\n".format(member))
-        for variant in variants:
-
-            vcf_entry = variant["vcf_entry"].split("\t")
-            entry = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tGT\t{}".format(
-                vcf_entry[0], vcf_entry[1], vcf_entry[2], vcf_entry[3],
-                vcf_entry[4], vcf_entry[5], vcf_entry[6], vcf_entry[7],
-                variant["genotype"]
-            )
-            vcf_handle.write(entry+"\n")
+    vcf_writer(variants, vcf_file, member)

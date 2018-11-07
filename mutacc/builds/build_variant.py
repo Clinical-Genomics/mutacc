@@ -88,18 +88,16 @@ class Variant:
 
     def find_genotypes(self):
 
+
         if self.entry.genotypes:
 
-            samples = {self.samples[i]: '/'.join(
-                    [
-                        str(self.entry.genotypes[i][0]),
-                        str(self.entry.genotypes[i][1])
-                    ]
-           ) for i in range(len(self.samples))}
+            samples = {self.samples[i]: resolve_cyvcf2_genotype(
+                    self.entry.genotypes[i]
+                ) for i in range(len(self.samples))}
 
         else:
 
-            samples = {self.samples[i]: "0" for i in range(len(self.samples))}
+            samples = {self.samples[i]: "./." for i in range(len(self.samples))}
 
         return samples
 
@@ -164,3 +162,24 @@ def get_variants(vcf_file):
         yield Variant(entry, samples)
 
     vcf.close()
+
+def resolve_cyvcf2_genotype(cyvcf2_gt):
+
+    if cyvcf2_gt[2]:
+        separator = '|'
+    else:
+        separator = '/'
+
+    if cyvcf2_gt[0] == -1:
+        a1 = '.'
+    else:
+        a1 = str(cyvcf2_gt[0])
+
+    if cyvcf2_gt[1] == -1:
+        a2 = '.'
+    else:
+        a2 = str(cyvcf2_gt[1])
+
+    genotype = a1 + separator + a2
+
+    return genotype
