@@ -9,7 +9,8 @@ import click
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.query import mutacc_query
 from mutacc.builds.build_dataset import MakeSet
-from mutacc.utils.vcf_writer import vcf_writer
+from mutacc.utils.vcf_writer import vcf_writer, append_gt
+from mutacc.parse.path_parse import parse_path
 
 LOG = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ LOG = logging.getLogger(__name__)
 @click.option('-s','--sex',
               type = click.Choice(['male','female']))
 @click.option('--out-dir', default = './')
+@click.option('--merge-vcf', type = click.Path())
 @click.pass_context
 def export(context,
            case_query,
@@ -34,7 +36,8 @@ def export(context,
            background_fastq2,
            member,
            sex,
-           out_dir):
+           out_dir,
+           merge_vcf):
 
     """
         exports dataset from DB
@@ -103,7 +106,17 @@ def export(context,
 
 
     #WRITE VCF FILE
-    vcf_file = out_dir.joinpath("synthetic_{}.vcf".format(member))
-    LOG.info("creating vcf file {}".format(str(vcf_file)))
+    if merge_vcf:
+        vcf_file = parse_path(merge_vcf)
+        LOG.info("appending genotype field for {} in {}".format(
+            member,
+            str(vcf_file)
+            )
+        )
+        append_gt(variants, vcf_file, member)
+    else:
 
-    vcf_writer(variants, vcf_file, member)
+        vcf_file = out_dir.joinpath("synthetic_{}.vcf".format(member))
+        LOG.info("creating vcf file {}".format(str(vcf_file)))
+
+        vcf_writer(variants, vcf_file, member)
