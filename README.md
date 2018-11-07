@@ -8,14 +8,13 @@ mutacc is a tool that makes it possible to create synthetic datasets to be used
 for quality control or benchmarking of bioinformatic tools and pipelines intended
 for variant calling. Using raw reads that supports a known variant from a real
 NGS data, mutacc creates validation sets with true positives with the same
-properties as a real life NGS run.
+properties as a real NGS data.
 
 ## Installation
 
 ```bash
 git clone https://github.com/adrosenbaum/mutacc
-cd mutacc
-python setup.py install
+pip install -e mutacc
 ```
 ## Usage
 
@@ -49,15 +48,15 @@ samples:
   - sample_id: 'sample2'
     analysis_type: 'wgs'
     sex: 'female'        
-    mother: 0 #0 if no parent            
-    father: 0         
+    mother: '0' #0 if no parent            
+    father: '0'         
     bam_file: /path/to/sorted_bam
 
   - sample_id: 'sample2'
     analysis_type: 'wgs'
     sex: 'male'         
-    mother: 0             
-    father: 0            
+    mother: '0'             
+    father: '0'            
     bam_file: /path/to/sorted_bam
 
 #PATH TO VCF FILE CONTAINING VARIANTS OF INTEREST FROM CASE
@@ -111,7 +110,7 @@ password: <password>
 ```
 
 ```console
-mutacc --config_file <config.yaml> import --case <case.yaml>
+mutacc --config-file <config.yaml> import --case <case.yaml>
 ```
 
 The generated fastq files containing the reads supporting the given variants
@@ -149,6 +148,9 @@ export:
 
   -f2/--background-fastq2 \
     Path to second fastq file (if paired end experiment)
+  
+  -s/--sex [male|female]
+    Specify the sex of the sample
 
 example:
 
@@ -196,4 +198,4 @@ conda install -c bioconda seqkit
 mutacc is currently under development and only supports either single cases
 (cases with one sample) or mother/father/child trios. Furthermore, all cases
 uploaded, and exported from the mutacc DB are assumed to be paired-end reads
-experiments.
+experiments. 
