@@ -51,6 +51,7 @@ samples:
     mother: '0' #0 if no parent            
     father: '0'         
     bam_file: /path/to/sorted_bam
+    phenotype: 'unaffected'
 
   - sample_id: 'sample2'
     analysis_type: 'wgs'
@@ -58,6 +59,7 @@ samples:
     mother: '0'             
     father: '0'            
     bam_file: /path/to/sorted_bam
+    phenotype: 'affected'
 
 #PATH TO VCF FILE CONTAINING VARIANTS OF INTEREST FROM CASE
 variants: /path/to/vcf
@@ -149,7 +151,7 @@ export:
   -f2/--background-fastq2 \
     Path to second fastq file (if paired end experiment)
   
-  -s/--sex [male|female]
+  -s/--sex [male|female] \
     Specify the sex of the sample
 
 example:
