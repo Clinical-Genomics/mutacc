@@ -1,6 +1,6 @@
 # mutacc
-[![Build Status](https://travis-ci.org/adrosenbaum/mutacc.png)](https://travis-ci.org/adrosenbaum/mutacc)
-[![Coverage Status](https://coveralls.io/repos/github/adrosenbaum/mutacc/badge.svg?branch=master)](https://coveralls.io/github/adrosenbaum/mutacc?branch=master)
+[![Build Status](https://travis-ci.org/Clinical-Genomics/mutacc.png)](https://travis-ci.org/Clinical-Genomics/mutacc)
+[![Coverage Status](https://coveralls.io/repos/github/Clinical-Genomics/mutacc/badge.svg?branch=master)](https://coveralls.io/github/Clinical-Genomics/mutacc?branch=master)
 
 ## The mutation accumulation database
 
