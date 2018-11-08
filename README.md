@@ -11,7 +11,30 @@ NGS data, mutacc creates validation sets with true positives with the same
 properties as a real NGS data.
 
 ## Installation
+### Conda
+For installation of mutacc and the external prerequisites, this is made easy by creating 
+conda environment
 
+```bash
+conda create -n <env_name> python=3.6 pip numpy cython
+```
+
+activate environment
+
+```bash
+source activate <env_name>
+```
+### External Prerequisites
+mutacc takes use of two external packages, seqkit, and picard. These can be installed 
+within a conda environment by
+
+```bash
+conda install -c bioconda picard
+conda install -c bioconda seqkit
+```
+
+### Install mutacc
+Within the conda environment, do
 ```bash
 git clone https://github.com/adrosenbaum/mutacc
 pip install -e mutacc
@@ -182,20 +205,8 @@ generated from that case from disk, the remove command is used
 ```console
 mutacc remove <case_id>
 ```
-### Requirements
 
-Python >3.6 \
-picard \
-seqkit
-
-picard and seqkit are easiest to install using conda, i.e.
-
-```console
-conda install -c bioconda picard
-conda install -c bioconda seqkit
-```
-
-### Limitations
+## Limitations
 
 mutacc is currently under development and only supports either single cases
 (cases with one sample) or mother/father/child trios. Furthermore, all cases
