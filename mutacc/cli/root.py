@@ -79,11 +79,12 @@ def cli(context, loglevel, username, password, host, port, database_name, mutacc
 
     directory = mutacc_dir or cli_config.get('mutacc_dir')
 
-    if not directory:
-        LOG.warning("Please specify mutacc directory (option --mutacc-dir, or entry 'mutacc_dir' in config file)")
-        context.abort()
+    if context.invoked_subcommand == 'import':
+        if not directory:
+                LOG.warning("Please specify mutacc directory (option --mutacc-dir, or entry 'mutacc_dir' in config file)")
+                context.abort()
 
-    mutacc_config['mutacc_dir'] = make_dir(directory)
+        mutacc_config['mutacc_dir'] = make_dir(directory)
 
     context.obj = mutacc_config
 
