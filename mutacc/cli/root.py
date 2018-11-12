@@ -25,11 +25,11 @@ LOG = logging.getLogger(__name__)
 @click.option('--password')
 @click.option('-h', '--host')
 @click.option('-p', '--port')
-@click.option('-d', '--database-name')
+@click.option('-d', '--database')
 @click.option('--mutacc-dir', help = "Directory to store reduced fastq files, will be created if not exists")
 @click.option('--config-file')
 @click.pass_context
-def cli(context, loglevel, username, password, host, port, database_name, mutacc_dir, config_file):
+def cli(context, loglevel, username, password, host, port, database, mutacc_dir, config_file):
 
     coloredlogs.install(level = loglevel)
 
@@ -68,7 +68,7 @@ def cli(context, loglevel, username, password, host, port, database_name, mutacc
         LOG.warning("Connection could not be established")
         context.abort()
 
-    db_name = database_name or cli_config.get('database_name') or 'mutacc'
+    db_name = database or cli_config.get('database') or 'mutacc'
     mutacc_config['db_name'] = db_name
 
     mutacc_config['client'] = mutacc_client
