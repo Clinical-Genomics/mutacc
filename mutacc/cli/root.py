@@ -23,12 +23,13 @@ LOG = logging.getLogger(__name__)
 @click.option('--loglevel', default = 'INFO', type=click.Choice(LOG_LEVELS))
 @click.option('--username')
 @click.option('--password')
-@click.option('-h', '--host', default = 'localhost')
-@click.option('-p', '--port', default = 27017)
+@click.option('-h', '--host')
+@click.option('-p', '--port')
+@click.option('-d', '--database-name')
 @click.option('--mutacc-dir', help = "Directory to store reduced fastq files, will be created if not exists")
 @click.option('--config-file')
 @click.pass_context
-def cli(context, loglevel, username, password, host, port, mutacc_dir, config_file):
+def cli(context, loglevel, username, password, host, port, database_name, mutacc_dir, config_file):
 
     coloredlogs.install(level = loglevel)
 
@@ -67,13 +68,21 @@ def cli(context, loglevel, username, password, host, port, mutacc_dir, config_fi
         LOG.warning("Connection could not be established")
         context.abort()
 
+    db_name = database_name or cli_config.get('database_name') or 'mutacc'
+    mutacc_config['db_name'] = db_name
+
     mutacc_config['client'] = mutacc_client
     mutacc_config['adapter'] = MutaccAdapter(
         client = mutacc_client,
-        db_name = 'mutacc'
+        db_name = db_name
     )
 
-    directory = mutacc_dir or cli_config.get('mutacc_dir') or "~/mutacc_reads/"
+    directory = mutacc_dir or cli_config.get('mutacc_dir')
+
+    if not directory:
+        LOG.warning("Please specify mutacc directory (option --mutacc-dir, or entry 'mutacc_dir' in config file)")
+        context.abort()
+
     mutacc_config['mutacc_dir'] = make_dir(directory)
 
     context.obj = mutacc_config
