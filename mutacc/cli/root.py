@@ -13,6 +13,7 @@ from mutacc.mutaccDB.db_adapter import MutaccAdapter
 from .export import export as export_command
 from .importing import importing as import_command
 from .remove_command import remove_command as remove_command
+from .view_command import view_command as view_command
 
 
 
@@ -91,3 +92,4 @@ def cli(context, loglevel, username, password, host, port, database, mutacc_dir,
 cli.add_command(export_command)
 cli.add_command(import_command)
 cli.add_command(remove_command)
+cli.add_command(view_command)
