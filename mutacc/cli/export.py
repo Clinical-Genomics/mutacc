@@ -11,6 +11,7 @@ from mutacc.mutaccDB.query import mutacc_query
 from mutacc.builds.build_dataset import MakeSet
 from mutacc.utils.vcf_writer import vcf_writer, append_gt
 from mutacc.parse.path_parse import parse_path
+from mutacc.utils.sort_variants import sort_variants
 
 LOG = logging.getLogger(__name__)
 
@@ -104,7 +105,9 @@ def export(context,
     for synthetic in synthetics:
         LOG.info("Synthetic datasets created in {}".format(synthetic))
 
-
+    #sort variants
+    variants = sort_variants(variants)
+    
     #WRITE VCF FILE
     if merge_vcf:
         vcf_file = parse_path(merge_vcf)
