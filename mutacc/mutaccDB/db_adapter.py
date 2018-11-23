@@ -32,24 +32,22 @@ class MutaccAdapter(MongoAdapter):
             self.db = self.client[db_name]
             self.db_name = db_name
 
-        if "pytest" not in sys.modules:
 
-            if "variants" not in self.db.list_collection_names():
+        #if "variants" not in self.db.list_collection_names():
 
-                self.db.create_collection("variants", validator = VARIANT_VALIDATOR)
+        #    self.db.create_collection("variants", validator = VARIANT_VALIDATOR)
 
-            if "cases" not in self.db.list_collection_names():
+        #if "cases" not in self.db.list_collection_names():
 
-                self.db.create_collection("cases", validator = CASE_VALIDATOR)
-        else:
+        #    self.db.create_collection("cases", validator = CASE_VALIDATOR)
 
-            if "variants" not in self.db.list_collection_names():
+        if "variants" not in self.db.list_collection_names():
 
-                self.db.create_collection("variants")
+            self.db.create_collection("variants")
 
-            if "cases" not in self.db.list_collection_names():
+        if "cases" not in self.db.list_collection_names():
 
-                self.db.create_collection("cases")
+            self.db.create_collection("cases")
 
         self.variants_collection = self.db.variants
         self.cases_collection = self.db.cases
