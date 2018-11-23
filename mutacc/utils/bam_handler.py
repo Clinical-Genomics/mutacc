@@ -146,9 +146,10 @@ class BAMContext:
             #If mate is not found, the single read is not added to the out_bam file
             #(Unless ends argument in __init__ is not set to 1)
             except ValueError:
-                LOG.warning("Mate not found for read {}, {}".format(
+                LOG.warning("Mate not found for read {}, {}\n mate is unmapped: {}".format(
                     key,
-                    self.reads[key][0].next_reference_id
+                    self.reads[key][0].next_reference_id,
+                    self.reads[key][0].mate_is_unmapped
                     )
                 )
 
