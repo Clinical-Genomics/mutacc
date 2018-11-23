@@ -128,6 +128,26 @@ class BAMContext:
 
                     self.reads.pop(read.query_name)
 
+        #search for read in nearby region
+        left = [chrom, start - 600, start]
+        right = [chrom, end, end + 600]
+        edges = [left,right]
+
+        for edge in edges:
+            for read in self.sam.fetch(edge[0], edge[1], edge[2]):
+
+                if read.query_name in self.reads.keys():
+
+                    if read.reference_start != self.reads[read.query_name][0].reference_start:
+
+                        self.reads[read.query_name].append(read)
+                        self.found_reads = self.found_reads.union({read.query_name})
+
+                        if self.out_dir:
+                            for mate in self.reads[read.query_name]:
+                                self.out_bam.write(mate)
+
+                        self.reads.pop(read.query_name)
 
         #Find the mates of the reads not found in the same region
         keys = list(self.reads.keys())
