@@ -156,6 +156,13 @@ class BAMContext:
             try:
                 mate = self.sam.mate(self.reads[key][0])
                 self.reads[key].append(mate)
+                
+                LOG.debug("Mate found for read {}, {}\n mate is unmapped: {}".format(
+                    key,
+                    self.reads[key][0].next_reference_id,
+                    self.reads[key][0].mate_is_unmapped
+                    )
+                )
 
                 if self.out_dir:
                     for mate in self.reads[key]: self.out_bam.write(mate)
