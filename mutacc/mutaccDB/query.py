@@ -8,7 +8,7 @@ from mutacc.utils.pedigree import make_family_from_case
 
 LOG = logging.getLogger(__name__)
 
-def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='affected'):
+def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='affected', proband = False):
     """
         Given a case_query and a variant_query, this function finds the cases
         corresponding to the queries, where there are no overlaps of the variants
@@ -63,7 +63,7 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
     for case in cases:
 
         family = make_family_from_case(case)
-        individual = family.get_individual(member, sex)
+        individual = family.get_individual(member = member, sex = sex, proband = proband)
         if individual:
 
             individual_id = individual.individual_id

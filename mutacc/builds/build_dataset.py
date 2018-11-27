@@ -76,7 +76,7 @@ class MakeSet():
 
 
 
-    def merge_fastqs(self, out_dir):
+    def merge_fastqs(self, out_dir, save_background = True):
         """
             Merge the background file with the fastq_files Holding
             the reads supporting the variants
@@ -116,9 +116,10 @@ class MakeSet():
             synthetic_fastqs.append(out_path)
 
         #Remove background fastqs
-        for background in self.excluded_backgrounds:
-            LOG.info("Removing file from disk: {}".format(background))
-            os.remove(background)
+        if not save_background:
+            for background in self.excluded_backgrounds:
+                LOG.info("Removing file from disk: {}".format(background))
+                os.remove(background)
 
         for fastq in synthetic_fastqs:
             LOG.info("Created {}".format(fastq))

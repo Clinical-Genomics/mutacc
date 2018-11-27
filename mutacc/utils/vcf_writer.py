@@ -3,7 +3,7 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
-def vcf_writer(variants, vcf_path, member):
+def vcf_writer(variants, found_variants, vcf_path, member):
 
     with open(vcf_path, "w") as vcf_handle:
 
@@ -12,12 +12,17 @@ def vcf_writer(variants, vcf_path, member):
 
         for variant in variants:
 
-            genotype = variant["genotype"] or './.'
+            found = found_variants.get(str(variant['_id']))
+            if found:
+                genotype = found.get("genotype") or './.'
+            else:
+                genotype = './.'
+
             vcf_entry = variant["vcf_entry"].strip("\n").split("\t")
             entry = "\t".join(vcf_entry[0:8] + ["GT"] + [genotype]) + "\n"
             vcf_handle.write(entry)
 
-def append_gt(variants, vcf_path, member):
+def append_gt(variants, found_variants, vcf_path, member):
     vcf_dir = vcf_path.parent
     vcf_name = vcf_path.stem + "_{}.vcf".format(member)
     out_path = vcf_dir.joinpath(vcf_name)
@@ -41,11 +46,22 @@ def append_gt(variants, vcf_path, member):
                 else:
 
                     try:
-                        genotype = variants[variant_num]["genotype"] or './.'
+                        variant = variants[variant_num]
 
                     except IndexError:
                         LOG.critical("list index out of range")
                         raise
+
+                    found = found_variants.get(str(variant['_id']))
+
+                    if found:
+
+                        genotype = found.get("genotype") or './.'
+
+                    else:
+
+                        genotype = './.'
+
                     entry = entry + "\t" + genotype
                     variant_num += 1
 

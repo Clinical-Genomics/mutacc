@@ -10,14 +10,16 @@ from mutacc.cli.root import cli
 CASE_PATH = "tests/fixtures/case.yaml"
 CONFIG_PATH = "tests/fixtures/config.yaml"
 
-def test_importing(tmpdir):
+def test_extract(tmpdir):
 
     mutacc_dir = str(tmpdir.mkdir("mutacc_reads_test"))
+    case_dir = str(tmpdir.mkdir("mutacc_cases_test"))
 
     runner = CliRunner()
     result = runner.invoke(cli, [
+            'extract',
             '--mutacc-dir', mutacc_dir,
-            'import',
+            '--out-dir', case_dir,
             '--padding', '1500',
             '--case', CASE_PATH
         ]
@@ -48,9 +50,10 @@ def test_importing(tmpdir):
     #Test with config file
     runner = CliRunner()
     result = runner.invoke(cli, [
-            '--mutacc-dir', mutacc_dir,
             '--config-file', CONFIG_PATH,
-            'import',
+            'extract',
+            '--mutacc-dir', mutacc_dir,
+            '--out-dir', case_dir,
             '--padding', '1500',
             '--case', CASE_PATH
         ]
