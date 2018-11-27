@@ -27,13 +27,15 @@ LOG = logging.getLogger(__name__)
 @click.option('--out-dir', type = click.Path())
 @click.option('--tmp-dir', type = click.Path())
 @click.option('-q', '--query', type = click.Path(exists=True))
+@click.option('-s', '--save-background', is_flag = True)
 def synthesize_command(context,
                        background_bam,
                        background_fastq,
                        background_fastq2,
                        out_dir,
                        tmp_dir,
-                       query):
+                       query,
+                       save_background):
 
     #unpickle query
     with open(query, "rb") as pickle_handle:
@@ -80,7 +82,8 @@ def synthesize_command(context,
     out_dir = out_dir or context.obj.get('dataset_dir')
     out_dir = make_dir(out_dir)
     synthetics = make_set.merge_fastqs(
-            out_dir = out_dir
+            out_dir = out_dir,
+            save_background = save_background
         )
 
     #Remove temporary directory
