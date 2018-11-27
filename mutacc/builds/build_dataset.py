@@ -115,10 +115,10 @@ class MakeSet():
 
             synthetic_fastqs.append(out_path)
 
-        #Remove background fastqs
-        for background in self.excluded_backgrounds:
-            LOG.info("Removing file from disk: {}".format(background))
-            os.remove(background)
+        ##Remove background fastqs
+        ##for background in self.excluded_backgrounds:
+        ##    LOG.info("Removing file from disk: {}".format(background))
+        ##    os.remove(background)
 
         for fastq in synthetic_fastqs:
             LOG.info("Created {}".format(fastq))

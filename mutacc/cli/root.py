@@ -10,10 +10,9 @@ import mongomock
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.db_adapter import MutaccAdapter
 
-from .export import export as export_command
-from .importing import importing as import_command
-from .remove_command import remove_command as remove_command
-from .view_command import view_command as view_command
+from .database import database_group as database_group
+from .extract import extract_command as extract_command
+from .synthesize import synthesize_command as synthesize_command
 
 
 
@@ -22,15 +21,9 @@ LOG = logging.getLogger(__name__)
 
 @click.group()
 @click.option('--loglevel', default = 'INFO', type=click.Choice(LOG_LEVELS))
-@click.option('--username')
-@click.option('--password')
-@click.option('-h', '--host')
-@click.option('-p', '--port')
-@click.option('-d', '--database')
-@click.option('--mutacc-dir', help = "Directory to store reduced fastq files, will be created if not exists")
-@click.option('--config-file')
+@click.option('-c', '--config-file', type = click.Path())
 @click.pass_context
-def cli(context, loglevel, username, password, host, port, database, mutacc_dir, config_file):
+def cli(context, loglevel, config_file):
 
     coloredlogs.install(level = loglevel)
 
@@ -43,53 +36,23 @@ def cli(context, loglevel, username, password, host, port, database, mutacc_dir,
         with open(config_file, 'r') as in_handle:
             cli_config = yaml.load(in_handle)
 
+
     mutacc_config = {}
-    mutacc_config['host'] = host or cli_config.get('host') or 'localhost'
-    mutacc_config['port'] = port or cli_config.get('port') or 27017
-    mutacc_config['username'] = username or cli_config.get('username')
-    mutacc_config['password'] = password or cli_config.get('password')
-
-    LOG.info("Establishing connection with host {}, on port {}".format(
-        mutacc_config['host'], mutacc_config['port']
-        )
-    )
-
-    #FOR TESTING
-    if "pytest" not in sys.modules:
-
-        mutacc_client = mongo_adapter.get_client(**mutacc_config)
-
-    else:
-
-        mutacc_client = mongomock.MongoClient(port = 27017, host = 'localhost')
-
-
-    if not mongo_adapter.check_connection(mutacc_client):
-
-        LOG.warning("Connection could not be established")
-        context.abort()
-
-    db_name = database or cli_config.get('database') or 'mutacc'
-    mutacc_config['db_name'] = db_name
-
-    mutacc_config['client'] = mutacc_client
-    mutacc_config['adapter'] = MutaccAdapter(
-        client = mutacc_client,
-        db_name = db_name
-    )
-
-    directory = mutacc_dir or cli_config.get('mutacc_dir')
-
-    if context.invoked_subcommand == 'import':
-        if not directory:
-                LOG.warning("Please specify mutacc directory (option --mutacc-dir, or entry 'mutacc_dir' in config file)")
-                context.abort()
-
-        mutacc_config['mutacc_dir'] = make_dir(directory)
+    mutacc_config['host'] = cli_config.get('host') or 'localhost'
+    mutacc_config['port'] = cli_config.get('port') or 27017
+    mutacc_config['username'] = cli_config.get('username')
+    mutacc_config['password'] = cli_config.get('password')
+    mutacc_config['db_name'] = cli_config.get('database') or 'mutacc'
+    mutacc_config['vcf_dir'] = cli_config.get('vcf_dir')
+    mutacc_config['case_dir'] = cli_config.get('case_dir')
+    mutacc_config['query_dir'] = cli_config.get('query_dir')
+    mutacc_config['dataset_dir'] = cli_config.get('dataset_dir')
+    mutacc_config['tmp_dir'] = cli_config.get('tmp_dir')
+    mutacc_config['mutacc_dir'] = cli_config.get('mutacc_dir')
 
     context.obj = mutacc_config
 
-cli.add_command(export_command)
-cli.add_command(import_command)
-cli.add_command(remove_command)
-cli.add_command(view_command)
+cli.add_command(extract_command)
+cli.add_command(synthesize_command)
+
+cli.add_command(database_group)

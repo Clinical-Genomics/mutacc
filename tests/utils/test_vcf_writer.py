@@ -5,20 +5,24 @@ from mutacc.utils.vcf_writer import vcf_writer, append_gt
 
 VARIANT1 = {
     "vcf_entry": "4\t65071643\t.\tT\t<INV>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
-    "genotype": "1/0"
+    "genotype": "1/0",
+    "_id": "456"
 }
 VARIANT2 = {
     "vcf_entry": "6\t75071643\t.\tT\t<DUP>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
-    "genotype": "1/0"
+    "genotype": "1/0",
+    "_id": "123"
 }
 VARIANTS = [VARIANT1, VARIANT2]
+
+FOUND_VARIANTS = {"123": VARIANT2}
 
 def test_vcf_writer(tmpdir):
 
     out_path = Path(tmpdir.mkdir("test_vcf_writer"))
     out_vcf = out_path.joinpath("test_vcf_father.vcf")
 
-    vcf_writer(VARIANTS, out_vcf, "father")
+    vcf_writer(VARIANTS, FOUND_VARIANTS, out_vcf, "father")
 
     with open(out_vcf, "r") as handle:
 
@@ -35,7 +39,7 @@ def test_vcf_writer(tmpdir):
 
         assert count == 4
 
-    append_gt(VARIANTS, out_vcf, "child")
+    append_gt(VARIANTS, FOUND_VARIANTS, out_vcf, "child")
 
     assert out_path.joinpath("test_vcf_father_child.vcf").exists()
 
@@ -58,4 +62,4 @@ def test_vcf_writer(tmpdir):
 
     with pytest.raises(IndexError) as error:
 
-        append_gt([VARIANT1], out_vcf, "mother")
+        append_gt([VARIANT1], FOUND_VARIANTS, out_vcf, "mother")

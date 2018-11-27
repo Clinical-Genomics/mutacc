@@ -33,7 +33,7 @@ class Family(ped_parser.Family):
 
         super(Family, self).__init__(family_id, individuals = {})
 
-    def get_child(self, sex = None):
+    def get_child(self, sex = None, proband = False):
 
         if sex:
             if sex == "male":
@@ -55,6 +55,11 @@ class Family(ped_parser.Family):
                         child = individual
                 else:
                     child = individual
+
+        if not child:
+            if proband and len(self.individuals.keys()) == 1:
+                for individual_id in self.individuals:
+                    child = self.individuals[individual_id]
 
         return child
 
@@ -122,7 +127,7 @@ class Family(ped_parser.Family):
 
         return affected
 
-    def get_individual(self, member, sex = None):
+    def get_individual(self, member, sex = None, proband = False):
 
         members = {'father',
                    'mother',
@@ -137,7 +142,7 @@ class Family(ped_parser.Family):
         elif member == 'mother':
             return self.get_mother()
         elif member == 'child':
-            return self.get_child(sex=sex)
+            return self.get_child(sex=sex, proband=proband)
         elif member == 'affected':
             return self.get_affected(sex=sex)
 
@@ -183,7 +188,7 @@ def make_family_from_case(case):
             father = sample['father'],
             sex = sex,
             phenotype = phenotype,
-            variant_bam_file = sample['variant_bam_file'],
+            variant_bam_file = sample.get('variant_bam_file'),
             variant_fastq_files = sample['variant_fastq_files']
         )
 

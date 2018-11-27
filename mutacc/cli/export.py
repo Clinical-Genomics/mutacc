@@ -2,6 +2,7 @@
 import logging
 import yaml
 import tempfile
+import pickle
 from shutil import rmtree
 
 import click
@@ -18,27 +19,27 @@ LOG = logging.getLogger(__name__)
 @click.command()
 @click.option('-c','--case-query')
 @click.option('-v','--variant-query')
-@click.option('-b','--background-bam')
-@click.option('-f','--background-fastq')
-@click.option('-f2','--background-fastq2')
 @click.option('-m', '--member',
               type = click.Choice(['father','mother','child','affected']),
               default = 'affected')
 @click.option('-s','--sex',
               type = click.Choice(['male','female']))
-@click.option('--out-dir', default = './')
+@click.option('--out-dir', type = click.Path())
+@click.option('--vcf-dir', type = click.Path())
 @click.option('--merge-vcf', type = click.Path())
+@click.option('-p', '--proband', is_flag = True)
+@click.option('-n', '--sample-name')
 @click.pass_context
 def export(context,
            case_query,
            variant_query,
-           background_bam,
-           background_fastq,
-           background_fastq2,
            member,
            sex,
            out_dir,
-           merge_vcf):
+           vcf_dir,
+           merge_vcf,
+           proband,
+           sample_name):
 
     """
         exports dataset from DB
@@ -53,73 +54,46 @@ def export(context,
         case_query,
         variant_query,
         sex=sex,
-        member=member
+        member=member,
+        proband=proband
     )
 
-    #Abort if no cases correspond to query
-    num_cases = len(samples)
-    if num_cases == 0:
-        LOG.warning("No cases were found")
-        context.abort()
+    sample_name = sample_name or member
 
-    num_variants = len(variants)
+    query = (samples, regions, variants, sample_name)
 
-    LOG.info("{} cases found, with a total of {} variants.".format(
-                num_cases,
-                num_variants)
-            )
-
-    #make object make_set from MakeSet class
-    make_set = MakeSet(samples, regions)
-
-    #load background files given in yaml file as dictionary
-    #with open(background, "r") as in_handle:
-    #    background = yaml.load(in_handle)
-
-    #Exclude reads from the background bam files
-    background = {"bam_file": background_bam,
-                  "fastq_files": [background_fastq]}
-    if background_fastq2: background["fastq_files"].append(background_fastq2)
-
-    #Create temporary directory
-    temp_dir = tempfile.mkdtemp("_mutacc_tmp")
-
-    LOG.info("Temporay files stored in {}".format(temp_dir))
-
-    make_set.exclude_from_background(out_dir = temp_dir,
-                                     background = background,
-                                     member = member)
-
-
-    #Merge the background files with excluded reads with the bam Files
-    #Holding the reads for the regions of the variants to be included in
-    #validation set
+    out_dir = out_dir or context.obj.get('query_dir')
     out_dir = make_dir(out_dir)
-    synthetics = make_set.merge_fastqs(
-        out_dir = out_dir
-        )
 
-    #Remove temporary directory
-    rmtree(temp_dir)
+    #pickle query
+    pickle_file = out_dir.joinpath(sample_name + "_query.mutacc")
 
-    for synthetic in synthetics:
-        LOG.info("Synthetic datasets created in {}".format(synthetic))
+    with open(pickle_file, "wb") as pickle_handle:
+
+        pickle.dump(query, pickle_handle)
+
+    LOG.info("Query stored in {}".format(pickle_file))
 
     #sort variants
-    variants = sort_variants(variants)
-    
+    found_variants = {str(variant['_id']): variant for variant in variants}
+
+    all_variants = adapter.find_variants({})
+    all_variants = sort_variants(all_variants)
+
     #WRITE VCF FILE
     if merge_vcf:
         vcf_file = parse_path(merge_vcf)
         LOG.info("appending genotype field for {} in {}".format(
-            member,
+            sample_name,
             str(vcf_file)
             )
         )
-        append_gt(variants, vcf_file, member)
+        append_gt(all_variants, found_variants, vcf_file, sample_name)
     else:
 
-        vcf_file = out_dir.joinpath("synthetic_{}.vcf".format(member))
+        vcf_dir = vcf_dir or context.obj.get('vcf_dir')
+        vcf_dir = make_dir(vcf_dir)
+        vcf_file = vcf_dir.joinpath("synthetic_{}.vcf".format(sample_name))
         LOG.info("creating vcf file {}".format(str(vcf_file)))
 
-        vcf_writer(variants, vcf_file, member)
+        vcf_writer(all_variants, found_variants, vcf_file, sample_name)

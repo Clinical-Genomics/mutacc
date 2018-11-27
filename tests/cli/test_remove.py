@@ -8,6 +8,7 @@ def test_remove():
 
     runner = CliRunner()
     result = runner.invoke(cli, [
+            'db',
             'remove',
             '--help'
         ]

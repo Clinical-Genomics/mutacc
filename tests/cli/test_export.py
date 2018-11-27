@@ -8,6 +8,7 @@ def test_export():
 
     runner = CliRunner()
     result = runner.invoke(cli, [
+            'db',
             'export',
             '--help'
         ]
