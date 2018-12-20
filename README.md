@@ -15,13 +15,13 @@ properties as a real NGS data.
 For installation of mutacc and the external prerequisites, this is made easy by creating 
 conda environment
 
-```bash
+```consol
 conda create -n <env_name> python=3.6 pip numpy cython
 ```
 
 activate environment
 
-```bash
+```consol
 source activate <env_name>
 ```
 ### External Prerequisites
@@ -104,22 +104,34 @@ done by specifying the fastq files as such
       - /path/to/fastq2
     phenotype: 'affected'
 ```
+To extract the reads from the case
+
+```console
+mutacc extract --padding 600 --case <case.yaml> --mutacc-dir <dir> --out-dir <dir>
+```
+the --padding option takes the number of basepairs that the desired region is
+padded with.
+
+The option --mutacc-dir specifies the directory where the extracted reads are stored. The extracted reads are stored in fastq format.
+
+This will create a file 'case_id'.mutacc stored in the directory specified with the --out-dir option.
 
 To import the case into the database
 
 ```console
-mutacc import --padding 600 --case <case.yaml>
+mutacc db import case_id.mutacc
 ```
+
+The db command is called each time mutacc needs to do any operation against the database.
 
 This will try to establish a connection to an instance of mongodb, by default
 running on 'localhost' on port 27017. If this is not wanted, it can be specified
 with the --host and --port options.
 
-the --padding option takes the number of basepairs that the desired region is
-padded with.
+
 
 ```console
-mutacc -h <host> -p <port> import --padding 600 --case <case.yaml>
+mutacc db -h <host> -p <port> import case_id.mutacc
 ```
 
 If authentication is required, this can be specified with the --username and
@@ -135,14 +147,9 @@ password: <password>
 ```
 
 ```console
-mutacc --config-file <config.yaml> import --case <case.yaml>
+mutacc --config-file <config.yaml> db import case_id.mutacc
 ```
 
-The generated fastq files containing the reads supporting the given variants
-will not be stored in the database itself, but pointed to a by a path to the
-file system. By default, the fastq files will be stored in the directory
-~/mutacc_fastqs/. If another directory is wanted this can be required with the
---mutacc-dir option or as an entry 'mutacc_dir' in the configuration file.
 
 ### Export datasets from the database
 The datasets are exported one sample at the time. At the moment, mutacc only
@@ -165,7 +172,48 @@ export:
   -v/--variant-query \
     Query to search among the variants collection.
 
-  -b/--background-bam \
+  
+  
+  -s/--sex [male|female] \
+    Specify the sex of the sample
+    
+  -n/--sample-name \
+    name of the sample
+    
+  -p/--proband \
+    This flag will make the sample 'proband', this will force all variants from 
+    single cases to be included into this sample
+    
+  --vcf-dir \
+    Specify the directory where the vcf file is stored. (can be specified in config file as 'vcf_dir')
+    
+  --merge-vcf \
+    If the generated vcf needs to be merged with another vcf
+    
+  --out-dir \
+    Specify the directory where the export object file is stored (can be specified in config file as 'query_dir')
+    
+
+example:
+
+```console
+mutacc --config-file <config.yaml> db export -m affected -c '{}' 
+```
+will find all the cases from the mutacc DB, and store this 
+information in a file <out_dir>/sample_name_query.mutacc.
+
+to export a entire trio, this can be done by
+
+```console
+mutacc --config-file <config.yaml> db export -m child -c '{}' -b <bam> -f <fastq1_child> -f2 <fastq2_child>
+mutacc --config-file <config.yaml> db export -m father -c '{}' -b <bam> -f <fastq1_father> -f2 <fastq2_father>
+mutacc --config-file <config.yaml> db export -m mother -c '{}' -b <bam> -f <fastq1_mother> -f2 <fastq2_mother>
+```
+
+To make a dataset (fastq-files) from a query object the synthesize command is used 
+with the following options
+
+   -b/--background-bam \
     Path to the bam file for sample to be used as background
 
   -f/--background-fastq \
@@ -173,29 +221,23 @@ export:
 
   -f2/--background-fastq2 \
     Path to second fastq file (if paired end experiment)
-  
-  -s/--sex [male|female] \
-    Specify the sex of the sample
+    
+  --out-dir \
+    Directory where fastq files will be stored (Can be in config file as 'dataset_dir')
+    
+  --tmp_dir \
+    Directory where temporary files will be stored. i.e. the background 
+    files with the excluded reads (Can be in config file as 'tmp_dir')
 
-example:
-
-```console
-mutacc export -m affected -c '{}' -b <bam> -f <fastq1> -f2 <fastq2>
-```
-will find all the cases all the cases from the mutacc DB, and enrich the fastq
-files with the reads from a affected member of the case.
-
-to export a entire trio, this can be done by
+example
 
 ```console
-mutacc export -m child -c '{}' -b <bam> -f <fastq1_child> -f2 <fastq2_child>
-mutacc export -m father -c '{}' -b <bam> -f <fastq1_father> -f2 <fastq2_father>
-mutacc export -m mother -c '{}' -b <bam> -f <fastq1_mother> -f2 <fastq2_mother>
+mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_child> -f2 <fastq2_child>
+mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_father> -f2 <fastq2_father>
+mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother>
 ```
-By default, the datasets will be created in the current working directory.
-This can be changed with the --out-dir option. The background fastq files with
-the excluded reads will be placed in the current working directory, and removed
-after they are used. This can be changed with the --temp-dir option.
+
+
 
 ### Remove case from database
 
@@ -203,7 +245,7 @@ To remove a case from the mutacc DB, and all the generated bam, and fastq files
 generated from that case from disk, the remove command is used
 
 ```console
-mutacc remove <case_id>
+mutacc --config-file <config.yaml> db remove <case_id>
 ```
 
 ## Limitations
