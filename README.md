@@ -205,10 +205,12 @@ information in a file <out_dir>/sample_name_query.mutacc.
 to export a entire trio, this can be done by
 
 ```console
-mutacc --config-file <config.yaml> db export -m child -c '{}' -b <bam> -f <fastq1_child> -f2 <fastq2_child>
-mutacc --config-file <config.yaml> db export -m father -c '{}' -b <bam> -f <fastq1_father> -f2 <fastq2_father>
-mutacc --config-file <config.yaml> db export -m mother -c '{}' -b <bam> -f <fastq1_mother> -f2 <fastq2_mother>
+mutacc --config-file <config.yaml> db export -m child -c '{}' -p -n child
+mutacc --config-file <config.yaml> db export -m father -c '{}' -n father
+mutacc --config-file <config.yaml> db export -m mother -c '{}' -n mother
 ```
+This will create three files in the directory specified with the --out-dir option 
+(or in the config file); child_query.mutacc, father_query.mutacc, and mother_query.mutacc. 
 
 To make a dataset (fastq-files) from a query object the synthesize command is used 
 with the following options
@@ -222,6 +224,9 @@ with the following options
   -f2/--background-fastq2 \
     Path to second fastq file (if paired end experiment)
     
+  -q/--query \
+    Path to the query files created with the export command
+    
   --out-dir \
     Directory where fastq files will be stored (Can be in config file as 'dataset_dir')
     
@@ -229,15 +234,15 @@ with the following options
     Directory where temporary files will be stored. i.e. the background 
     files with the excluded reads (Can be in config file as 'tmp_dir')
 
-example
+example, using the query files created above
 
 ```console
-mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_child> -f2 <fastq2_child>
-mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_father> -f2 <fastq2_father>
-mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother>
+mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_child> -f2 <fastq2_child> -q child_query.mutacc
+mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_father> -f2 <fastq2_father> -q father_query.mutacc
+mutacc --config-file <config.yaml> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother> -q mother_query.mutacc
 ```
 
-
+The created fastq-files will be stored in the directory specified by the --out-dir option.
 
 ### Remove case from database
 
