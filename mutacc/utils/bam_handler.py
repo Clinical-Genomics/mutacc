@@ -100,16 +100,20 @@ class BAMContext:
         for read in self.sam.fetch(chrom, start, end):
             #If name of read not among the keys in reads dict AND if both mates have not been found
             #allready make list to hold mates
-            if read.query_name not in self.reads.keys() and \
-               read.query_name not in self.found_reads:
 
-                self.reads[read.query_name] = []
+            read_name = read.query_name
+
+            if read_name not in self.reads.keys() and \
+               read_name not in self.found_reads:
+
+                self.reads[read_name] = []
+
             #If both mates are not found allready, append read to mate list in reads
             #and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
-            if read.query_name not in self.found_reads:
+            if read_name not in self.found_reads:
 
-                if len(self.reads[read.query_name]) == 0:
-                    self.reads[read.query_name].append(read)
+                if len(self.reads[read_name]) == 0:
+                    self.reads[read_name].append(read)
 
                 #Make sure the two reads is not the sameself.
                 #May happen if the region overlaps
@@ -128,35 +132,15 @@ class BAMContext:
 
                     self.reads.pop(read.query_name)
 
-        #search for read in nearby region
-        left = [chrom, start - 600, start]
-        right = [chrom, end, end + 600]
-        edges = [left,right]
-
-        for edge in edges:
-            for read in self.sam.fetch(edge[0], edge[1], edge[2]):
-
-                if read.query_name in self.reads.keys():
-
-                    if read.reference_start != self.reads[read.query_name][0].reference_start:
-
-                        self.reads[read.query_name].append(read)
-                        self.found_reads = self.found_reads.union({read.query_name})
-
-                        if self.out_dir:
-                            for mate in self.reads[read.query_name]:
-                                self.out_bam.write(mate)
-
-                        self.reads.pop(read.query_name)
-
         #Find the mates of the reads not found in the same region
         keys = list(self.reads.keys())
         for key in keys:
 
-            try:
-                mate = self.sam.mate(self.reads[key][0])
+            mate = self.find_mate(self.reads[key][0])
+
+            if mate:
                 self.reads[key].append(mate)
-                
+
                 LOG.debug("Mate found for read {}, {}\n mate is unmapped: {}".format(
                     key,
                     self.reads[key][0].next_reference_id,
@@ -169,22 +153,33 @@ class BAMContext:
                 self.reads.pop(key)
                 self.found_reads = self.found_reads.union({key})
 
-            #AlignmentSegment.mate raises ValueError if mate can not be found
-            #If mate is not found, the single read is not added to the out_bam file
-            #(Unless ends argument in __init__ is not set to 1)
-            except ValueError:
-                LOG.warning("Mate not found for read {}, {}\n mate is unmapped: {}".format(
-                    key,
-                    self.reads[key][0].next_reference_id,
-                    self.reads[key][0].mate_is_unmapped
-                    )
-                )
 
 
     @property
     def record_number(self):
 
         return len(self.found_reads)
+
+    def find_mate(self, read):
+
+        try:
+
+            mate = self.sam.mate(read)
+
+        #AlignmentSegment.mate raises ValueError if mate can not be found
+        #If mate is not found, the single read is not added to the out_bam file
+        #(Unless ends argument in __init__ is not set to 1)
+        except ValueError:
+
+            LOG.warning("Mate not found for read {}, {}\n mate is unmapped: {}".format(
+                read.query_name,
+                read.next_reference_id,
+                read.mate_is_unmapped
+                )
+            )
+            mate = None
+
+        return mate
 
     @property
     def out_file(self):
