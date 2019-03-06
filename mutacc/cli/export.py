@@ -10,7 +10,7 @@ import click
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.query import mutacc_query
 from mutacc.builds.build_dataset import MakeSet
-from mutacc.utils.vcf_writer import vcf_writer, append_gt
+from mutacc.utils.vcf_writer import vcf_writer
 from mutacc.parse.path_parse import parse_path
 from mutacc.utils.sort_variants import sort_variants
 
@@ -60,6 +60,7 @@ def export(context,
 
     sample_name = sample_name or member
 
+    #Info to be dumped into file
     query = (samples, regions, variants, sample_name)
 
     out_dir = out_dir or context.obj.get('query_dir')
@@ -75,25 +76,13 @@ def export(context,
     LOG.info("Query stored in {}".format(pickle_file))
 
     #sort variants
-    found_variants = {str(variant['_id']): variant for variant in variants}
-
-    all_variants = adapter.find_variants({})
-    all_variants = sort_variants(all_variants)
+    found_variants = sort_variants(variants)
 
     #WRITE VCF FILE
-    if merge_vcf:
-        vcf_file = parse_path(merge_vcf)
-        LOG.info("appending genotype field for {} in {}".format(
-            sample_name,
-            str(vcf_file)
-            )
-        )
-        append_gt(all_variants, found_variants, vcf_file, sample_name)
-    else:
 
-        vcf_dir = vcf_dir or context.obj.get('vcf_dir')
-        vcf_dir = make_dir(vcf_dir)
-        vcf_file = vcf_dir.joinpath("synthetic_{}.vcf".format(sample_name))
-        LOG.info("creating vcf file {}".format(str(vcf_file)))
+    vcf_dir = vcf_dir or context.obj.get('vcf_dir')
+    vcf_dir = make_dir(vcf_dir)
+    vcf_file = vcf_dir.joinpath("synthetic_{}.vcf".format(sample_name))
+    LOG.info("creating vcf file {}".format(str(vcf_file)))
 
-        vcf_writer(all_variants, found_variants, vcf_file, sample_name)
+    vcf_writer(found_variants, vcf_file, sample_name)
