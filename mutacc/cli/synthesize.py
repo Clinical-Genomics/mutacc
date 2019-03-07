@@ -10,7 +10,6 @@ import click
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.query import mutacc_query
 from mutacc.builds.build_dataset import MakeSet
-from mutacc.utils.vcf_writer import vcf_writer, append_gt
 from mutacc.parse.path_parse import parse_path
 from mutacc.utils.sort_variants import sort_variants
 
