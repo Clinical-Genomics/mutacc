@@ -14,6 +14,8 @@ from .database import database_group as database_group
 from .extract import extract_command as extract_command
 from .synthesize import synthesize_command as synthesize_command
 
+from mutacc import __version__
+
 
 
 LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
@@ -22,6 +24,7 @@ LOG = logging.getLogger(__name__)
 @click.group()
 @click.option('--loglevel', default = 'INFO', type=click.Choice(LOG_LEVELS))
 @click.option('-c', '--config-file', type = click.Path())
+@click.version_option(__version__)
 @click.pass_context
 def cli(context, loglevel, config_file):
 

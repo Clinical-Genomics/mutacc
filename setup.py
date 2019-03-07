@@ -18,7 +18,7 @@ URL = 'https://github.com/adrosenbaum/mutacc'
 EMAIL = 'adam.rosenbaum@scilifelab.se'
 AUTHOR = 'Adam Rosenbaum'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1'
+VERSION = '1.0.0'
 
 here = os.path.abspath(os.path.dirname(__file__))
 
