@@ -8,6 +8,8 @@ from mutacc.utils.pedigree import make_family_from_case
 
 LOG = logging.getLogger(__name__)
 
+
+
 def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='affected', proband = False):
     """
         Given a case_query and a variant_query, this function finds the cases
@@ -44,35 +46,95 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
     #to the query, if the case_id is not already in case_ids
     if variant_query:
 
-        variant_query = json.loads(variant_query)
-        variants = mutacc_adapter.find_variants(variant_query)
+        variant_cases = cases_from_variants(mutacc_adapter, variant_query, case_ids)
+        cases.extend(variant_cases)
 
-        for variant in variants:
 
-            if variant['case'] not in case_ids:
+    final_samples, final_regions, final_variants = get_samples_from_cases(
+        mutacc_adapter,
+        cases,
+        sex = sex,
+        member = member,
+        proband = proband
+    )
 
-                new_case = mutacc_adapter.find_case({"case_id": variant['case']})
-                cases.append(new_case)
-                case_ids.append(variant['case'])
+    return final_samples, final_regions, final_variants
 
-    #Scan through the found cases, and make sure that none of the variant regions
-    #of any case overlaps with another
+
+def cases_from_variants(mutacc_adapter, variant_query, not_cases=None):
+
+    """
+        Given a variant query, return the cases for these variants
+
+        Args:
+            mutacc_adapter (mutacc.mutaccDB.db_adapter.MutaccAdapter):
+                Adapter to the mongod instance holding the mutacc database
+            variant_query(str): String of valid JSON
+            not_cases(list): list of case_ids that should NOT be queried for.
+
+        Returns:
+            cases (list): list of cases.
+
+    """
+
+    variant_query = json.loads(variant_query)
+
+    if not_cases:
+        variants['case'] = {'$nin': not_cases}
+
+    variants = mutacc_adapter.find_variants(variant_query)
+
+    case_ids = [variant['case'] for variant in variants]
+
+    case_query = {'case_id': {'$in': case_ids}}
+    cases = mutacc_adapter.find_cases(case_query)
+
+    return cases
+
+def get_samples_from_cases(mutacc_adapter, cases, sex=None, member='affected', proband = False):
+
+    """
+        Filters out the relevant samples from a list of cases. Also provides a check,
+        so that no variant from any sample overlap with anotherself.
+
+        Args:
+            mutacc_adapter(mutacc.mutaccDB.db_adapter.MutaccAdapter):
+                Adapter to the mongod instance holding the mutacc database
+            cases (list): list of cases.
+            sex(str): sex of sample to be found
+            member(str): 'child', 'father', 'mother','affected'
+            proband(bool): If true, returns the single sample from cases with
+                only one sample.
+
+    """
+
+    #Lists to hold final samples, variants, and regions
     final_samples = []
     final_variants = []
     final_regions = []
     for case in cases:
 
+        #Parse case with Family class
         family = make_family_from_case(case)
+
+        #Try to find relevant individual from family
         individual = family.get_individual(member = member, sex = sex, proband = proband)
+
         if individual:
 
             individual_id = individual.individual_id
+
+            #Store variants and regions from case
             case_variants = []
             case_regions = []
+
             overlaps = False
+
+            #Get variants from case from database
             variants = mutacc_adapter.find_variants(
                     {"_id": {"$in": case["variants"]}}
                 )
+
             for variant in variants:
                 #Add correct genotype of sample to variant
                 variant["genotype"] = variant["samples"].get(individual_id)
@@ -80,15 +142,21 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
                            "start": variant["reads_region"]["start"],
                            "end": variant["reads_region"]["end"]}
 
+                #See if region overlaps with already found regions
+                #If it does, continue with next case
                 if overlapping_region(region, final_regions):
                     LOG.warning("case {} contain overlapping variant".format(
                     case["case_id"])
                     )
                     overlaps = True
                     break
+
                 case_variants.append(variant)
                 case_regions.append(region)
 
+            #If genomic regions from case does not overlap with any other,
+            #Append sample, variant, and region to be returned from function.
+            
             if not overlaps:
                 #Add the regions and variants to each case before parsing
                 #with make_family_from_case
