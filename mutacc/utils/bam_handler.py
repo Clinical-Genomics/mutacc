@@ -99,7 +99,7 @@ class BAMContext:
         #Fetch iterator for reads in given region
         for read in self.sam.fetch(chrom, start, end):
             #If name of read not among the keys in reads dict AND if both mates have not been found
-            #allready make list to hold mates
+            #already make list to hold mates
 
             read_name = read.query_name
 
@@ -108,7 +108,7 @@ class BAMContext:
 
                 self.reads[read_name] = []
 
-            #If both mates are not found allready, append read to mate list in reads
+            #If both mates are not found already, append read to mate list in reads
             #and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
             if read_name not in self.found_reads:
 
