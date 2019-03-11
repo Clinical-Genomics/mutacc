@@ -2,6 +2,13 @@ from cyvcf2 import VCF
 
 from mutacc.parse.path_parse import parse_path
 
+#IDs in the INFO field that should be included in the database
+INFO_IDS= (
+
+    'RankScore'
+
+)
+
 #A function for correctly parsing a vcf entry for the regions to look for in the bam file will be
 # necessary. This will be the case for more complex structural variants. the find_region function
 #attempts to
@@ -32,7 +39,7 @@ class Variant:
         #For variants with an ID 'SVTYPE' in the INFO field of the vcf entry
         start, end = self.find_start_end()
 
-        vtype = self.entry.INFO.get("SVTYPE") or self.entry.INFO.get("TYPE") or 'None'
+        vtype = self.entry.INFO.get("TYPE") or self.entry.INFO.get("SVTYPE") or 'None'
         vtype = vtype.upper()
 
         region = {"start": start - padding,
@@ -49,18 +56,25 @@ class Variant:
             end = self.entry.end
         return (int(start), int(end))
 
+
     def find_genotypes(self):
 
+        samples = {}
+        for i in range(len(self.samples)):
 
-        if self.entry.genotypes:
+            sample_id = self.samples[i]
 
-            samples = {self.samples[i]: resolve_cyvcf2_genotype(
-                    self.entry.genotypes[i]
-                ) for i in range(len(self.samples))}
+            #IDs from sample specific genotype field
+            sample = {
 
-        else:
+                    'GT': resolve_cyvcf2_genotype(self.entry.genotypes[i]),
+                    'DP': int(self.entry.gt_depths[i]),
+                    'GQ': float(self.entry.gt_quals[i]),
+                    'AD': int(self.entry.gt_alt_depths[i])
 
-            samples = {self.samples[i]: "./." for i in range(len(self.samples))}
+                }
+
+            samples[sample_id] = sample
 
         return samples
 
@@ -86,6 +100,12 @@ class Variant:
                 "reads_region": self.region,
                 "samples": samples
                 }
+
+        #Add data from the info INFO field
+        for ID in INFO_IDS:
+            if self.entry.INFO.get(ID):
+                self.variant[ID] = self.entry.INFO.get(ID)
+
     @property
     def display_name(self):
 
