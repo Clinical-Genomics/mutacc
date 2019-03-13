@@ -1,10 +1,7 @@
 
 import logging
 import yaml
-import tempfile
 import pickle
-from shutil import rmtree
-
 import click
 
 from mutacc.parse.path_parse import make_dir
@@ -23,16 +20,14 @@ LOG = logging.getLogger(__name__)
 @click.option('-b','--background-bam', type = click.Path())
 @click.option('-f','--background-fastq', type = click.Path())
 @click.option('-f2','--background-fastq2', type = click.Path())
-@click.option('--out-dir', type = click.Path())
-@click.option('--tmp-dir', type = click.Path())
+@click.option('--dataset-dir', type = click.Path())
 @click.option('-q', '--query', type = click.Path(exists=True))
 @click.option('-s', '--save-background', is_flag = True)
 def synthesize_command(context,
                        background_bam,
                        background_fastq,
                        background_fastq2,
-                       out_dir,
-                       tmp_dir,
+                       dataset_dir,
                        query,
                        save_background):
 
@@ -65,12 +60,11 @@ def synthesize_command(context,
     #Create temporary directory
     #tmp_dir = tempfile.mkdtemp("_mutacc_tmp")
 
-    tmp_dir = tmp_dir or context.obj.get('tmp_dir')
-    tmp_dir = make_dir(tmp_dir)
+    temp_dir = context.obj.get('temp_dir')
 
-    LOG.info("Temporay files stored in {}".format(tmp_dir))
+    LOG.info("Temporay files stored in {}".format(temp_dir))
 
-    make_set.exclude_from_background(out_dir = tmp_dir,
+    make_set.exclude_from_background(tmp_dir = temp_dir,
                                      background = background,
                                      member = sample_name)
 
@@ -78,15 +72,13 @@ def synthesize_command(context,
     #Merge the background files with excluded reads with the bam Files
     #Holding the reads for the regions of the variants to be included in
     #validation set
-    out_dir = out_dir or context.obj.get('dataset_dir')
-    out_dir = make_dir(out_dir)
+    dataset_dir = dataset_dir or context.obj.get('dataset_dir')
+    dataset_dir = make_dir(dataset_dir)
     synthetics = make_set.merge_fastqs(
-            out_dir = out_dir,
+            out_dir = dataset_dir,
             save_background = save_background
         )
 
-    #Remove temporary directory
-    #rmtree(temp_dir)
 
     for synthetic in synthetics:
         LOG.info("Synthetic datasets created in {}".format(synthetic))

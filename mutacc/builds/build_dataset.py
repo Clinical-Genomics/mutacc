@@ -30,7 +30,7 @@ class MakeSet():
         self.samples = samples
         self.regions = regions
 
-    def exclude_from_background(self, out_dir, background, member):
+    def exclude_from_background(self, tmp_dir, background, member):
 
         """
             for each background fastq file exclude the reads overlapping with
@@ -38,13 +38,12 @@ class MakeSet():
              writing new fastq files excluding these reads.
 
             Args:
-                out_dir (str): path to directory where bam file is written
+                tmp_dir (str): path to directory where fastq_files with excluded
+                               reads, i.e. the 'background' reads.
                 backgrounds (list): list of paths to the 'background' bam files
                 member (str): synthetic family member for synthetic dataset.
                     choices: 'child', 'father', 'mother', 'affected'
         """
-        #Multiprocess in future?
-        out_dir = parse_path(out_dir, file_type = 'dir')
 
         bam_file = parse_path(background["bam_file"])
         fastq_files = [parse_path(fastq) for fastq in background["fastq_files"]]
@@ -61,13 +60,13 @@ class MakeSet():
                 )
             )
 
-            name_file = bam_handle.make_names_temp(out_dir)
+            name_file = bam_handle.make_names_temp(tmp_dir)
             self.excluded_backgrounds = []
             for fastq_file in fastq_files:
 
                 fastq_path = str(fastq_file)
                 out_name = str(member) + "_" + str(fastq_file.name)
-                out_path = str(out_dir.joinpath(out_name))
+                out_path = str(tmp_dir.joinpath(out_name))
 
                 #Here command line tool seqkit grep is used
                 exclude_from_fastq(name_file, out_path, fastq_path)

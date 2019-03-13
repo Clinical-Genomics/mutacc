@@ -22,7 +22,7 @@ def test_MakeSet(mock_adapter, tmpdir):
                   "fastq_files": [FASTQ1, FASTQ2]}
 
     temp_dir = Path(str(tmpdir.mkdir("export_tmp_test")))
-    make_set.exclude_from_background(out_dir = temp_dir,
+    make_set.exclude_from_background(tmp_dir = temp_dir,
                                      background = background,
                                      member = 'affected')
 
