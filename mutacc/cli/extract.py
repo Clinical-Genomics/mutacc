@@ -19,31 +19,27 @@ LOG = logging.getLogger(__name__)
               type = click.Path(exists = True),
               help = " .yaml file for case. See README.md for information on what to include or example .yaml file in data/data.yaml")
 @click.option('--padding', default = 300)
-@click.option('--mutacc-dir', type=click.Path())
-@click.option('-o', '--out-dir', type=click.Path())
 @click.pass_context
-def extract_command(context, case, padding, mutacc_dir, out_dir):
+def extract_command(context, case, padding):
 
     """
         extract reads from case
     """
     LOG.info("extracting reads from case {0}".format(case))
 
-    mutacc_dir = mutacc_dir or context.obj.get('mutacc_dir')
-    mutacc_dir = make_dir(mutacc_dir)
+    read_dir = context.obj.get('read_dir')
 
     case = yaml_parse(case)
 
     case = CompleteCase(case)
 
     case.get_variants(padding = padding)
-    case.get_samples(mutacc_dir)
+    case.get_samples(read_dir)
     case.get_case()
 
-    out_dir = out_dir or context.obj.get('case_dir')
-    out_dir = make_dir(out_dir)
+    import_dir = context.obj.get('import_dir')
 
-    pickle_file = out_dir.joinpath(case.case_id + "_case"+ ".mutacc")
+    pickle_file = import_dir.joinpath(case.case_id + "_import"+ ".mutacc")
 
     #Serialize case object to file for later import
     with open(pickle_file, "wb") as pickle_handle:

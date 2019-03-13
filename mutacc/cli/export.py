@@ -24,9 +24,7 @@ LOG = logging.getLogger(__name__)
               default = 'affected')
 @click.option('-s','--sex',
               type = click.Choice(['male','female']))
-@click.option('--out-dir', type = click.Path())
-@click.option('--vcf-dir', type = click.Path())
-@click.option('--merge-vcf', type = click.Path())
+@click.option('--vcf-dir', type = click.Path(exists=True))
 @click.option('-p', '--proband', is_flag = True)
 @click.option('-n', '--sample-name')
 @click.pass_context
@@ -35,9 +33,7 @@ def export(context,
            variant_query,
            member,
            sex,
-           out_dir,
            vcf_dir,
-           merge_vcf,
            proband,
            sample_name):
 
@@ -63,11 +59,10 @@ def export(context,
     #Info to be dumped into file
     query = (samples, regions, variants, sample_name)
 
-    out_dir = out_dir or context.obj.get('query_dir')
-    out_dir = make_dir(out_dir)
+    query_dir = context.obj.get('query_dir')
 
     #pickle query
-    pickle_file = out_dir.joinpath(sample_name + "_query.mutacc")
+    pickle_file = query_dir.joinpath(sample_name + "_query.mutacc")
 
     with open(pickle_file, "wb") as pickle_handle:
 
@@ -79,10 +74,8 @@ def export(context,
     found_variants = sort_variants(variants)
 
     #WRITE VCF FILE
-
     vcf_dir = vcf_dir or context.obj.get('vcf_dir')
     vcf_dir = make_dir(vcf_dir)
-    vcf_file = vcf_dir.joinpath("synthetic_{}.vcf".format(sample_name))
+    vcf_file = vcf_dir.joinpath("{}_variants.vcf".format(sample_name))
     LOG.info("creating vcf file {}".format(str(vcf_file)))
-
     vcf_writer(found_variants, vcf_file, sample_name)
