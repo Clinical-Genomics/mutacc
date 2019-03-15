@@ -1,13 +1,9 @@
 import logging
-import tempfile
-import subprocess
 import os
 
 from mutacc.utils.bam_handler import BAMContext
-
 from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
 from mutacc.subprocessing.merge_fastqs import merge_fastqs as merge_fastqs_sub
-
 from mutacc.parse.path_parse import make_dir, parse_path
 
 LOG = logging.getLogger(__name__)
@@ -79,6 +75,11 @@ class MakeSet():
         """
             Merge the background file with the fastq_files Holding
             the reads supporting the variants
+
+            Args:
+                out_dir (path): Path to directory where synthetic fastqs are stored
+                save_background (bool): If true, the backgrounds with exculded
+                                        reads are not removed.
         """
         synthetic_fastqs = []
 
@@ -86,8 +87,6 @@ class MakeSet():
 
         #For each fastq file given as background (two if paired end)
         for i in range(len(self.excluded_backgrounds)):
-
-            #Simply use 'cat' command to merge files
 
             fastq_list = [self.excluded_backgrounds[i]]
 

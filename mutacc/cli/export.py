@@ -56,7 +56,7 @@ def export(context,
 
     sample_name = sample_name or member
 
-    #Info to be dumped into file
+    #Info to be dumped into file for later use with 'synthesize' command
     query = (samples, regions, variants, sample_name)
 
     query_dir = context.obj.get('query_dir')

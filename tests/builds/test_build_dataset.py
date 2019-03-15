@@ -8,10 +8,10 @@ from mutacc.builds.build_dataset import MakeSet
 BAM = "tests/fixtures/reduced_ref_4_1000000_10002000.bam"
 FASTQ1 = "tests/fixtures/fastq1.fastq"
 FASTQ2 = "tests/fixtures/fastq2.fastq"
-def test_MakeSet(mock_adapter, tmpdir):
+def test_MakeSet(mock_real_adapter, tmpdir):
 
     samples, regions, variants = mutacc_query(
-        mock_adapter,
+        mock_real_adapter,
         case_query = '{}',
         variant_query = None
         )

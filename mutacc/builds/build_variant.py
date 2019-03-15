@@ -59,6 +59,11 @@ class Variant:
 
     def find_genotypes(self):
 
+        """
+            Finds genotype calls for each sample, using the GT,DP,GQ,AD fields
+
+        """
+
         samples = {}
         for i in range(len(self.samples)):
 
@@ -153,6 +158,16 @@ def get_variants(vcf_file):
     vcf.close()
 
 def resolve_cyvcf2_genotype(cyvcf2_gt):
+    """
+        Given a genotype given by cyvcf2, translate this to a valid
+        genotype string.
+
+        Args:
+            cyvcf2_gt (cyvcf2.variant.genotypes)
+
+        Returns:
+            genotype (str)
+    """
 
     if cyvcf2_gt[2]:
         separator = '|'

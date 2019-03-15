@@ -8,32 +8,28 @@ def test_mutacc_query(mock_adapter):
         mock_adapter,
         case_query = '{}',
         variant_query = None,
-        sex = 'male'
+        member = 'child'
         )
 
-    assert len(samples) == 1
-
-    assert samples[0].family in ["1111","2222"]
+    assert len(samples) == 5
 
     samples, regions, variants = mutacc_query(
         mock_adapter,
-        case_query = '{"case_id": "2222"}',
+        case_query = '{}',
         variant_query = None,
         member = 'mother'
         )
 
-    assert len(samples) == 1
-    assert len(variants) == 7
-    assert len(regions) == 7
-    assert samples[0].family == "2222"
+    assert len(samples) == 5
+    assert len(variants) == 5
+    assert len(regions) == 5
 
     samples, regions, variants = mutacc_query(
         mock_adapter,
         case_query = None,
-        variant_query = '{}'
+        variant_query = '{}',
+        member = 'father'
         )
 
-    assert len(samples) == 1
-    assert samples[0].family in ["1111","2222"]
-
-    assert len(regions) == 7
+    assert len(samples) == 5
+    assert len(regions) == 5

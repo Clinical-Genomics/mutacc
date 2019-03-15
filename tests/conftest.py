@@ -1,5 +1,7 @@
 import pytest
 from pathlib import Path
+import random
+import string
 
 import pysam
 import mongomock
@@ -9,6 +11,10 @@ from mutacc.mutaccDB.db_adapter import MutaccAdapter
 from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.builds.build_case import CompleteCase
 from mutacc.mutaccDB.insert import insert_entire_case
+
+from .random_case import random_trio
+
+
 
 
 @pytest.fixture
@@ -64,8 +70,39 @@ def individuals_fixed(request):
     return [child, father, mother]
 
 CASE_YAML = "tests/fixtures/case.yaml"
+CASES_NO = 5
 @pytest.fixture
-def mock_adapter(request, tmpdir):
+def mock_adapter(request):
+
+    client = mongomock.MongoClient(port = 27017, host = 'localhost')
+    adapter = MutaccAdapter(client = client, db_name = 'test')
+
+    random.seed(1)
+    for i in range(CASES_NO):
+
+        case, variant = random_trio()
+
+        variant_id = adapter.add_variants([variant])
+
+        case['variants'] = variant_id
+
+        adapter.add_case(case)
+
+    random.seed(1)
+    overlapping_case, overlapping_variant = random_trio()
+
+    overlapping_case['case_id'] = 'overlapping'
+    overlapping_variant['display_name'] = 'overlapping'
+
+    variant_id = adapter.add_variants([overlapping_variant])
+    overlapping_case['variants'] = variant_id
+    adapter.add_case(overlapping_case)
+
+    return adapter
+
+
+@pytest.fixture
+def mock_real_adapter(request, tmpdir):
 
     mutacc_dir = Path(str(tmpdir.mkdir("mutacc_test")))
 
@@ -74,16 +111,6 @@ def mock_adapter(request, tmpdir):
 
     case = yaml_parse(CASE_YAML)
     case["case"]["case_id"] = "1111"
-    case = CompleteCase(case)
-
-    case.get_variants(padding = 200)
-    case.get_samples(mutacc_dir)
-    case.get_case()
-
-    insert_entire_case(adapter, case)
-
-    case = yaml_parse(CASE_YAML)
-    case["case"]["case_id"] = "2222"
     case = CompleteCase(case)
 
     case.get_variants(padding = 200)
