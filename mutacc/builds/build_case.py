@@ -5,7 +5,6 @@ from mutacc.utils.fastq_handler import fastq_extract
 from mutacc.utils.bam_handler import get_overlaping_reads, BAMContext
 from mutacc.builds.build_variant import get_variants
 
-from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.parse.path_parse import make_dir, parse_path
 
 from mutacc.subprocessing.bam_to_fastq import bam_to_fastq
@@ -37,8 +36,7 @@ class CompleteCase:
 
     def get_variants(self, padding = 1000):
         """
-            Method that parses the vcf in the case dictionary, adds an _id and foreign ids for case
-            and samples that the variant belongs to.
+            Method that parses the vcf in the case dictionary.
 
             Args:
 
@@ -61,7 +59,7 @@ class CompleteCase:
             self.variants_object.append(variant_object) #Append the variant object to the list
 
 
-    def get_samples(self, mutacc_dir):
+    def get_samples(self, read_dir):
         """
             Method makes a list of sample objects, ready to load into a mongodb. This includes
             looking for the raw reads responsible for the variants in the vcf for each sample,
@@ -69,10 +67,10 @@ class CompleteCase:
 
             Args:
 
-                mutacc_dir(pathlib.Path): Path to directory where the new fastq files are to be
+                read_dir(pathlib.Path): Path to directory where the new fastq files are to be
                 stored.
         """
-        out_dir = make_dir(mutacc_dir.joinpath(self.case_id))
+        out_dir = make_dir(read_dir.joinpath(self.case_id))
         self.samples_object = []
         for sample_object in self.samples:
 

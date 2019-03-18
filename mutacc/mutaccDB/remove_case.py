@@ -12,8 +12,21 @@ def remove_case_from_db(mutacc_adapter, case_id):
 
     for sample in case["samples"]:
 
-        os.remove(sample["variant_bam_file"])
+        try:
+            print(sample["variant_bam_file"])
+            os.remove(sample["variant_bam_file"])
 
-        for variant_fastq_file in sample["variant_fastq_files"]:
+        except FileNotFoundError as error:
+            LOG.warning(f"{sample['variant_bam_file']} not found")
 
-            os.remove(variant_fastq_file)
+
+        if sample.get("variant_fastq_files"):
+
+            for variant_fastq_file in sample["variant_fastq_files"]:
+
+                try:
+                    os.remove(variant_fastq_file)
+
+                except FileNotFoundError as error:
+
+                    LOG.warning(f"{variant_fastq_file} not found")

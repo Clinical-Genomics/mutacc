@@ -1,10 +1,14 @@
 import pytest
-
+from unittest.mock import patch
 from click.testing import CliRunner
 
 from mutacc.cli.root import cli
 
-def test_remove(tmpdir):
+@patch('mutacc.cli.database.mongo_adapter.get_client')
+@patch('mutacc.cli.database.MutaccAdapter')
+def test_remove(mock_mutacc_adapter, mock_get_client, mock_adapter, tmpdir):
+
+    mock_mutacc_adapter.return_value = mock_adapter
 
     root_dir = str(tmpdir.mkdir("mutacc_root_test"))
 
