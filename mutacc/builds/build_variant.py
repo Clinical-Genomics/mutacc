@@ -60,7 +60,7 @@ class Variant:
     def find_genotypes(self):
 
         """
-            Finds genotype calls for each sample, using the GT,DP,GQ,AD fields
+            Finds genotype calls for each sample, using the GT, DP, GQ, AD fields
 
         """
 

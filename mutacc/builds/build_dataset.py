@@ -78,7 +78,7 @@ class MakeSet():
 
             Args:
                 out_dir (path): Path to directory where synthetic fastqs are stored
-                save_background (bool): If true, the backgrounds with exculded
+                save_background (bool): If true, the backgrounds with excluded
                                         reads are not removed.
         """
         synthetic_fastqs = []
