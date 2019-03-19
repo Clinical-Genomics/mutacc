@@ -96,6 +96,7 @@ class BAMContext:
                 start(int): start position
                 end(int): end position
         """
+
         #Fetch iterator for reads in given region
         for read in self.sam.fetch(chrom, start, end):
             #If name of read not among the keys in reads dict AND if both mates have not been found
@@ -150,8 +151,9 @@ class BAMContext:
 
                 if self.out_dir:
                     for mate in self.reads[key]: self.out_bam.write(mate)
-                self.reads.pop(key)
+
                 self.found_reads = self.found_reads.union({key})
+            self.reads.pop(key)
 
 
 
@@ -171,7 +173,7 @@ class BAMContext:
         #(Unless ends argument in __init__ is not set to 1)
         except ValueError:
 
-            LOG.warning("Mate not found for read {}, {}\n mate is unmapped: {}".format(
+            LOG.debug("Mate not found for read {}, {}\n mate is unmapped: {}".format(
                 read.query_name,
                 read.next_reference_id,
                 read.mate_is_unmapped

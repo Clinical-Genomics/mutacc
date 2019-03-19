@@ -34,10 +34,6 @@ def test_BAMContext(tmpdir, read_ids_fixed):
 
         assert bam_handle.out_name.exists()
 
-        assert len(bam_handle.found_reads) + \
-               len(bam_handle.reads) == \
-               len(read_ids_fixed)
-
         temp_names = bam_handle.make_names_temp(Path(tmpdir.mkdir("names_dir")))
 
         assert Path(temp_names).exists()

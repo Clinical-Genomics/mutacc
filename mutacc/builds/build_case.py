@@ -59,7 +59,7 @@ class CompleteCase:
             self.variants_object.append(variant_object) #Append the variant object to the list
 
 
-    def get_samples(self, read_dir):
+    def get_samples(self, read_dir, picard_exe=None):
         """
             Method makes a list of sample objects, ready to load into a mongodb. This includes
             looking for the raw reads responsible for the variants in the vcf for each sample,
@@ -148,7 +148,12 @@ class CompleteCase:
 
                 #Use picard SamToFastq to convert from bam to paired end fastqs
 
-                bam_to_fastq(variant_bam_file, fastq1, fastq2)
+                bam_to_fastq(
+                    variant_bam_file,
+                    fastq1,
+                    fastq2,
+                    picard_exe=picard_exe
+                    )
 
                 sample_object["variant_fastq_files"] = [fastq1, fastq2]
             #Append sample object to list of samples

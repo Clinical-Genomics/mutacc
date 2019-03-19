@@ -32,15 +32,6 @@ class MutaccAdapter(MongoAdapter):
             self.db = self.client[db_name]
             self.db_name = db_name
 
-
-        #if "variants" not in self.db.list_collection_names():
-
-        #    self.db.create_collection("variants", validator = VARIANT_VALIDATOR)
-
-        #if "cases" not in self.db.list_collection_names():
-
-        #    self.db.create_collection("cases", validator = CASE_VALIDATOR)
-
         if "variants" not in self.db.list_collection_names():
 
             self.db.create_collection("variants")

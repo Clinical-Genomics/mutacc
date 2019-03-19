@@ -4,17 +4,23 @@ from pathlib import Path
 
 LOG = logging.getLogger(__name__)
 
-def bam_to_fastq(bam, fastq1, fastq2):
+def bam_to_fastq(bam, fastq1, fastq2, picard_exe=None):
     """
         Converts bam file two paired end fastqs, using picard's SamToFastq
 
         Args:
-            bam(str): name of bam file
-            fastq1(str): name of output fastq file for first end
-            fastq2(str): name of output fastq file for second end
+            bam (path): name of bam file
+            fastq1 (path): name of output fastq file for first end
+            fastq2 (path): name of output fastq file for second end
+            picard_exe (path): path to picard executable
     """
-    picard_cmd = [
-        'picard',
+
+    if picard_exe:
+        picard_base = ['java', '-jar', str(picard_exe)]
+    else:
+        picard_base = ['picard']
+
+    picard_cmd = picard_base + [
         'SamToFastq',
         'VALIDATION_STRINGENCY=LENIENT',
         'I=' + bam,
@@ -23,21 +29,6 @@ def bam_to_fastq(bam, fastq1, fastq2):
     ]
 
     exit_status = subprocess.call(picard_cmd)
-
-    if exit_status != 0:
-
-        picard_cmd = [
-            'java',
-            '-jar',
-            'picard.jar',
-            'SamToFastq',
-            'VALIDATION_STRINGENCY=LENIENT',
-            'I=' + bam,
-            'F=' + fastq1,
-            'F2=' + fastq2
-        ]
-
-        exit_status = subprocess.call(picard_cmd)
 
     if exit_status != 0:
 

@@ -19,8 +19,9 @@ LOG = logging.getLogger(__name__)
               type = click.Path(exists = True),
               help = " .yaml file for case. See README.md for information on what to include or example .yaml file in data/data.yaml")
 @click.option('--padding', default = 300)
+@click.option('--picard-executable', type=click.Path(exists = True))
 @click.pass_context
-def extract_command(context, case, padding):
+def extract_command(context, case, padding, picard_executable):
 
     """
         extract reads from case
@@ -34,7 +35,7 @@ def extract_command(context, case, padding):
     case = CompleteCase(case)
 
     case.get_variants(padding = padding)
-    case.get_samples(read_dir)
+    case.get_samples(read_dir, picard_exe=picard_executable)
     case.get_case()
 
     import_dir = context.obj.get('import_dir')
