@@ -2,7 +2,7 @@ import logging
 from bson.objectid import ObjectId
 
 from mutacc.utils.fastq_handler import fastq_extract
-from mutacc.utils.bam_handler import get_overlaping_reads, BAMContext
+from mutacc.utils.bam_handler import (get_overlaping_reads, BAMContext, check_bam)
 from mutacc.builds.build_variant import get_variants
 
 from mutacc.parse.path_parse import make_dir, parse_path
@@ -76,10 +76,14 @@ class CompleteCase:
 
 
             bam_file = sample_object["bam_file"] #Get bam file fro sample
+            bam_file = parse_path(bam_file)
 
             sample_dir = make_dir(
                 out_dir.joinpath(sample_object['sample_id'])
                 )
+
+            paired = check_bam(bam_file)
+
             #If fastq files are given, the reads will be extracted from these.
             if sample_object.get("fastq_files"):
 
@@ -115,12 +119,13 @@ class CompleteCase:
 
                 #Add path to fastq files with the reads containing the variant to the sample object
                 sample_object["variant_fastq_files"] = variant_fastq_files
+                sample_object["paired_reads"] = paired
 
             #If the fastq files is not given as input, the reads will be extracted from the bam
             #instead.
             else:
 
-                with BAMContext(bam_file, sample_dir) as bam_handle:
+                with BAMContext(bam_file, out_dir=sample_dir, paired=paired) as bam_handle:
 
                     for variant in self.variants_object:
 
@@ -144,7 +149,9 @@ class CompleteCase:
 
                 #Convert bam to fastq
                 fastq1 = str(sample_dir.joinpath(file_name.split('.')[0] + '_R1.fastq.gz'))
-                fastq2 = str(sample_dir.joinpath(file_name.split('.')[0] + '_R2.fastq.gz'))
+                fastq2=None
+                if paired:
+                    fastq2 = str(sample_dir.joinpath(file_name.split('.')[0] + '_R2.fastq.gz'))
 
                 #Use picard SamToFastq to convert from bam to paired end fastqs
 
@@ -156,8 +163,10 @@ class CompleteCase:
                     )
 
                 sample_object["variant_fastq_files"] = [fastq1, fastq2]
+                sample_object["paired_reads"] = paired
             #Append sample object to list of samples
             self.samples_object.append(sample_object)
+
 
     def get_case(self):
 

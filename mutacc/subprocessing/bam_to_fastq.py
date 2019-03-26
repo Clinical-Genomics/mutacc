@@ -4,7 +4,7 @@ from pathlib import Path
 
 LOG = logging.getLogger(__name__)
 
-def bam_to_fastq(bam, fastq1, fastq2, picard_exe=None):
+def bam_to_fastq(bam, fastq1, fastq2=None, picard_exe=None):
     """
         Converts bam file two paired end fastqs, using picard's SamToFastq
 
@@ -24,9 +24,11 @@ def bam_to_fastq(bam, fastq1, fastq2, picard_exe=None):
         'SamToFastq',
         'VALIDATION_STRINGENCY=LENIENT',
         'I=' + bam,
-        'F=' + fastq1,
-        'F2=' + fastq2
+        'F=' + fastq1
     ]
+
+    if fastq2:
+        picard_cmd.append('F2=' + fastq2)
 
     exit_status = subprocess.call(picard_cmd)
 
@@ -41,17 +43,3 @@ def bam_to_fastq(bam, fastq1, fastq2, picard_exe=None):
             returncode=exit_status,
             cmd = " ".join(picard_cmd)
             )
-
-
-    #Make sure fastq files have been created
-    exists_1 = Path(fastq1).exists()
-    exists_2 = Path(fastq2).exists()
-
-    if not (exists_1 and exists_2):
-
-        LOG.critical("{} failed to run".format(
-                " ".join(picard_cmd)
-            )
-        )
-
-        raise Exception
