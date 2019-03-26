@@ -255,7 +255,7 @@ example, using the query files created above
 ```console
 mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_child> -f2 <fastq2_child> -q child_query.mutacc
 mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_father> -f2 <fastq2_father> -q father_query.mutacc
-mutacc --config-file <config_file> <config.yaml> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother> -q mother_query.mutacc
+mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother> -q mother_query.mutacc
 ```
 
 The created fastq-files will be stored in the directory /.../root_dir/datasets/

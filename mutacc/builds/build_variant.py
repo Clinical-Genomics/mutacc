@@ -3,9 +3,9 @@ from cyvcf2 import VCF
 from mutacc.parse.path_parse import parse_path
 
 #IDs in the INFO field that should be included in the database
-INFO_IDS= (
+INFO_IDS = (
 
-    'RankScore'
+    'RankScore',
 
 )
 
@@ -109,7 +109,7 @@ class Variant:
         #Add data from the info INFO field
         for ID in INFO_IDS:
             if self.entry.INFO.get(ID):
-                self.variant[ID] = self.entry.INFO.get(ID)
+                self.variant[ID] = self.entry.INFO[ID]
 
     @property
     def display_name(self):

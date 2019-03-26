@@ -9,6 +9,32 @@ from mutacc.parse.path_parse import parse_path
 
 LOG = logging.getLogger(__name__)
 
+
+def check_bam(bam_file):
+
+    """
+    Checks if reads in bam are paired
+
+    Args:
+        bam_file (path): path to bam file
+
+    Returns:
+        paired (bool): True if reads are paired
+    """
+
+    paired = False
+
+    with pysam.AlignmentFile(bam_file) as bam:
+        count = 0
+        for read in bam:
+            if read.is_paired:
+                paired = True
+                break
+            if count == 1000:
+                break
+
+    return paired
+
 def get_overlaping_reads(fileName, chrom, start, end):
     """
         Extracts all read names from a bam file, overlapping the specified region.
@@ -40,7 +66,7 @@ class BAMContext:
     """
         Context manager to deal with bam files
     """
-    def __init__(self, bam_file, out_dir = None, ends:int = 2):
+    def __init__(self, bam_file, out_dir = None, paired = True):
         """
             Args:
                 bam_file(str): path to bam file
@@ -50,7 +76,7 @@ class BAMContext:
         self.file_name = self.bam_file.name
         self.sam = pysam.AlignmentFile(self.bam_file, 'rb') #Make AlignmentFile object
         self.reads = {} #Dictionary to store read pairs under their query_name as key
-        self.ends = ends
+        self.ends = 2 if paired else 1
         self.found_reads = set() #Set of query names where both mates are found
         self.out_dir = out_dir
         if self.out_dir: #If out_dir is given, open a file to write found records
