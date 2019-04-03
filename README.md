@@ -26,7 +26,8 @@ activate environment
 source activate <env_name>
 ```
 ### External Prerequisites
-mutacc takes use of two external packages, seqkit, and picard. These can be
+mutacc takes use of two external packages, [seqkit](https://github.com/shenwei356/seqkit)>=v0.9 ,
+and [picard](https://github.com/broadinstitute/picard)>=v2.18. These can be
 installed within a conda environment by
 
 ```console
