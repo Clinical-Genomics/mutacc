@@ -1,1 +1,5 @@
-__version__ = '1.0.0'
+# -*- coding: utf-8 -*-
+import pkg_resources
+
+__title__ = 'mutacc'
+__version__ = pkg_resources.get_distribution(__title__).version
