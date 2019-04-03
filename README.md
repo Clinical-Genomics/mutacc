@@ -37,10 +37,19 @@ conda install -c bioconda seqkit
 
 ### Install mutacc
 Within the conda environment, do
+
+```console
+pip install mutacc
+```
+
+To install from PyPI, or clone this repo and install
+
 ```console
 git clone https://github.com/adrosenbaum/mutacc
-pip install -e mutacc
+cd mutacc
+pip install -e .
 ```
+
 ## Usage
 
 ### Configuration File
