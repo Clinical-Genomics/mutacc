@@ -51,7 +51,7 @@ def vcf_writer(found_variants, vcf_path, sample_name):
             info += f"END={variant['end']};"
 
             if variant.get('RankScore'):
-                info += f"MutaccRankScore={variant['Rankscore']};"
+                info += f"MutaccRankScore={variant['RankScore']};"
 
             if variant['variant_type'].lower() in ('snp','mnp','ins','del','complex'):
                 info += f"TYPE={variant['variant_type']};"

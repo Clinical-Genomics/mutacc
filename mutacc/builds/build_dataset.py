@@ -1,7 +1,7 @@
 import logging
 import os
 
-from mutacc.utils.bam_handler import BAMContext
+from mutacc.utils.bam_handler import (BAMContext, check_bam, get_real_padding, get_length)
 from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
 from mutacc.subprocessing.merge_fastqs import merge_fastqs as merge_fastqs_sub
 from mutacc.parse.path_parse import make_dir, parse_path
@@ -15,7 +15,7 @@ class MakeSet():
         variants from the mutacc DB.
     """
 
-    def __init__(self, samples, regions):
+    def __init__(self, samples, variants):
         """
             Args:
                 samples (mutacc.utils.pedigree.Individual): list of samples. sample
@@ -24,9 +24,9 @@ class MakeSet():
                     represented as a dictionary with keys 'chrom', 'start', 'end'
         """
         self.samples = samples
-        self.regions = regions
+        self.variants = variants
 
-    def exclude_from_background(self, tmp_dir, background, member):
+    def exclude_from_background(self, tmp_dir, background, member, seqkit_exe=None):
 
         """
             for each background fastq file exclude the reads overlapping with
@@ -44,11 +44,18 @@ class MakeSet():
         bam_file = parse_path(background["bam_file"])
         fastq_files = [parse_path(fastq) for fastq in background["fastq_files"]]
 
+        paired = check_bam(bam_file)
+
+        read_length = get_length(bam_file)
+
         with BAMContext(bam_file = bam_file) as bam_handle:
             #for each region, find the reads overlapping
-            for region in self.regions:
+            for variant in self.variants:
 
-                bam_handle.find_read_names_from_region(**region)
+                padding = get_real_padding(read_length, padding=variant['padding'])
+                bam_handle.find_read_names_from_region(chrom=variant['chrom'],
+                                                       start=variant['start']-padding,
+                                                       end=variant['end']+padding)
 
             LOG.info("{} reads to be excluded from {}".format(
                     bam_handle.record_number,
@@ -65,7 +72,7 @@ class MakeSet():
                 out_path = str(tmp_dir.joinpath(out_name))
 
                 #Here command line tool seqkit grep is used
-                exclude_from_fastq(name_file, out_path, fastq_path)
+                exclude_from_fastq(name_file, out_path, fastq_path, seqkit_exe=seqkit_exe)
 
                 self.excluded_backgrounds.append(out_path)
 
@@ -85,12 +92,17 @@ class MakeSet():
 
         out_dir = parse_path(out_dir, file_type = 'dir')
 
+        reads = len(self.excluded_backgrounds)
+
         #For each fastq file given as background (two if paired end)
-        for i in range(len(self.excluded_backgrounds)):
+        for i in range(reads):
 
             fastq_list = [self.excluded_backgrounds[i]]
 
             for sample in self.samples:
+
+                if len(sample.variant_fastq_files) != reads:
+                    continue 
 
                 fastq_list.append(sample.variant_fastq_files[i])
 

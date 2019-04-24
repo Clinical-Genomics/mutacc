@@ -16,7 +16,7 @@ def test_MakeSet(mock_real_adapter, tmpdir):
         variant_query = None
         )
 
-    make_set = MakeSet(samples, regions)
+    make_set = MakeSet(samples, variants)
 
     background = {"bam_file": BAM,
                   "fastq_files": [FASTQ1, FASTQ2]}

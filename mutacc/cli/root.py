@@ -63,6 +63,16 @@ def cli(context, loglevel, config_file, root_dir):
         subdir = mutacc_config['root_dir'].joinpath(SUB_DIRS[dir_type])
         mutacc_config[dir_type] = make_dir(subdir)
 
+    #Get binaries for picard and seqkit if specified in config
+    mutacc_config['binaries'] = {}
+
+    binaries = {}
+    if cli_config.get('binaries'):
+        binaries = cli_config['binaries']
+
+    mutacc_config['binaries']['picard'] = binaries.get('picard')
+    mutacc_config['binaries']['seqkit'] = binaries.get('seqkit')
+
     context.obj = mutacc_config
 
 
