@@ -80,7 +80,7 @@ def cases_from_variants(mutacc_adapter, variant_query, not_cases=None):
     variant_query = json.loads(variant_query)
 
     if not_cases:
-        variants['case'] = {'$nin': not_cases}
+        variant_query['case'] = {'$nin': not_cases}
 
     variants = mutacc_adapter.find_variants(variant_query)
 
@@ -95,7 +95,7 @@ def get_samples_from_cases(mutacc_adapter, cases, sex=None, member='affected', p
 
     """
         Filters out the relevant samples from a list of cases. Also provides a check,
-        so that no variant from any sample overlap with anotherself.
+        so that no variant from any sample overlap with another.
 
         Args:
             mutacc_adapter(mutacc.mutaccDB.db_adapter.MutaccAdapter):
@@ -156,7 +156,7 @@ def get_samples_from_cases(mutacc_adapter, cases, sex=None, member='affected', p
 
             #If genomic regions from case does not overlap with any other,
             #Append sample, variant, and region to be returned from function.
-            
+
             if not overlaps:
                 #Add the regions and variants to each case before parsing
                 #with make_family_from_case

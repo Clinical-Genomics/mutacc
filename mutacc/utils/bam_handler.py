@@ -6,6 +6,7 @@ import os
 import pysam
 
 from mutacc.parse.path_parse import parse_path
+from mutacc.utils.constants import PADDING
 
 LOG = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ def check_bam(bam_file):
     with pysam.AlignmentFile(bam_file) as bam:
         count = 0
         for read in bam:
+            count += 1
             if read.is_paired:
                 paired = True
                 break
@@ -34,6 +36,51 @@ def check_bam(bam_file):
                 break
 
     return paired
+
+def get_length(bam_file):
+    """
+    Calculate the average read length from first 1000 reads in bam
+
+    Args:
+        bam_file (path): path to bam file
+
+    Returns:
+        average_length (int): average read length
+    """
+    acc_length = 0
+
+    with pysam.AlignmentFile(bam_file) as bam:
+        count = 0
+        for read in bam:
+            count += 1
+            acc_length += read.query_length
+            if count == 1000:
+                break
+
+    average_length = acc_length/1000
+
+    return average_length
+
+def get_real_padding(length,padding=None):
+    """
+    Given the read lengths in a BAM, calculate the real padding needed taking
+    into consideration the read length. This should hopefully approximate
+    the PADDING constant.
+
+    Args:
+        length (int): read length
+
+    Returns:
+        real_padding (int): sample specific padding to approximate PADDING
+
+    """
+    padding = padding or PADDING
+    real_padding = padding - length/2
+
+    if real_padding < 1:
+        real_padding = 1
+
+    return real_padding
 
 def get_overlaping_reads(fileName, chrom, start, end):
     """

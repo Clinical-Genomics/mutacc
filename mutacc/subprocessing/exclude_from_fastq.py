@@ -4,7 +4,7 @@ from pathlib import Path
 
 LOG = logging.getLogger(__name__)
 
-def exclude_from_fastq(name_file, out_file, fastq_file):
+def exclude_from_fastq(name_file, out_file, fastq_file, seqkit_exe=None):
     """
         Use command line tool 'seqkit grep' to exclude reads
         from fastq file
@@ -16,8 +16,9 @@ def exclude_from_fastq(name_file, out_file, fastq_file):
             fastq_file(str): Name of input fastq file
     """
 
+    seqkit_base = seqkit_exe or "seqkit"
     seqkit_cmd = [
-        "seqkit",
+        seqkit_base,
         "grep",
         "-v",
         "--pattern-file",

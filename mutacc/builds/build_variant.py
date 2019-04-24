@@ -2,6 +2,7 @@ from cyvcf2 import VCF
 
 from mutacc.parse.path_parse import parse_path
 
+
 #IDs in the INFO field that should be included in the database
 INFO_IDS = (
 
@@ -36,6 +37,8 @@ class Variant:
 
 
         """
+
+
         #For variants with an ID 'SVTYPE' in the INFO field of the vcf entry
         start, end = self.find_start_end()
 
@@ -74,7 +77,7 @@ class Variant:
 
                     'GT': resolve_cyvcf2_genotype(self.entry.genotypes[i]),
                     'DP': int(self.entry.gt_depths[i]),
-                    'GQ': float(self.entry.gt_quals[i]),
+                    'GQ': int(self.entry.gt_quals[i]),
                     'AD': int(self.entry.gt_alt_depths[i])
 
                 }

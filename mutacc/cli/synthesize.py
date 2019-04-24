@@ -50,7 +50,7 @@ def synthesize_command(context,
             )
 
     #make object make_set from MakeSet class
-    make_set = MakeSet(samples, regions)
+    make_set = MakeSet(samples, variants)
 
     #Exclude reads from the background bam files
     background = {"bam_file": background_bam,
@@ -64,9 +64,11 @@ def synthesize_command(context,
 
     LOG.info("Temporay files stored in {}".format(temp_dir))
 
+    seqkit_executable = context.obj['binaries'].get('seqkit')
     make_set.exclude_from_background(tmp_dir = temp_dir,
                                      background = background,
-                                     member = sample_name)
+                                     member = sample_name,
+                                     seqkit_exe = seqkit_executable)
 
 
     #Merge the background files with excluded reads with the bam Files
