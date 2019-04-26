@@ -1,31 +1,28 @@
-
+"""
+    Command to export variants
+"""
 import logging
-import yaml
-import tempfile
 import pickle
-from shutil import rmtree
 
 import click
 
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.query import mutacc_query
-from mutacc.builds.build_dataset import MakeSet
 from mutacc.utils.vcf_writer import vcf_writer
-from mutacc.parse.path_parse import parse_path
 from mutacc.utils.sort_variants import sort_variants
 
 LOG = logging.getLogger(__name__)
 
 @click.command()
-@click.option('-c','--case-query')
-@click.option('-v','--variant-query')
+@click.option('-c', '--case-query')
+@click.option('-v', '--variant-query')
 @click.option('-m', '--member',
-              type = click.Choice(['father','mother','child','affected']),
-              default = 'affected')
-@click.option('-s','--sex',
-              type = click.Choice(['male','female']))
-@click.option('--vcf-dir', type = click.Path(exists=True))
-@click.option('-p', '--proband', is_flag = True)
+              type=click.Choice(['father', 'mother', 'child', 'affected']),
+              default='affected')
+@click.option('-s', '--sex',
+              type=click.Choice(['male', 'female']))
+@click.option('--vcf-dir', type=click.Path(exists=True))
+@click.option('-p', '--proband', is_flag=True)
 @click.option('-n', '--sample-name')
 @click.pass_context
 def export(context,
@@ -68,7 +65,8 @@ def export(context,
 
         pickle.dump(query, pickle_handle)
 
-    LOG.info("Query stored in {}".format(pickle_file))
+    log_msg = f"Query stored in {pickle_file}"
+    LOG.info(log_msg)
 
     #sort variants
     found_variants = sort_variants(variants)
@@ -77,5 +75,8 @@ def export(context,
     vcf_dir = vcf_dir or context.obj.get('vcf_dir')
     vcf_dir = make_dir(vcf_dir)
     vcf_file = vcf_dir.joinpath("{}_variants.vcf".format(sample_name))
-    LOG.info("creating vcf file {}".format(str(vcf_file)))
+
+    log_msg = f"creating vcf file {vcf_file}"
+    LOG.info(log_msg)
+    
     vcf_writer(found_variants, vcf_file, sample_name)

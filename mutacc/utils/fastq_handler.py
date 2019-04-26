@@ -1,3 +1,7 @@
+"""
+    Module with functions to parse fastqs
+"""
+
 import gzip
 import logging
 from pathlib import Path
@@ -9,7 +13,7 @@ from mutacc.parse.path_parse import parse_path, get_file_handle
 
 LOG = logging.getLogger(__name__)
 
-def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
+def fastq_extract(fastq_files: list, record_ids: set, dir_path=''):
 
     """
 
@@ -34,7 +38,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
     #Save the file names for the fastq files to be used later
     file_names = [Path(file_name).name.split(".")[0] for file_name in fastq_files]
 
-    dir_path = parse_path(dir_path, file_type = 'dir')
+    dir_path = parse_path(dir_path, file_type='dir')
 
     #Uses ExitStack context manager to manage a variable number of
     #files
@@ -46,7 +50,7 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
         #Opens fastq files to write found records.
         out_handles = [stack.enter_context(gzip.open(dir_path.joinpath(file_name + "_mutacc" +
-            ".fastq.gz"), 'wt')) \
+                                                                       ".fastq.gz"), 'wt')) \
                 for file_name in file_names]
 
         #parse fastq and places in list fastqs
@@ -58,10 +62,10 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
         #Iterates over parsed fastq files simultaneously
         for count, records in enumerate(zip(*fastqs)):
 
-            #Checks if current record name exists in record_ids. This Check is only done for one of the
-            #fastq files (records[0]). It is thus assumed that paired end reads exists on the same
-            #position in the two files
-            #Example: if records[0][0] is 'ST-E00266:38:H2TF5CCXX:8:1101:2563:2170 1:N:0:CGCGCATT',
+            # Checks if record name exists in record_ids. This Check is only done for one of the
+            # fastq files (records[0]). It is thus assumed that paired end reads exists on the same
+            # position in the two files
+            # Example: if records[0][0] is 'ST-E00266:38:H2TF5CCXX:8:1101:2563:2170 1:N:0:CGCGCATT'
             # records[0][0].split()[0] is 'ST-E00266:38:H2TF5CCXX:8:1101:2563:2170'
             if records[0][0].split()[0].split("/")[0] in record_ids:
 
@@ -77,16 +81,12 @@ def fastq_extract(fastq_files: list, record_ids: set, dir_path = ''):
 
                 #If record_ids is empty all records have been found so there is no need to iterate
                 #further over the fastq files
-                if len(record_ids) == 0:
-
+                if not record_ids:
                     break
 
             if count%1e6 == 0:
-                #TO BE REPLACED WITH PROPER PROGRESS BAR/STATUS OF SOME KIND
-                LOG.info("##### {}M READS PROCESSED: {} READS FOUND #####\r".format(
-                    count/1e6,
-                    records_found)
-                    )
+                log_msg = f"### {count/1e6}M READS PROCESSED: {records_found} READS FOUND ###\r"
+                LOG.info(log_msg)
 
         #for out_buffer in out_buffers: out_buffer.flush()
 

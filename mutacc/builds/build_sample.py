@@ -66,7 +66,7 @@ class Sample(dict):
                 start=variant["start"] - real_padding,
                 end=variant["end"] + real_padding,
                 chrom=variant["chrom"],
-                fileName=self.bam_file
+                file_name=self.bam_file
             )
 
             read_ids = read_ids.union(overlapping)

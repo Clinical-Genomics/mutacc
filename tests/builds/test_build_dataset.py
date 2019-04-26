@@ -5,7 +5,7 @@
 from pathlib import Path
 
 from mutacc.mutaccDB.query import mutacc_query
-from mutacc.builds.build_dataset import MakeSet
+from mutacc.builds.build_dataset import Dataset
 
 
 BAM = "tests/fixtures/reduced_ref_4_1000000_10002000.bam"
@@ -23,23 +23,20 @@ def test_makeset(mock_real_adapter, tmpdir):
         variant_query=None
         )
 
-    make_set = MakeSet(samples, variants)
-
     background = {"bam_file": BAM,
                   "fastq_files": [FASTQ1, FASTQ2]}
 
     temp_dir = Path(str(tmpdir.mkdir("export_tmp_test")))
-    make_set.exclude_from_background(tmp_dir=temp_dir,
-                                     background=background,
-                                     member='affected')
 
-
-    #Merge the background files with excluded reads with the bam Files
-    #Holding the reads for the regions of the variants to be included in
-    #validation set
     out_dir = Path(str(tmpdir.mkdir("export_out_test")))
-    synthetics = make_set.merge_fastqs(
-        out_dir=out_dir
-    )
+
+    dataset = Dataset(samples=samples,
+                      variants=variants,
+                      tmp_dir=temp_dir,
+                      background=background,
+                      member='affected',
+                      out_dir=out_dir)
+
+    synthetics = dataset.synthetic_fastqs
     for synthetic in synthetics:
         assert Path(synthetic).exists()
