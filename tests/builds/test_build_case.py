@@ -1,35 +1,39 @@
-import pytest
+"""
+    Tests for build_case.py
+"""
+
 from pathlib import Path
 
-from mutacc.builds.build_case import CompleteCase
+from mutacc.builds.build_case import Case
 
 from mutacc.parse.yaml_parse import yaml_parse
 
 CASE = yaml_parse("tests/fixtures/case.yaml")
 CASE_FASTQ = yaml_parse("tests/fixtures/case_fastq.yaml")
 
-def test_CompleteCase(tmpdir):
+def test_case(tmpdir):
 
-    case = CompleteCase(CASE)
+    """
+        Test Case class
+    """
 
-    case.get_variants(padding = 100)
     tmp_dir = Path(tmpdir.mkdir("build_case_test"))
+    case = Case(input_case=CASE,
+                read_dir=tmp_dir,
+                padding=100)
 
-    case.get_samples(tmp_dir)
 
-    for sample in case.samples_object:
+    for sample in case['samples']:
 
         for fastq_file in sample["variant_fastq_files"]:
 
             assert Path(fastq_file).exists()
 
-    case = CompleteCase(CASE_FASTQ)
+    case = Case(input_case=CASE_FASTQ,
+                read_dir=tmp_dir,
+                padding=100)
 
-    case.get_variants(padding = 100)
-
-    case.get_samples(tmp_dir)
-
-    for sample in case.samples_object:
+    for sample in case['samples']:
 
         for fastq_file in sample["variant_fastq_files"]:
 

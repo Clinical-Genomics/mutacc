@@ -32,6 +32,8 @@ class Variant(dict):
 
         self.build_variant_object(padding)
 
+        self.entry = str(self.entry)
+
     def _find_region(self, padding):
         """
             Given a vcf entry, this function attempts to return the relevant genomic regions
