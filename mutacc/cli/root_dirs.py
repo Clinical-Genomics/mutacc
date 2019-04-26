@@ -1,6 +1,8 @@
-#Names of directories placed under the root-dir given by the user
-#The root dir is specified using the --root-dir option or
-#in the config file
+"""
+    Names of directories placed under the root-dir given by the user
+    The root dir is specified using the --root-dir option or
+    in the config file
+"""
 
 
 SUB_DIRS = {

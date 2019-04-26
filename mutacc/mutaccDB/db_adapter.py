@@ -1,14 +1,6 @@
-import sys
 import logging
 
-import pymongo
-
-
 from mongo_adapter import MongoAdapter
-
-from mutacc.mutaccDB.schema.variant import VARIANT_VALIDATOR
-from mutacc.mutaccDB.schema.case import CASE_VALIDATOR
-from mutacc.mutaccDB.schema.sample import SAMPLE_VALIDATOR
 
 LOG = logging.getLogger(__name__)
 

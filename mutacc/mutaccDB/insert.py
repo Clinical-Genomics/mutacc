@@ -23,9 +23,9 @@ def insert_entire_case(mutacc_adapter, case):
     case_id = case.case_id
 
     # copy variants-, samples-, and case from case object.
-    variants = case['variants']
-    samples = case['samples']
-    case = case['case']
+    variants = deepcopy(case['variants'])
+    samples = deepcopy(case['samples'])
+    case = deepcopy(case['case'])
 
     # add case_id field for variant objects, pointing to the case where
     # the variants come from

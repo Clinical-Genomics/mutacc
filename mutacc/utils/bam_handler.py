@@ -190,7 +190,7 @@ class BAMContext:
             #and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
             if read_name not in self.found_reads:
 
-                if len(self.reads[read_name]) == 0:
+                if not self.reads[read_name]:
                     self.reads[read_name].append(read)
 
                 #Make sure the two reads is not the sameself.
@@ -219,12 +219,10 @@ class BAMContext:
             if mate:
                 self.reads[key].append(mate)
 
-                LOG.debug("Mate found for read {}, {}\n mate is unmapped: {}".format(
-                    key,
-                    self.reads[key][0].next_reference_id,
-                    self.reads[key][0].mate_is_unmapped
-                    )
-                )
+                log_msg = (f"Mate found for read {key},"
+                           f" {self.reads[key][0].next_reference_id} \n"
+                           f"mate is unmapped: {self.reads[key][0].mate_is_unmapped}")
+                LOG.debug(log_msg)
 
                 if self.out_dir:
                     for mate in self.reads[key]:
@@ -238,9 +236,16 @@ class BAMContext:
     @property
     def record_number(self):
 
+        """
+            Number of records
+        """
+
         return len(self.found_reads)
 
     def find_mate(self, read):
+        """
+            Find mate for read
+        """
 
         try:
 
@@ -251,18 +256,20 @@ class BAMContext:
         #(Unless ends argument in __init__ is not set to 1)
         except ValueError:
 
-            LOG.debug("Mate not found for read {}, {}\n mate is unmapped: {}".format(
-                read.query_name,
-                read.next_reference_id,
-                read.mate_is_unmapped
-                )
-            )
+            log_msg = (f"Mate not found for read {read.query_name}, "
+                       f"{read.next_reference_id}\n mate is unmapped: "
+                       f"{read.mate_is_unmapped}")
+            LOG.debug(log_msg)
             mate = None
 
         return mate
 
     @property
     def out_file(self):
+
+        """
+            returns output file
+        """
 
         return str(self.out_name)
 

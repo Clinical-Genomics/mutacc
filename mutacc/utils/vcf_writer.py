@@ -1,4 +1,6 @@
-
+"""
+    Module for writinh vcf files
+"""
 import logging
 
 HEADER = (
@@ -42,7 +44,7 @@ def vcf_writer(found_variants, vcf_path, sample_name):
         for header_line in HEADER:
             vcf_handle.write(header_line + '\n')
 
-        vcf_handle.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}\n".format(sample_name))
+        vcf_handle.write(f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{sample_name}\n")
 
         for variant in found_variants:
 
@@ -53,32 +55,32 @@ def vcf_writer(found_variants, vcf_path, sample_name):
             if variant.get('RankScore'):
                 info += f"MutaccRankScore={variant['RankScore']};"
 
-            if variant['variant_type'].lower() in ('snp','mnp','ins','del','complex'):
+            if variant['variant_type'].lower() in ('snp', 'mnp', 'ins', 'del', 'complex'):
                 info += f"TYPE={variant['variant_type']};"
             else:
                 info += f"SVTYPE={variant['variant_type']}"
 
             #write format field and gt
-            format = []
+            format_list = []
             gt_call = []
 
             #If genotype is given for sample
             if variant['genotype']:
-                for ID in variant['genotype'].keys():
+                for key in variant['genotype'].keys():
 
-                    if variant['genotype'][ID] != -1:
-                        format.append(ID)
-                        gt_call.append(str(variant['genotype'][ID]))
+                    if variant['genotype'][key] != -1:
+                        format_list.append(key)
+                        gt_call.append(str(variant['genotype'][key]))
 
             #If variant entry has no genotype
             else:
-                format.append('GT')
+                format_list.append('GT')
                 gt_call.append('./.')
 
-            format = ':'.join(format)
+            format_list = ':'.join(format_list)
             gt_call = ':'.join(gt_call)
 
 
             vcf_entry = variant["vcf_entry"].strip("\n").split("\t")
-            entry = "\t".join(vcf_entry[0:7] + [info] + [format] + [gt_call]) + "\n"
+            entry = "\t".join(vcf_entry[0:7] + [info] + [format_list] + [gt_call]) + "\n"
             vcf_handle.write(entry)
