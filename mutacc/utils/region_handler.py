@@ -1,3 +1,7 @@
+"""
+    Functions to handle regions
+"""
+
 def overlaps(region_1, region_2):
     """
         Find if two regions overlaps
@@ -17,11 +21,11 @@ def overlaps(region_1, region_2):
         if region_1["end"] < region_2["start"] or \
            region_1["start"] > region_2["end"]:
 
-           overlapping = False
+            overlapping = False
 
         else:
 
-           overlapping = True
+            overlapping = True
     else:
 
         overlapping = False

@@ -1,28 +1,24 @@
+"""
+    Command to make synthetic dataset
+"""
 
 import logging
-import yaml
 import pickle
 import click
 
 from mutacc.parse.path_parse import make_dir
-from mutacc.mutaccDB.query import mutacc_query
-from mutacc.builds.build_dataset import MakeSet
-from mutacc.parse.path_parse import parse_path
-from mutacc.utils.sort_variants import sort_variants
-
-
+from mutacc.builds.build_dataset import Dataset
 
 LOG = logging.getLogger(__name__)
 
 @click.command('synthesize')
-
 @click.pass_context
-@click.option('-b','--background-bam', type = click.Path())
-@click.option('-f','--background-fastq', type = click.Path())
-@click.option('-f2','--background-fastq2', type = click.Path())
-@click.option('--dataset-dir', type = click.Path())
-@click.option('-q', '--query', type = click.Path(exists=True))
-@click.option('-s', '--save-background', is_flag = True)
+@click.option('-b', '--background-bam', type=click.Path())
+@click.option('-f', '--background-fastq', type=click.Path())
+@click.option('-f2', '--background-fastq2', type=click.Path())
+@click.option('--dataset-dir', type=click.Path())
+@click.option('-q', '--query', type=click.Path(exists=True))
+@click.option('-s', '--save-background', is_flag=True)
 def synthesize_command(context,
                        background_bam,
                        background_fastq,
@@ -31,10 +27,14 @@ def synthesize_command(context,
                        query,
                        save_background):
 
-    #unpickle query
+    """
+        Command to make synthetic dataset
+    """
+
+    # unpickle query
     with open(query, "rb") as pickle_handle:
 
-        samples, regions, variants, sample_name = pickle.load(pickle_handle)
+        samples, _, variants, sample_name = pickle.load(pickle_handle)
 
     #Abort if no cases correspond to query
     num_cases = len(samples)
@@ -44,43 +44,36 @@ def synthesize_command(context,
 
     num_variants = len(variants)
 
-    LOG.info("{} cases found, with a total of {} variants.".format(
-                num_cases,
-                num_variants)
-            )
+    log_msg = f"{num_cases} cases found, with a total of {num_variants} variants."
+    LOG.info(log_msg)
 
-    #make object make_set from MakeSet class
-    make_set = MakeSet(samples, variants)
-
-    #Exclude reads from the background bam files
     background = {"bam_file": background_bam,
                   "fastq_files": [background_fastq]}
-    if background_fastq2: background["fastq_files"].append(background_fastq2)
+    if background_fastq2:
+        background["fastq_files"].append(background_fastq2)
 
     #Create temporary directory
-    #tmp_dir = tempfile.mkdtemp("_mutacc_tmp")
-
     temp_dir = context.obj.get('temp_dir')
 
-    LOG.info("Temporay files stored in {}".format(temp_dir))
+    log_msg = f"Temporay files stored in {temp_dir}"
+    LOG.info(log_msg)
 
     seqkit_executable = context.obj['binaries'].get('seqkit')
-    make_set.exclude_from_background(tmp_dir = temp_dir,
-                                     background = background,
-                                     member = sample_name,
-                                     seqkit_exe = seqkit_executable)
-
-
-    #Merge the background files with excluded reads with the bam Files
-    #Holding the reads for the regions of the variants to be included in
-    #validation set
     dataset_dir = dataset_dir or context.obj.get('dataset_dir')
     dataset_dir = make_dir(dataset_dir)
-    synthetics = make_set.merge_fastqs(
-            out_dir = dataset_dir,
-            save_background = save_background
-        )
 
+    #make object make_set from Dataset class
+    dataset = Dataset(samples=samples,
+                      variants=variants,
+                      tmp_dir=temp_dir,
+                      background=background,
+                      member=sample_name,
+                      out_dir=dataset_dir,
+                      seqkit_exe=seqkit_executable,
+                      save_background=save_background)
+
+    synthetics = dataset.synthetic_fastqs
 
     for synthetic in synthetics:
-        LOG.info("Synthetic datasets created in {}".format(synthetic))
+        log_msg = f"Synthetic datasets created in {synthetic}"
+        LOG.info(log_msg)

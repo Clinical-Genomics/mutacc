@@ -1,21 +1,26 @@
+"""
+    Module to build synthetic dataset
+"""
+
 import logging
 import os
 
-from mutacc.utils.bam_handler import (BAMContext, check_bam, get_real_padding, get_length)
+from mutacc.utils.bam_handler import (BAMContext, get_real_padding, get_length)
 from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
 from mutacc.subprocessing.merge_fastqs import merge_fastqs as merge_fastqs_sub
-from mutacc.parse.path_parse import make_dir, parse_path
+from mutacc.parse.path_parse import parse_path
 
 LOG = logging.getLogger(__name__)
 
-class MakeSet():
+class Dataset():
 
     """
         class with methods for constructing a synthetic bam file, enriched with
         variants from the mutacc DB.
     """
 
-    def __init__(self, samples, variants):
+    def __init__(self, samples, variants, tmp_dir, background, member, out_dir,
+                 seqkit_exe=None, save_background=True):
         """
             Args:
                 samples (mutacc.utils.pedigree.Individual): list of samples. sample
@@ -25,8 +30,15 @@ class MakeSet():
         """
         self.samples = samples
         self.variants = variants
+        self.tmp_dir = tmp_dir
+        self.background = background
+        self.member = member
 
-    def exclude_from_background(self, tmp_dir, background, member, seqkit_exe=None):
+        self.excluded_backgrounds = self.exclude_from_background(seqkit_exe=seqkit_exe)
+        self.synthetic_fastqs = self.merge_fastqs(out_dir=out_dir,
+                                                  save_background=save_background)
+
+    def exclude_from_background(self, seqkit_exe=None):
 
         """
             for each background fastq file exclude the reads overlapping with
@@ -41,14 +53,12 @@ class MakeSet():
                     choices: 'child', 'father', 'mother', 'affected'
         """
 
-        bam_file = parse_path(background["bam_file"])
-        fastq_files = [parse_path(fastq) for fastq in background["fastq_files"]]
-
-        paired = check_bam(bam_file)
+        bam_file = parse_path(self.background["bam_file"])
+        fastq_files = [parse_path(fastq) for fastq in self.background["fastq_files"]]
 
         read_length = get_length(bam_file)
 
-        with BAMContext(bam_file = bam_file) as bam_handle:
+        with BAMContext(bam_file=bam_file) as bam_handle:
             #for each region, find the reads overlapping
             for variant in self.variants:
 
@@ -57,28 +67,30 @@ class MakeSet():
                                                        start=variant['start']-padding,
                                                        end=variant['end']+padding)
 
-            LOG.info("{} reads to be excluded from {}".format(
-                    bam_handle.record_number,
-                    fastq_files
-                )
-            )
+            log_msg = f"{bam_handle.record_number} reads to be excluded from {fastq_files}"
+            LOG.info(log_msg)
 
-            name_file = bam_handle.make_names_temp(tmp_dir)
-            self.excluded_backgrounds = []
+            name_file = bam_handle.make_names_temp(self.tmp_dir)
+            excluded_backgrounds = []
             for fastq_file in fastq_files:
 
                 fastq_path = str(fastq_file)
-                out_name = str(member) + "_" + str(fastq_file.name)
-                out_path = str(tmp_dir.joinpath(out_name))
+                out_name = str(self.member) + "_" + str(fastq_file.name)
+                out_path = str(self.tmp_dir.joinpath(out_name))
 
                 #Here command line tool seqkit grep is used
-                exclude_from_fastq(name_file, out_path, fastq_path, seqkit_exe=seqkit_exe)
+                exclude_from_fastq(name_file,
+                                   out_path,
+                                   fastq_path,
+                                   seqkit_exe=seqkit_exe)
 
-                self.excluded_backgrounds.append(out_path)
+                excluded_backgrounds.append(out_path)
+
+        return excluded_backgrounds
 
 
 
-    def merge_fastqs(self, out_dir, save_background = True):
+    def merge_fastqs(self, out_dir, save_background=True):
         """
             Merge the background file with the fastq_files Holding
             the reads supporting the variants
@@ -90,7 +102,7 @@ class MakeSet():
         """
         synthetic_fastqs = []
 
-        out_dir = parse_path(out_dir, file_type = 'dir')
+        out_dir = parse_path(out_dir, file_type='dir')
 
         reads = len(self.excluded_backgrounds)
 
@@ -102,7 +114,7 @@ class MakeSet():
             for sample in self.samples:
 
                 if len(sample.variant_fastq_files) != reads:
-                    continue 
+                    continue
 
                 fastq_list.append(sample.variant_fastq_files[i])
 
@@ -112,15 +124,12 @@ class MakeSet():
             LOG.info("Merging fastq files")
 
             try:
-                 merge_fastqs_sub(fastq_list, out_path)
+                merge_fastqs_sub(fastq_list, out_path)
 
             except:
-                LOG.critical(
-                        "Files were not merged, background files in {} not removed".format(
-                            str(out_dir)
-                    )
-                )
 
+                log_msg = f"Files were not merged, background files in {out_dir} not removed"
+                LOG.critical(log_msg)
                 raise
 
             synthetic_fastqs.append(out_path)
@@ -128,10 +137,12 @@ class MakeSet():
         #Remove background fastqs
         if not save_background:
             for background in self.excluded_backgrounds:
-                LOG.info("Removing file from disk: {}".format(background))
+                log_msg = f"Removing file from disk: {background}"
+                LOG.info(log_msg)
                 os.remove(background)
 
         for fastq in synthetic_fastqs:
-            LOG.info("Created {}".format(fastq))
+            log_msg = f"Created {fastq}"
+            LOG.info(log_msg)
 
         return synthetic_fastqs

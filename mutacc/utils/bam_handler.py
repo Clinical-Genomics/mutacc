@@ -1,5 +1,8 @@
+"""
+    Module with to handle bam files
+"""
+
 import logging
-import subprocess
 import tempfile
 import os
 
@@ -61,7 +64,7 @@ def get_length(bam_file):
 
     return average_length
 
-def get_real_padding(length,padding=None):
+def get_real_padding(length, padding=None):
     """
     Given the read lengths in a BAM, calculate the real padding needed taking
     into consideration the read length. This should hopefully approximate
@@ -82,7 +85,7 @@ def get_real_padding(length,padding=None):
 
     return real_padding
 
-def get_overlaping_reads(fileName, chrom, start, end):
+def get_overlaping_reads(file_name, chrom, start, end):
     """
         Extracts all read names from a bam file, overlapping the specified region.
 
@@ -95,13 +98,13 @@ def get_overlaping_reads(fileName, chrom, start, end):
         Returns:
             reads (set): set of read names.
     """
-    fileName = parse_path(fileName)
+    file_name = parse_path(file_name)
 
-    sam_file = pysam.AlignmentFile(fileName, 'rb')
+    sam_file = pysam.AlignmentFile(file_name, 'rb')
 
-    reads = sam_file.fetch(reference = chrom,
-            start = start,
-            end = end)
+    reads = sam_file.fetch(reference=chrom,
+                           start=start,
+                           end=end)
 
     ids = [read.query_name for read in reads]
 
@@ -113,7 +116,7 @@ class BAMContext:
     """
         Context manager to deal with bam files
     """
-    def __init__(self, bam_file, out_dir = None, paired = True):
+    def __init__(self, bam_file, out_dir=None, paired=True):
         """
             Args:
                 bam_file(str): path to bam file
@@ -128,13 +131,13 @@ class BAMContext:
         self.out_dir = out_dir
         if self.out_dir: #If out_dir is given, open a file to write found records
 
-            self.out_dir = parse_path(out_dir, file_type = "dir")
+            self.out_dir = parse_path(out_dir, file_type="dir")
             self.out_name = out_dir.joinpath("mutacc_" + self.file_name)
 
             self.out_bam = pysam.AlignmentFile(
                 self.out_name,
                 'wb',
-                template = self.sam
+                template=self.sam
             )
 
     def __enter__(self):
@@ -146,7 +149,8 @@ class BAMContext:
         self.sam.close()
 
         #If out_dir is given, also close the out_bam file created in __init__
-        if self.out_dir: self.out_bam.close()
+        if self.out_dir:
+            self.out_bam.close()
 
         try:
             os.remove(self.names_temp)
@@ -186,7 +190,7 @@ class BAMContext:
             #and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
             if read_name not in self.found_reads:
 
-                if len(self.reads[read_name]) == 0:
+                if not self.reads[read_name]:
                     self.reads[read_name].append(read)
 
                 #Make sure the two reads is not the sameself.
@@ -215,15 +219,14 @@ class BAMContext:
             if mate:
                 self.reads[key].append(mate)
 
-                LOG.debug("Mate found for read {}, {}\n mate is unmapped: {}".format(
-                    key,
-                    self.reads[key][0].next_reference_id,
-                    self.reads[key][0].mate_is_unmapped
-                    )
-                )
+                log_msg = (f"Mate found for read {key},"
+                           f" {self.reads[key][0].next_reference_id} \n"
+                           f"mate is unmapped: {self.reads[key][0].mate_is_unmapped}")
+                LOG.debug(log_msg)
 
                 if self.out_dir:
-                    for mate in self.reads[key]: self.out_bam.write(mate)
+                    for mate in self.reads[key]:
+                        self.out_bam.write(mate)
 
                 self.found_reads = self.found_reads.union({key})
             self.reads.pop(key)
@@ -233,9 +236,16 @@ class BAMContext:
     @property
     def record_number(self):
 
+        """
+            Number of records
+        """
+
         return len(self.found_reads)
 
     def find_mate(self, read):
+        """
+            Find mate for read
+        """
 
         try:
 
@@ -246,12 +256,10 @@ class BAMContext:
         #(Unless ends argument in __init__ is not set to 1)
         except ValueError:
 
-            LOG.debug("Mate not found for read {}, {}\n mate is unmapped: {}".format(
-                read.query_name,
-                read.next_reference_id,
-                read.mate_is_unmapped
-                )
-            )
+            log_msg = (f"Mate not found for read {read.query_name}, "
+                       f"{read.next_reference_id}\n mate is unmapped: "
+                       f"{read.mate_is_unmapped}")
+            LOG.debug(log_msg)
             mate = None
 
         return mate
@@ -259,13 +267,17 @@ class BAMContext:
     @property
     def out_file(self):
 
+        """
+            returns output file
+        """
+
         return str(self.out_name)
 
     def make_names_temp(self, out_dir):
         """
             Make temporary file holding each read name on separate line
         """
-        with tempfile.NamedTemporaryFile('wt',dir=out_dir, delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile('wt', dir=out_dir, delete=False) as temp_file:
             #Add line in beginning in case no reads are found
             #seqkit grep -f will not work on empty file.
             temp_file.write("####NAMES####\n")

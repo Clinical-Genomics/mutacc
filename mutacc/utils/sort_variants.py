@@ -1,4 +1,6 @@
-
+"""
+    Functions to sort variants
+"""
 
 
 CHROMOSOMES = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
@@ -6,9 +8,13 @@ CHROMOSOMES = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
                'Y', 'MT')
 
 # Maps chromosomes to integers
-CHROMOSOME_INTEGERS = {chrom: i+1 for i,chrom in enumerate(CHROMOSOMES)}
+CHROMOSOME_INTEGERS = {chrom: i+1 for i, chrom in enumerate(CHROMOSOMES)}
 
 def sort_variants(variants):
+
+    """
+        Sort variants
+    """
 
     variant_chromosomes = []
     for variant in variants:

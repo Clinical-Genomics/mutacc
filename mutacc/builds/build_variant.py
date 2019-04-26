@@ -1,3 +1,7 @@
+"""
+    Module with for building variant objects from a vcf
+"""
+
 from cyvcf2 import VCF
 
 from mutacc.parse.path_parse import parse_path
@@ -13,14 +17,24 @@ INFO_IDS = (
 #A function for correctly parsing a vcf entry for the regions to look for in the bam file will be
 # necessary. This will be the case for more complex structural variants. the find_region function
 #attempts to
-class Variant:
+class Variant(dict):
 
-    def __init__(self, vcf_entry, samples):
+    """
+        Class to represent variant
+    """
+
+    def __init__(self, vcf_entry, samples, padding):
+
+        super(Variant, self).__init__()
 
         self.entry = vcf_entry
         self.samples = samples
 
-    def find_region(self, padding):
+        self.build_variant_object(padding)
+
+        self.entry = str(self.entry)
+
+    def _find_region(self, padding):
         """
             Given a vcf entry, this function attempts to return the relevant genomic regions
             to where the reads aligned that supports the given variant.
@@ -35,12 +49,10 @@ class Variant:
                 vtype (str): variant type
                 region (dict): dictionary holding the start and end coordinates for a genomic region
 
-
         """
 
-
         #For variants with an ID 'SVTYPE' in the INFO field of the vcf entry
-        start, end = self.find_start_end()
+        start, end = self._find_start_end()
 
         vtype = self.entry.INFO.get("TYPE") or self.entry.INFO.get("SVTYPE") or 'None'
         vtype = vtype.upper()
@@ -48,10 +60,9 @@ class Variant:
         region = {"start": start - padding,
                   "end": end + padding}
 
-        self.vtype = vtype
-        self.region = region
+        return vtype, region
 
-    def find_start_end(self):
+    def _find_start_end(self):
         start = self.entry.start
         if self.entry.INFO.get('END'):
             end = self.entry.INFO.get('END')
@@ -60,7 +71,7 @@ class Variant:
         return (int(start), int(end))
 
 
-    def find_genotypes(self):
+    def _find_genotypes(self):
 
         """
             Finds genotype calls for each sample, using the GT, DP, GQ, AD fields
@@ -75,66 +86,97 @@ class Variant:
             #IDs from sample specific genotype field
             sample = {
 
-                    'GT': resolve_cyvcf2_genotype(self.entry.genotypes[i]),
-                    'DP': int(self.entry.gt_depths[i]),
-                    'GQ': int(self.entry.gt_quals[i]),
-                    'AD': int(self.entry.gt_alt_depths[i])
+                'GT': resolve_cyvcf2_genotype(self.entry.genotypes[i]),
+                'DP': int(self.entry.gt_depths[i]),
+                'GQ': int(self.entry.gt_quals[i]),
+                'AD': int(self.entry.gt_alt_depths[i])
 
-                }
+            }
 
             samples[sample_id] = sample
 
         return samples
 
 
-    def build_variant_object(self):
+    def build_variant_object(self, padding):
         """
             makes a dictionary of the variant to be loaded into a mongodb
         """
 
         #Find genotype and sample id for the samples given in the vcf file
-        samples = self.find_genotypes()
+        vtype, region = self._find_region(padding)
+        samples = self._find_genotypes()
 
-        self.variant = {
-
-                "display_name": self.display_name,
-                "variant_type": self.vtype,
-                "alt": self.entry.ALT,
-                "ref": self.entry.REF,
-                "chrom": self.entry.CHROM,
-                "start": self.entry.start,
-                "end": self.entry.end,
-                "vcf_entry": str(self.entry),
-                "reads_region": self.region,
-                "samples": samples
-                }
+        self['display_name'] = self.display_name
+        self['variant_type'] = vtype
+        self['alt'] = self.entry.ALT
+        self['ref'] = self.entry.REF
+        self['chrom'] = self.entry.CHROM
+        self['start'] = self.entry.start
+        self['end'] = self.entry.end
+        self['vcf_entry'] = str(self.entry)
+        self['reads_region'] = region
+        self['samples'] = samples
+        self['padding'] = padding
 
         #Add data from the info INFO field
-        for ID in INFO_IDS:
-            if self.entry.INFO.get(ID):
-                self.variant[ID] = self.entry.INFO[ID]
+        for info_id in INFO_IDS:
+            if self.entry.INFO.get(info_id):
+                self[info_id] = self.entry.INFO[info_id]
 
     @property
     def display_name(self):
 
+        """
+            Make display name <chrom>_<pos>_<ref>_<alt>
+        """
+
         display_name = '_'.join(
-                [
-                    self.entry.CHROM,
-                    str(self.entry.POS),
-                    self.entry.REF,
-                    self.entry.ALT[0]
-                ]
-            )
+            [
+                self.entry.CHROM,
+                str(self.entry.POS),
+                self.entry.REF,
+                self.entry.ALT[0]
+            ]
+        )
 
         return display_name
 
-    @property
-    def variant_object(self):
-
-        return self.variant
 
 
-def get_variants(vcf_file):
+def resolve_cyvcf2_genotype(cyvcf2_gt):
+    """
+        Given a genotype given by cyvcf2, translate this to a valid
+        genotype string.
+
+        Args:
+            cyvcf2_gt (cyvcf2.variant.genotypes)
+
+        Returns:
+            genotype (str)
+    """
+
+    if cyvcf2_gt[2]:
+        separator = '|'
+    else:
+        separator = '/'
+
+    if cyvcf2_gt[0] == -1:
+        a_1 = '.'
+    else:
+        a_1 = str(cyvcf2_gt[0])
+
+    if cyvcf2_gt[1] == -1:
+        a_2 = '.'
+    else:
+        a_2 = str(cyvcf2_gt[1])
+
+    genotype = a_1 + separator + a_2
+
+    return genotype
+
+
+def get_variants(vcf_file, padding):
 
     """
 
@@ -156,37 +198,6 @@ def get_variants(vcf_file):
 
     for entry in vcf:
 
-        yield Variant(entry, samples)
+        yield Variant(entry, samples, padding)
 
     vcf.close()
-
-def resolve_cyvcf2_genotype(cyvcf2_gt):
-    """
-        Given a genotype given by cyvcf2, translate this to a valid
-        genotype string.
-
-        Args:
-            cyvcf2_gt (cyvcf2.variant.genotypes)
-
-        Returns:
-            genotype (str)
-    """
-
-    if cyvcf2_gt[2]:
-        separator = '|'
-    else:
-        separator = '/'
-
-    if cyvcf2_gt[0] == -1:
-        a1 = '.'
-    else:
-        a1 = str(cyvcf2_gt[0])
-
-    if cyvcf2_gt[1] == -1:
-        a2 = '.'
-    else:
-        a2 = str(cyvcf2_gt[1])
-
-    genotype = a1 + separator + a2
-
-    return genotype

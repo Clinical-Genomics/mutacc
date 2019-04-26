@@ -1,3 +1,7 @@
+"""
+    Handle pedigrees
+"""
+
 import ped_parser
 
 class Individual(ped_parser.Individual):
@@ -5,17 +9,17 @@ class Individual(ped_parser.Individual):
         Extension on ped_parser.Individual and allow for two extra attributes
         variant_bam_file and variant_fastq_files for each sample
     """
-    def __init__(self, ind, family='0', mother='0', father='0',sex='0',phenotype='0',
-        genetic_models=None, proband='.', consultand='.', alive='.', variant_bam_file = '',
-        variant_fastq_files = ['','']):
+    def __init__(self, ind, family='0', mother='0', father='0', sex='0', phenotype='0',
+                 genetic_models=None, proband='.', consultand='.', alive='.', variant_bam_file='',
+                 variant_fastq_files=['', '']):
 
         super(Individual, self).__init__(
             ind,
-            family = family,
-            mother = mother,
-            father = father,
-            sex = sex,
-            phenotype = phenotype,
+            family=family,
+            mother=mother,
+            father=father,
+            sex=sex,
+            phenotype=phenotype,
             genetic_models=genetic_models,
             proband=proband,
             consultand=consultand,
@@ -31,9 +35,9 @@ class Family(ped_parser.Family):
     """
     def __init__(self, family_id):
 
-        super(Family, self).__init__(family_id, individuals = {})
+        super(Family, self).__init__(family_id, individuals={})
 
-    def get_child(self, sex = None, proband = False):
+    def get_child(self, sex=None, proband=False):
 
         if sex:
             if sex == "male":
@@ -103,7 +107,7 @@ class Family(ped_parser.Family):
 
         return mother
 
-    def get_affected(self, sex = None):
+    def get_affected(self, sex=None):
 
         if sex:
             if sex == "male":
@@ -127,7 +131,7 @@ class Family(ped_parser.Family):
 
         return affected
 
-    def get_individual(self, member, sex = None, proband = False):
+    def get_individual(self, member, sex=None, proband=False):
 
         members = {'father',
                    'mother',
@@ -161,8 +165,8 @@ def make_family_from_case(case):
     """
     family_id = case['case_id']
     fam = Family(
-            family_id = case['case_id'],
-            )
+        family_id=case['case_id'],
+    )
 
     for sample in case['samples']:
 
@@ -182,14 +186,14 @@ def make_family_from_case(case):
 
 
         individual = Individual(
-            ind = sample['sample_id'],
-            family = family_id,
-            mother = sample['mother'],
-            father = sample['father'],
-            sex = sex,
-            phenotype = phenotype,
-            variant_bam_file = sample.get('variant_bam_file'),
-            variant_fastq_files = sample['variant_fastq_files']
+            ind=sample['sample_id'],
+            family=family_id,
+            mother=sample['mother'],
+            father=sample['father'],
+            sex=sex,
+            phenotype=phenotype,
+            variant_bam_file=sample.get('variant_bam_file'),
+            variant_fastq_files=sample['variant_fastq_files']
         )
 
         fam.add_individual(individual)

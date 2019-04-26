@@ -1,6 +1,9 @@
-import logging
+"""
+    Module with functions to insert into database
+"""
 
-import pymongo
+import logging
+from copy import deepcopy
 
 LOG = logging.getLogger(__name__)
 
@@ -16,29 +19,28 @@ def insert_entire_case(mutacc_adapter, case):
             information about the case, variants, and samples in the case.
 
     """
-    #Save case_id and Sample_ids of the case
+    # Save case_id
     case_id = case.case_id
-    sample_ids = case.sample_ids
 
-    #Store variants-, samples-, and case objects as variants, samples, and cases.
-    variants = case.variants_object
-    samples = case.samples_object
-    case = case.case_object
+    # copy variants-, samples-, and case from case object.
+    variants = deepcopy(case['variants'])
+    samples = deepcopy(case['samples'])
+    case = deepcopy(case['case'])
 
-    #add case_id field for variant objects, pointing to the case where
-    #the variants come from
+    # add case_id field for variant objects, pointing to the case where
+    # the variants come from
     for variant in variants:
 
         variant["case"] = case_id
 
-    #Insert variants into db and save ObjectIds for the documents as variant_ids
+    # Insert variants into db and save ObjectIds for the documents as variant_ids
     variant_ids = mutacc_adapter.add_variants(variants)
 
-    #Add variant_ids and sample objects to case object
+    # Add variant_ids and sample objects to case object
     case["variants"] = variant_ids
     case["samples"] = samples
 
-    #Insert case into db
+    # Insert case into db
 
     mutacc_adapter.add_case(case)
 
