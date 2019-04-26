@@ -1,10 +1,14 @@
+"""
+    Module to build synthetic dataset
+"""
+
 import logging
 import os
 
 from mutacc.utils.bam_handler import (BAMContext, check_bam, get_real_padding, get_length)
 from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
 from mutacc.subprocessing.merge_fastqs import merge_fastqs as merge_fastqs_sub
-from mutacc.parse.path_parse import make_dir, parse_path
+from mutacc.parse.path_parse import parse_path
 
 LOG = logging.getLogger(__name__)
 
@@ -102,7 +106,7 @@ class MakeSet():
             for sample in self.samples:
 
                 if len(sample.variant_fastq_files) != reads:
-                    continue 
+                    continue
 
                 fastq_list.append(sample.variant_fastq_files[i])
 
