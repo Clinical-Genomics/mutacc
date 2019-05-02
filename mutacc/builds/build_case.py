@@ -33,7 +33,9 @@ class Case(dict):
         self.case_id = input_case['case']['case_id']
 
         # Build variants
-        self['variants'] = self._build_variants(padding=padding)
+        rank_model_version = self.input_case['case'].get('rank_model_version')
+        self['variants'] = self._build_variants(padding=padding,
+                                                rank_model_version=rank_model_version)
 
         # Build samples
         self['samples'] = self._build_samples(read_dir=read_dir,
@@ -42,7 +44,7 @@ class Case(dict):
         # Build case
         self['case'] = self.input_case['case']
 
-    def _build_variants(self, padding=None):
+    def _build_variants(self, padding=None, rank_model_version=None):
         """
             Method that parses the vcf in the case dictionary.
 
@@ -57,7 +59,9 @@ class Case(dict):
 
         variant_objects = []
 
-        for variant_object in get_variants(self.input_case["variants"], padding=padding):
+        for variant_object in get_variants(self.input_case["variants"],
+                                           padding=padding,
+                                           rank_model_version=rank_model_version):
 
             # Append the variant object to the list
             variant_objects.append(variant_object)

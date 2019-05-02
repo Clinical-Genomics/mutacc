@@ -11,7 +11,7 @@ HEADER = (
     '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
     '##INFO=<ID=TYPE,Number=A,Type=String,Description="The type of allele, either snp, mnp, ins, del, or complex.">',
     '##INFO=<ID=MutaccRankScore,Number=.,Type=String,Description="The rank score for this variant in this family. family_id:rank_score.">',
-
+    '##INFO=<ID=RMV,Number=1,Type=Float,Description="Rank model version">',
 
     '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">',
     '##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">',
@@ -54,9 +54,11 @@ def vcf_writer(found_variants, vcf_path, sample_name):
 
             if variant.get('RankScore'):
                 info += f"MutaccRankScore={variant['RankScore']};"
+            if variant.get('rank_model_version'):
+                info += f"RMV={variant['rank_model_version']};"
 
             if variant['variant_type'].lower() in ('snp', 'mnp', 'ins', 'del', 'complex'):
-                info += f"TYPE={variant['variant_type']};"
+                info += f"TYPE={variant['variant_type']}"
             else:
                 info += f"SVTYPE={variant['variant_type']}"
 

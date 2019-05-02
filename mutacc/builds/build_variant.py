@@ -30,14 +30,14 @@ class Variant(dict):
         Class to represent variant
     """
 
-    def __init__(self, vcf_entry, samples, padding):
+    def __init__(self, vcf_entry, samples, padding, rank_model_version=None):
 
         super(Variant, self).__init__()
 
         self.entry = vcf_entry
         self.samples = samples
 
-        self.build_variant_object(padding)
+        self.build_variant_object(padding, rank_model_version=rank_model_version)
 
         self.entry = str(self.entry)
 
@@ -121,7 +121,7 @@ class Variant(dict):
         return gene_list
 
 
-    def build_variant_object(self, padding):
+    def build_variant_object(self, padding, rank_model_version=None):
         """
             makes a dictionary of the variant to be loaded into a mongodb
         """
@@ -148,6 +148,10 @@ class Variant(dict):
         for info_id in INFO_IDS:
             if self.entry.INFO.get(info_id):
                 self[info_id] = self.entry.INFO[info_id]
+
+        #Add rank_model_version if given
+        if rank_model_version is not None:
+            self['rank_model_version'] = rank_model_version
 
     @property
     def display_name(self):
@@ -201,7 +205,7 @@ def resolve_cyvcf2_genotype(cyvcf2_gt):
     return genotype
 
 
-def get_variants(vcf_file, padding):
+def get_variants(vcf_file, padding, rank_model_version=None):
 
     """
 
@@ -223,6 +227,6 @@ def get_variants(vcf_file, padding):
 
     for entry in vcf:
 
-        yield Variant(entry, samples, padding)
+        yield Variant(entry, samples, padding, rank_model_version=rank_model_version)
 
     vcf.close()
