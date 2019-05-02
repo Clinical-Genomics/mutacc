@@ -13,7 +13,8 @@ VARIANT_FIELDS = ["variant_type",
                   "reads_region",
                   "display_name",
                   "samples",
-                  "padding"]
+                  "padding",
+                  "genes"]
 
 def test_get_variants():
     """

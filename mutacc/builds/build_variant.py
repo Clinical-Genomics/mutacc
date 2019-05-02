@@ -1,6 +1,7 @@
 """
     Module with for building variant objects from a vcf
 """
+import logging
 
 from cyvcf2 import VCF
 
@@ -14,9 +15,15 @@ INFO_IDS = (
 
 )
 
-#A function for correctly parsing a vcf entry for the regions to look for in the bam file will be
-# necessary. This will be the case for more complex structural variants. the find_region function
-#attempts to
+GENE_INFO = ('region_annotation',
+             'functional_annotation',
+             'sift_prediction',
+             'polyphen_prediction')
+ANNOTATION = 'ANN'
+
+LOG = logging.getLogger(__name__)
+
+
 class Variant(dict):
 
     """
@@ -97,6 +104,22 @@ class Variant(dict):
 
         return samples
 
+    def _find_genes(self):
+
+        genes = self.entry.INFO.get('ANN')
+        if genes is None:
+            LOG.debug("Could not find ANN field in vcf")
+            return []
+
+        gene_list = []
+        for gene in genes.split(','):
+            gene_info = {}
+            for ann_id, info in zip(GENE_INFO, gene.split('|')):
+                gene_info[ann_id] = info.strip() if info else 'unknown'
+            gene_list.append(gene_info)
+
+        return gene_list
+
 
     def build_variant_object(self, padding):
         """
@@ -106,6 +129,7 @@ class Variant(dict):
         #Find genotype and sample id for the samples given in the vcf file
         vtype, region = self._find_region(padding)
         samples = self._find_genotypes()
+        genes = self._find_genes()
 
         self['display_name'] = self.display_name
         self['variant_type'] = vtype
@@ -118,6 +142,7 @@ class Variant(dict):
         self['reads_region'] = region
         self['samples'] = samples
         self['padding'] = padding
+        self['genes'] = genes
 
         #Add data from the info INFO field
         for info_id in INFO_IDS:
