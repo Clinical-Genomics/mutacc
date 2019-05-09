@@ -3,6 +3,7 @@
 """
 import logging
 import pickle
+import json
 
 import click
 
@@ -24,6 +25,7 @@ LOG = logging.getLogger(__name__)
 @click.option('--vcf-dir', type=click.Path(exists=True))
 @click.option('-p', '--proband', is_flag=True)
 @click.option('-n', '--sample-name')
+@click.option('-j', '--json-out', is_flag=True)
 @click.pass_context
 def export(context,
            case_query,
@@ -32,7 +34,8 @@ def export(context,
            sex,
            vcf_dir,
            proband,
-           sample_name):
+           sample_name,
+           json_out):
 
     """
         exports dataset from DB
@@ -78,5 +81,11 @@ def export(context,
 
     log_msg = f"creating vcf file {vcf_file}"
     LOG.info(log_msg)
-    
+
     vcf_writer(found_variants, vcf_file, sample_name)
+
+    if json_out:
+        output_info = {'query_file': str(pickle_file), 'vcf_file': str(vcf_file)}
+        output_json = json.dumps(output_info)
+
+        click.echo(output_json)
