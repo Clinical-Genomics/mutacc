@@ -5,6 +5,7 @@
 import logging
 import pickle
 import click
+import json
 
 from mutacc.parse.path_parse import make_dir
 from mutacc.builds.build_dataset import Dataset
@@ -12,20 +13,22 @@ from mutacc.builds.build_dataset import Dataset
 LOG = logging.getLogger(__name__)
 
 @click.command('synthesize')
-@click.pass_context
 @click.option('-b', '--background-bam', type=click.Path())
 @click.option('-f', '--background-fastq', type=click.Path())
 @click.option('-f2', '--background-fastq2', type=click.Path())
 @click.option('--dataset-dir', type=click.Path())
 @click.option('-q', '--query', type=click.Path(exists=True))
 @click.option('-s', '--save-background', is_flag=True)
+@click.option('-j', '--json-out', is_flag=True)
+@click.pass_context
 def synthesize_command(context,
                        background_bam,
                        background_fastq,
                        background_fastq2,
                        dataset_dir,
                        query,
-                       save_background):
+                       save_background,
+                       json_out):
 
     """
         Command to make synthetic dataset
@@ -77,3 +80,8 @@ def synthesize_command(context,
     for synthetic in synthetics:
         log_msg = f"Synthetic datasets created in {synthetic}"
         LOG.info(log_msg)
+
+    if json_out:
+        output_info = {'fastq_files': [str(synthetic) for synthetic in synthetics]}
+        output_json = json.dumps(output_info)
+        click.echo(output_json)
