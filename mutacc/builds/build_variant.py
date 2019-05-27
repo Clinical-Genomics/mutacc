@@ -15,7 +15,8 @@ INFO_IDS = (
 
 )
 
-GENE_INFO = ('region_annotation',
+GENE_INFO = ('hgnc_symbol',
+             'region_annotation',
              'functional_annotation',
              'sift_prediction',
              'polyphen_prediction')

@@ -18,10 +18,10 @@ def yaml_parse(yaml_file):
     with open(yaml_file, 'r') as yaml_handle:
 
         try:
-            yaml_dict = yaml.load(yaml_handle)
+            yaml_dict = yaml.load(yaml_handle, Loader=yaml.FullLoader)
 
         except yaml.YAMLError as exc:
-            print('Error loading yaml object: ', exc)
+            LOG.critical(f"Error loading yaml object: {exc}")
 
             raise
 
