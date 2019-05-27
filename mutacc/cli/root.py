@@ -39,7 +39,7 @@ def cli(context, loglevel, config_file, root_dir):
     if config_file:
 
         with open(config_file, 'r') as in_handle:
-            cli_config = yaml.load(in_handle)
+            cli_config = yaml.load(in_handle, Loader=yaml.FullLoader)
 
 
     mutacc_config = {}

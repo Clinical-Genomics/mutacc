@@ -5,5 +5,5 @@ biopython
 cyvcf2<0.10.0
 mongo-adapter
 ped_parser
-PyYaml
+PyYaml>=5.1
 pymongo
