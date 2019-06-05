@@ -3,7 +3,7 @@
 """
 
 import logging
-import pickle
+import json
 
 import click
 from pymongo.errors import WriteError as MongoWriteError
@@ -24,15 +24,15 @@ def importing(context, case):
     log_msg = f"Inserting case from {case} into mutaccDB"
     LOG.info(log_msg)
 
-    with open(case, "rb") as pickle_handle:
-        case = pickle.load(pickle_handle)
+    with open(case, "r") as json_handle:
+        case = json.load(json_handle)
 
     adapter = context.obj['adapter']
 
     #Check if case_id already exists in collection
-    if adapter.case_exists(case.case_id):
+    if adapter.case_exists(case['case']['case_id']):
         LOG.warning("case_id not unique")
-        error_msg = f"Case {case.case_id} already exists"
+        error_msg = f"Case {case['case']['case_id']} already exists"
         raise MongoWriteError(error_msg)
 
     insert_entire_case(adapter, case)

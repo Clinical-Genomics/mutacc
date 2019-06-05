@@ -2,7 +2,6 @@
     Command to export variants
 """
 import logging
-import pickle
 import json
 
 import click
@@ -61,14 +60,14 @@ def export(context,
 
     query_dir = context.obj.get('query_dir')
 
-    #pickle query
-    pickle_file = query_dir.joinpath(sample_name + "_query.mutacc")
+    #json query and dump to file for later use with 'synthesize' command
+    json_file = query_dir.joinpath(sample_name + "_query_mutacc.json")
 
-    with open(pickle_file, "wb") as pickle_handle:
+    with open(json_file, "w") as json_handle:
 
-        pickle.dump(query, pickle_handle)
+        json.dump(query, json_handle)
 
-    log_msg = f"Query stored in {pickle_file}"
+    log_msg = f"Query stored in {json_file}"
     LOG.info(log_msg)
 
     #sort variants
@@ -85,7 +84,6 @@ def export(context,
     vcf_writer(found_variants, vcf_file, sample_name)
 
     if json_out:
-        output_info = {'query_file': str(pickle_file), 'vcf_file': str(vcf_file)}
+        output_info = {'query_file': str(json_file), 'vcf_file': str(vcf_file)}
         output_json = json.dumps(output_info)
-
         click.echo(output_json)

@@ -3,7 +3,6 @@
 """
 
 import logging
-import pickle
 import click
 import json
 
@@ -34,10 +33,10 @@ def synthesize_command(context,
         Command to make synthetic dataset
     """
 
-    # unpickle query
-    with open(query, "rb") as pickle_handle:
+    # load json file containing a mutacc query
+    with open(query, "r") as json_handle:
 
-        samples, _, variants, sample_name = pickle.load(pickle_handle)
+        samples, _, variants, sample_name = json.load(json_handle)
 
     #Abort if no cases correspond to query
     num_cases = len(samples)
