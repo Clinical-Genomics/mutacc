@@ -3,6 +3,7 @@
 """
 
 from pathlib import Path
+import time
 
 from click.testing import CliRunner
 
@@ -29,22 +30,27 @@ def test_extract(tmpdir):
 
     assert result.exit_code == 0
 
+    date_str = time.strftime('%Y-%m-%d')
+
     for i in [1, 2, 3]:
 
         assert Path(root_dir).joinpath(
-            "reads/12345/{}/mutacc_reduced_ref_4_1000000_10002000.bam".format(
+            "reads/12345/{}/{}/mutacc_reduced_ref_4_1000000_10002000.bam".format(
+                date_str,
                 i
                 )
             ).exists()
 
         assert Path(root_dir).joinpath(
-            "reads/12345/{}/mutacc_reduced_ref_4_1000000_10002000_R1.fastq.gz".format(
+            "reads/12345/{}/{}/mutacc_reduced_ref_4_1000000_10002000_R1.fastq.gz".format(
+                date_str,
                 i
                 )
             ).exists()
 
         assert Path(root_dir).joinpath(
-            "reads/12345/{}/mutacc_reduced_ref_4_1000000_10002000_R2.fastq.gz".format(
+            "reads/12345/{}/{}/mutacc_reduced_ref_4_1000000_10002000_R2.fastq.gz".format(
+                date_str,
                 i
                 )
             ).exists()
