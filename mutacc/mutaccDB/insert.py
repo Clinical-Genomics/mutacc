@@ -2,12 +2,13 @@
     Module with functions to insert into database
 """
 
+import datetime
 import logging
 from copy import deepcopy
 
 LOG = logging.getLogger(__name__)
 
-def insert_entire_case(mutacc_adapter, case):
+def insert_entire_case(mutacc_adapter, case, replace=False):
     """
         Insert an entire case into mongodb database. That is, case, samples, and variants.
 
@@ -21,6 +22,10 @@ def insert_entire_case(mutacc_adapter, case):
     """
     # Save case_id
     case_id = case['case']['case_id']
+
+    # If replace flag is specified, remove case and variants associated with case
+    if replace:
+        mutacc_adapter.remove_case(case_id)
 
     # copy variants-, samples-, and case from case object.
     variants = deepcopy(case['variants'])
@@ -39,6 +44,7 @@ def insert_entire_case(mutacc_adapter, case):
     # Add variant_ids and sample objects to case object
     case["variants"] = variant_ids
     case["samples"] = samples
+    case["modified"] = datetime.datetime.utcnow()
 
     # Insert case into db
 

@@ -15,8 +15,11 @@ LOG = logging.getLogger(__name__)
 
 @click.command('import')
 @click.argument('case', type=click.Path(exists=True))
+@click.option('-r', '--replace',
+              is_flag=True,
+              help="If given, the case in the database will be replaced with this")
 @click.pass_context
-def importing(context, case):
+def importing(context, case, replace):
 
     """
         Import cases to the database
@@ -31,8 +34,11 @@ def importing(context, case):
 
     #Check if case_id already exists in collection
     if adapter.case_exists(case['case']['case_id']):
-        LOG.warning("case_id not unique")
-        error_msg = f"Case {case['case']['case_id']} already exists"
-        raise MongoWriteError(error_msg)
+        log_msg = f"case {case['case']['case_id']} already exists"
+        LOG.warning(log_msg)
 
-    insert_entire_case(adapter, case)
+        if not replace:
+            error_msg = f"Case {case['case']['case_id']} already exists"
+            raise MongoWriteError(error_msg)
+
+    insert_entire_case(adapter, case, replace=replace)

@@ -57,6 +57,7 @@ class MutaccAdapter(MongoAdapter):
             Args:
                 case(dict): dictionary containing information about the case.
         """
+
         self.cases_collection.insert_one(case)
 
     def case_exists(self, case_id):
@@ -74,7 +75,6 @@ class MutaccAdapter(MongoAdapter):
 
         return False
 
-
     def find_cases(self, query):
 
         return [case for case in self.cases_collection.find(query)]
@@ -82,6 +82,7 @@ class MutaccAdapter(MongoAdapter):
     def find_case(self, query):
 
         return self.cases_collection.find_one(query)
+
     def find_variants(self, query):
 
         return [variant for variant in self.variants_collection.find(query)]
