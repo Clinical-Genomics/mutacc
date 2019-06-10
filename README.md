@@ -144,13 +144,13 @@ mutacc --config-file <config_file> extract --padding 600 --case <case_file>
 the --padding option takes the number of basepairs that the desired region is
 padded with.
 
-This will create a file 'case_id'.mutacc stored in the directory specified in the
+This will create a file <case_id>.json stored in the directory specified in the
 /.../root_dir/imports directory.
 
 To import the case into the database
 
 ```console
-mutacc db import /.../root_dir/imports/<case_id>.mutacc
+mutacc db import /.../root_dir/imports/<case_id>.json
 ```
 
 The db command is called each time mutacc needs to do any operation against the
@@ -235,8 +235,8 @@ mutacc --config-file <config_file> db export -m child -c '{}' -p -n child
 mutacc --config-file <config_file> db export -m father -c '{}' -n father
 mutacc --config-file <config_file> db export -m mother -c '{}' -n mother
 ```
-This will create three files child_query.mutacc, father_query.mutacc, and
-mother_query.mutacc.
+This will create three files child_query_mutacc.json, father_query_mutacc.json, and
+mother_query_mutacc.json.
 
 the export subcommand will also generate a truth set vcf-file for each exported
 samples, containing all queried variants.
@@ -264,9 +264,9 @@ with the following options
 example, using the query files created above
 
 ```console
-mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_child> -f2 <fastq2_child> -q child_query.mutacc
-mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_father> -f2 <fastq2_father> -q father_query.mutacc
-mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother> -q mother_query.mutacc
+mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_child> -f2 <fastq2_child> -q child_query_mutacc.json
+mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_father> -f2 <fastq2_father> -q father_query_mutacc.json
+mutacc --config-file <config_file> synthesize -b <bam> -f <fastq1_mother> -f2 <fastq2_mother> -q mother_query_mutacc.json
 ```
 
 The created fastq-files will be stored in the directory /.../root_dir/datasets/

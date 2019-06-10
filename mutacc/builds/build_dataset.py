@@ -113,10 +113,10 @@ class Dataset():
 
             for sample in self.samples:
 
-                if len(sample.variant_fastq_files) != reads:
+                if len(sample['variant_fastq_files']) != reads:
                     continue
 
-                fastq_list.append(sample.variant_fastq_files[i])
+                fastq_list.append(sample['variant_fastq_files'][i])
 
             file_name = parse_path(self.excluded_backgrounds[i]).name
             out_path = out_dir.joinpath("synthetic_"+file_name)

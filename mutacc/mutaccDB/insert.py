@@ -20,7 +20,7 @@ def insert_entire_case(mutacc_adapter, case):
 
     """
     # Save case_id
-    case_id = case.case_id
+    case_id = case['case']['case_id']
 
     # copy variants-, samples-, and case from case object.
     variants = deepcopy(case['variants'])

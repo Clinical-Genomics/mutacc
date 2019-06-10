@@ -3,7 +3,7 @@
 """
 
 import logging
-import pickle
+import json
 
 import click
 
@@ -43,13 +43,13 @@ def extract_command(context, case, padding, picard_executable):
 
     import_dir = context.obj.get('import_dir')
 
-    pickle_file = import_dir.joinpath(case.case_id + "_import"+ ".mutacc")
+    json_file = import_dir.joinpath(case.case_id + "_import_mutacc"+ ".json")
 
     #Serialize case object to file for later import
-    with open(pickle_file, "wb") as pickle_handle:
+    with open(json_file, "w") as json_handle:
 
-        pickle.dump(case, pickle_handle)
+        json.dump(case, json_handle)
 
 
-    log_msg = f"to import reads into mutaccDB, do:\n    mutacc db import {pickle_file}"
+    log_msg = f"to import reads into mutaccDB, do:\n    mutacc db import {json_file}"
     LOG.info(log_msg)
