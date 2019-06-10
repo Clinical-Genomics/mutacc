@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- mutacc dumps files as json files for later import
+
 ### Added
 - Padding is calculated with regards to the read lengths in the bam file. The aim
 is to get an actual padding of 1000 bp around the variant region.
