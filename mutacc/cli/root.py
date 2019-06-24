@@ -26,9 +26,10 @@ LOG = logging.getLogger(__name__)
 @click.option('--loglevel', default='INFO', type=click.Choice(LOG_LEVELS))
 @click.option('-c', '--config-file', type=click.Path(exists=True))
 @click.option('-r', '--root-dir', type=click.Path(exists=True))
+@click.option('-d', '--demo', is_flag=True)
 @click.version_option(__version__)
 @click.pass_context
-def cli(context, loglevel, config_file, root_dir):
+def cli(context, loglevel, config_file, root_dir, demo):
 
     coloredlogs.install(level = loglevel)
 
@@ -41,20 +42,27 @@ def cli(context, loglevel, config_file, root_dir):
         with open(config_file, 'r') as in_handle:
             cli_config = yaml.load(in_handle, Loader=yaml.FullLoader)
 
-
     mutacc_config = {}
-    mutacc_config['host'] = cli_config.get('host') or 'localhost'
-    mutacc_config['port'] = cli_config.get('port') or 27017
-    mutacc_config['username'] = cli_config.get('username')
-    mutacc_config['password'] = cli_config.get('password')
-    mutacc_config['db_name'] = cli_config.get('database') or 'mutacc'
+    if demo:
+        mutacc_config['host'] = 'localhost'
+        mutacc_config['port'] = 27017
+        mutacc_config['db_name'] = 'mutacc-demo'
+        root_dir = make_dir('~/mutacc_root_demo')
 
-    #Check the root_dir and add to mutacc_config
-    root_dir = cli_config.get('root_dir') or root_dir
-    if not root_dir:
+    else:
+        mutacc_config['host'] = cli_config.get('host') or 'localhost'
+        mutacc_config['port'] = cli_config.get('port') or 27017
+        mutacc_config['username'] = cli_config.get('username')
+        mutacc_config['password'] = cli_config.get('password')
+        mutacc_config['db_name'] = cli_config.get('database') or 'mutacc'
 
-        LOG.warning('Please provide a root directory, through option --root-dir or in config_file')
-        context.abort()
+        #Check the root_dir and add to mutacc_config
+
+        root_dir = cli_config.get('root_dir') or root_dir
+        if not root_dir:
+
+            LOG.warning('Please provide a root directory, through option --root-dir or in config_file')
+            context.abort()
 
     mutacc_config['root_dir'] = parse_path(root_dir, file_type = 'dir')
 
