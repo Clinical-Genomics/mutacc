@@ -2,17 +2,20 @@
 
 To get an intuition over how MutAcc works, this demo provides a fast go through of the main features.
 
-Files that can be used in this demo are found in the demo/ folder in the root of this repository. These files are simulated fastq, and bam-files that represents a father/mother/child trio. The child has a de-novo heterozygous SNV 7:117235031 G->A. This demo shows how this family can be uploaded into the mutacc database.
+Files that can be used in this demo are found in the demo/ folder in the root of this repository. These files are simulated fastq, and bam-files that represents a father/mother/child trio. The files cover a 2000 bp region of the CFTR gene, with 200 paired reads for each file 2*151bp. The fastq files were generated using [wgsim](https://github.com/lh3/wgsim), and the bam files were generated aligning these fastq-files with [bwa](https://github.com/lh3/bwa) against the [GRCh37](https://www.ensembl.org/info/website/tutorials/grch37.html) reference. The child has a simulated de-novo heterozygous SNV 7:117235031 G->A. This demo shows how this family, along with the causative clinical variant can be uploaded into the mutacc database, and later exported to create a new synthethic sample.
 
-in this demo, the flag ```-d/--demo``` is used after the main command , i.e. ```mutacc --demo [subcommands] [options]```. With this flag, no configuration file will be necessary. This will create the mutacc root directory in the home directory of the user ```~/mutacc_root_demo/``` which can be removed after the demo is made. For this demo to work, it requires that a mongodb process is running on host 'localhost' and 27017. If mutacc is installed on a conda environment (which is recommended!) source the environment before starting this demo.
+in this demo, the flag ```-d/--demo``` is used after the main command , i.e. ```mutacc --demo [subcommands] [options]```. With this flag, no configuration file will be necessary. This will create the mutacc root directory in the home directory of the user ```~/mutacc_root_demo/``` which can be removed after the demo is made. For this demo to work, it requires that a mongodb process is running on host 'localhost' and 27017. If mutacc is installed on a conda environment (which is recommended!) source the environment before starting this demo. Don't forget to ```cd```into the root directory of this repo.
 
 ## Extract reads from case
 
-Before this family can be uploaded into the database, the reads from this case must be extracted this is done with the following command
+Before this family can be uploaded into the database, the reads from overlapping the given causative variant (specified in ```demo/variant1.vcf.gz```) must be extracted. This is done with the following command
 
  ```terminal
- mutacc --demo extract -case demo/case.yaml --padding 100
+ mutacc --demo extract --case demo/case.yaml --padding 100
  ```
+
+have a look at the ```demo/case.yaml``` file. Here all paths to bam-files and the vcf containing
+the causative variant are given, along with other meta-data.
 
 This will extract all reads spanning the variant position with an additional padding
 of 100 bp on both sides. The variant reads will be placed in ```~/mutacc_root_demo/reads/demo_trio/<sample>/<date>/``` as fastq.gz files. There will also be a new json formatted file in ```~/mutacc_root_demo/imports/demo_trio_import_mutacc.json``` that can now be uploaded into the database.
@@ -51,7 +54,7 @@ for this option are 'father', 'mother', and 'affected'
 
 --sample-name child: This allows the User to specify a name for the exported sample. In this case 'child'
 
-First look in ```~/mutacc_root_demo/variants/child_variants.vcf```. Here a vcf has been created with all variants the are found in the query.
+First look in ```~/mutacc_root_demo/variants/child_variants.vcf```. Here a vcf has been created with all variants through the query.
 
 Another file ```~/mutacc_root_demo/queries/child_query_mutacc.json``` has also been created.
 This file will be used to create our synthetic samples in the next section.
@@ -59,12 +62,12 @@ This file will be used to create our synthetic samples in the next section.
 ## Create datasets
 
 To create a synthetic dataset, the user must chose a background that will be enriched
-with the reads in our database. Let's try to enrich the fastq-files of the father with the reads of his child!
+with the reads from our query. Let's try to enrich the fastq-files of the father with the reads of his child.
 
 ```terminal
-mutacc --demo synthesize -b demo/father.bam -f demo/father_R1.fastq.gz demo/father_R2.fastq.gz --query ~/mutacc_root_demo/queries/child_query_mutacc.json
+mutacc --demo synthesize -b demo/father.bam -f demo/father_R1.fastq.gz -f2 demo/father_R2.fastq.gz --query ~/mutacc_root_demo/queries/child_query_mutacc.json
 ```
 
-This will create two fastq files in ```~/mutacc_root_demo/datasets/```. These files now have the reads from the child spanning the variant region, and the reads from the father elsewhere.
+This will create two fastq files in ```~/mutacc_root_demo/datasets/```. These files now have the reads from the child spanning the variant region, flanked by the reads from the originial ```demo/father.fastq.gz``` file.
 
-Why is this useful? Imagine that the database contain a large number of clinical cases with known clinical variants. MutAcc can, by following the same workflow as above, create synthetic datasets by enriching well known genomic data with real clinical variants. These datasets can be used in validation of bionformatics pipelines that are used in clinical settings. 
+Why is this useful? Imagine that the database contain a large number of clinical cases with known clinical variants. MutAcc can, by following the same workflow as above, create synthetic datasets by enriching well known genomic data with real clinical variants. These synthetic datasets can be used in validation of bionformatics pipelines that are used for clinical purposes.
