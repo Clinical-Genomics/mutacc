@@ -70,4 +70,8 @@ mutacc --demo synthesize -b demo/father.bam -f demo/father_R1.fastq.gz -f2 demo/
 
 This will create two fastq files in ```~/mutacc_root_demo/datasets/```. These files now have the reads from the child spanning the variant region, flanked by the reads from the originial ```demo/father.fastq.gz``` file.
 
+To visualize this, one can align the generated dataset against a reference and show the generated bam file in [igv](https://igv.org). Below is an example of our synthetic dataset, along with the original datasets for the father and the child. 
+
+![alt text](igv_snapshot.png)
+
 Why is this useful? Imagine that the database contain a large number of clinical cases with known clinical variants. MutAcc can, by following the same workflow as above, create synthetic datasets by enriching well known genomic data with real clinical variants. These synthetic datasets can be used in validation of bionformatics pipelines that are used for clinical purposes.
