@@ -12,7 +12,8 @@ All notable changes to this project will be documented in this file.
 is to get an actual padding of 1000 bp around the variant region.
 - The binaries of the external tools picard, and seqkit can be given in the config file.
 - Case can be uploaded again if '--replace' flag is given when importing
-- fastq-reads gets versioned by time of creation 
+- fastq-reads gets versioned by time of creation
+- .github dir with CODEOWNERS and PULL_REQUEST_TEMPLATE
 
 ### Fixed
 
