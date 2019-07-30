@@ -37,34 +37,39 @@ def cli(context, loglevel, config_file, root_dir, demo):
 
     cli_config = {}
 
-    if config_file:
-
-        with open(config_file, 'r') as in_handle:
-            cli_config = yaml.load(in_handle, Loader=yaml.FullLoader)
-
-    mutacc_config = {}
     if demo:
-        mutacc_config['host'] = 'localhost'
-        mutacc_config['port'] = 27017
-        mutacc_config['db_name'] = 'mutacc-demo'
-        root_dir = make_dir('~/mutacc_root_demo')
+        host = 'localhost'
+        port = 27017
+        db_name = 'mutacc-demo'
+        demo = True
+        username = None
+        password = None
+        root_dir = make_dir(root_dir or './mutacc_demo_root')
 
     else:
-        mutacc_config['host'] = cli_config.get('host') or 'localhost'
-        mutacc_config['port'] = cli_config.get('port') or 27017
-        mutacc_config['username'] = cli_config.get('username')
-        mutacc_config['password'] = cli_config.get('password')
-        mutacc_config['db_name'] = cli_config.get('database') or 'mutacc'
 
-        #Check the root_dir and add to mutacc_config
+        if config_file:
+            with open(config_file, 'r') as in_handle:
+                cli_config = yaml.load(in_handle, Loader=yaml.FullLoader)
 
+        host = cli_config.get('host') or 'localhost'
+        port = cli_config.get('port') or 27017
+        db_name = cli_config.get('database') or 'mutacc'
+        username = cli_config.get('username')
+        password = cli_config.get('password')
         root_dir = cli_config.get('root_dir') or root_dir
         if not root_dir:
-
             LOG.warning('Please provide a root directory, through option --root-dir or in config_file')
             context.abort()
 
+    mutacc_config = {}
+    mutacc_config['host'] = host
+    mutacc_config['port'] = port
+    mutacc_config['username'] = username
+    mutacc_config['password'] = password
+    mutacc_config['db_name'] = db_name
     mutacc_config['root_dir'] = parse_path(root_dir, file_type = 'dir')
+    mutacc_config['demo'] = demo
 
     #Create subdirectories in root, if not already created
     for dir_type in SUB_DIRS.keys():
@@ -82,7 +87,6 @@ def cli(context, loglevel, config_file, root_dir, demo):
     mutacc_config['binaries']['seqkit'] = binaries.get('seqkit')
 
     context.obj = mutacc_config
-
 
 
 cli.add_command(extract_command)

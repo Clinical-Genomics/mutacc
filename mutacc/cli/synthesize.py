@@ -9,6 +9,10 @@ import json
 from mutacc.parse.path_parse import make_dir
 from mutacc.builds.build_dataset import Dataset
 
+from mutacc.resources import (path_to_background_bam_file,
+                              path_to_background_fastq1_file,
+                              path_to_background_fastq2_file)
+
 LOG = logging.getLogger(__name__)
 
 @click.command('synthesize')
@@ -48,6 +52,11 @@ def synthesize_command(context,
 
     log_msg = f"{num_cases} cases found, with a total of {num_variants} variants."
     LOG.info(log_msg)
+
+    if context.obj.get('demo', False):
+        background_bam = path_to_background_bam_file
+        background_fastq = path_to_background_fastq1_file
+        background_fastq2 = path_to_background_fastq2_file
 
     background = {"bam_file": background_bam,
                   "fastq_files": [background_fastq]}

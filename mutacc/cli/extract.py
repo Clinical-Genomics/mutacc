@@ -10,6 +10,7 @@ import click
 from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.builds.build_case import Case
 
+from mutacc.resources import DEMO_CASE
 
 
 LOG = logging.getLogger(__name__)
@@ -33,22 +34,25 @@ def extract_command(context, case, padding, picard_executable):
 
     read_dir = context.obj.get('read_dir')
 
-    case = yaml_parse(case)
+    if context.obj.get('demo', False):
+        input_case = DEMO_CASE
+    else:
+        input_case = yaml_parse(case)
 
     picard_executable = context.obj['binaries'].get('picard') or picard_executable
-    case = Case(input_case=case,
-                read_dir=read_dir,
-                padding=padding,
-                picard_exe=picard_executable)
+    case_obj = Case(input_case=input_case,
+                    read_dir=read_dir,
+                    padding=padding,
+                    picard_exe=picard_executable)
 
     import_dir = context.obj.get('import_dir')
 
-    json_file = import_dir.joinpath(case.case_id + "_import_mutacc"+ ".json")
+    json_file = import_dir.joinpath(case_obj.case_id + "_import_mutacc"+ ".json")
 
     #Serialize case object to file for later import
     with open(json_file, "w") as json_handle:
 
-        json.dump(case, json_handle)
+        json.dump(case_obj, json_handle)
 
 
     log_msg = f"to import reads into mutaccDB, do:\n    mutacc db import {json_file}"
