@@ -41,7 +41,6 @@ def cli(context, loglevel, config_file, root_dir, demo):
         host = 'localhost'
         port = 27017
         db_name = 'mutacc-demo'
-        demo = True
         username = None
         password = None
         root_dir = make_dir(root_dir or './mutacc_demo_root')
