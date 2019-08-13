@@ -17,6 +17,15 @@ class VersionedDataset(dict):
 
     def __init__(self, dataset_dir, comment=None, md5=False):
 
+        """
+            Instatiate a versioned dataset
+
+            Args:
+                dataset_dir (Path): Path to directory where dataset files are found
+                comment (str): optional comment to dataset
+                md5 (bool): If true, the md5 hash of files will be calculated
+        """
+
         super(VersionedDataset, self).__init__()
 
         self.dataset_dir = Path(dataset_dir)
@@ -118,11 +127,3 @@ class VersionedDataset(dict):
             raise FileNotFoundError
 
         return self.dataset_dir.joinpath(vcf_file)
-
-
-if __name__ == '__main__':
-
-    dataset = VersionedDataset(dataset_dir='/Users/adam.rosenbaum/DATASET', comment='TESTTT', md5=True)
-
-    print(dataset['samples'])
-    print(dataset)
