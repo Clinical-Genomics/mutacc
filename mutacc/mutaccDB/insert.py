@@ -51,3 +51,6 @@ def insert_entire_case(mutacc_adapter, case, replace=False):
     mutacc_adapter.add_case(case)
 
     LOG.info("Case added to mutaccDB")
+
+def insert_version(mutacc_adapter, dataset):
+    mutacc_adapter.add_dataset(dataset)

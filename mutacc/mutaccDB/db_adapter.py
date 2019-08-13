@@ -32,8 +32,16 @@ class MutaccAdapter(MongoAdapter):
 
             self.db.create_collection("cases")
 
+        if "datasets" not in self.db.list_collection_names():
+            self.db.create_collection("datasets")
+
         self.variants_collection = self.db.variants
         self.cases_collection = self.db.cases
+        self.datasets_collection = self.db.datasets
+
+    def add_dataset(self, dataset):
+        
+        self.datasets_collection.insert_one(dataset)
 
     def add_variants(self, variants):
         """
