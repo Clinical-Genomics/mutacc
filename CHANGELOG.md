@@ -15,6 +15,7 @@ is to get an actual padding of 1000 bp around the variant region.
 - fastq-reads gets versioned by time of creation
 - added a demo option
 - .github dir with CODEOWNERS and PULL_REQUEST_TEMPLATE
+- version command, taking a directory as input, version dataset and loads it to database
 
 ### Fixed
 
