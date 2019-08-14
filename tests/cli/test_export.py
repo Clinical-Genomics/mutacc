@@ -8,8 +8,9 @@ from click.testing import CliRunner
 
 from mutacc.cli.root import cli
 
+@patch('mutacc.cli.database.mongo_adapter.get_client')
 @patch('mutacc.cli.database.MutaccAdapter')
-def test_export(mock_mutacc_adapter, mock_adapter, tmpdir):
+def test_export(mock_mutacc_adapter, mock_get_client, mock_adapter, tmpdir):
 
     """
         Test export command
