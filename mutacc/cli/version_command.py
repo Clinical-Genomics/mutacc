@@ -31,8 +31,7 @@ def version_command(context, dataset_dir, md5, comment):
     adapter = context.obj['adapter']
 
     dataset_dir=parse_path(dataset_dir, file_type='dir')
-    dataset = VersionedDataset(dataset_dir=dataset_dir,
-                               comment=comment,
-                               md5=md5)
+    dataset = VersionedDataset(dataset_dir=dataset_dir)
+    dataset.build_dataset(md5=md5, comment=comment)
 
     insert_version(adapter, dataset)

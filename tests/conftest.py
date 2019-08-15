@@ -16,6 +16,8 @@ from mutacc.builds.build_case import Case
 from mutacc.mutaccDB.insert import insert_entire_case
 from .random_case import random_trio
 
+DATASET_DIR = "tests/fixtures/dataset/"
+PED_PATH = "tests/fixtures/dataset/dataset.ped"
 
 @pytest.fixture
 def read_ids_fixed():
@@ -131,3 +133,11 @@ def mock_real_adapter(tmpdir):
     insert_entire_case(adapter, case)
 
     return adapter
+
+@pytest.fixture
+def dataset_dir():
+    return  DATASET_DIR
+
+@pytest.fixture
+def ped_path():
+    return PED_PATH
