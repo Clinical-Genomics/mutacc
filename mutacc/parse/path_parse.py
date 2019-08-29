@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import gzip
 def parse_path(path, file_type: str  = 'file'):
 
@@ -44,3 +45,19 @@ def get_file_handle(file_name):
     else:
 
         return open(file_name, 'r')
+
+def list_files(directory):
+
+    directory_path = parse_path(directory, file_type='dir')
+    for file in os.listdir(directory_path):
+        file_path = directory_path.joinpath(file)
+        if file_path.is_file():
+            yield file_path
+
+def list_dirs(directory):
+
+    directory_path = parse_path(directory, file_type='dir')
+    for dir in os.listdir(directory_path):
+        dir_path = directory_path.joinpath(dir)
+        if dir_path.is_dir():
+            yield dir_path
