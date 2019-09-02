@@ -25,7 +25,7 @@ def test_export(mock_mutacc_adapter, mock_get_client, mock_adapter, tmpdir):
         '--root-dir', root_dir,
         'db',
         'export',
-        '-c', '{}',
+        '--all-variants',
         '-m', 'child',
         '-p',
         '-n', 'test_sample'
