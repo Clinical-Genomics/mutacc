@@ -19,7 +19,7 @@ def test_makeset(mock_real_adapter, tmpdir):
 
     samples, _, variants = mutacc_query(
         mock_real_adapter,
-        case_query='{}',
+        case_query={},
         variant_query=None
         )
 

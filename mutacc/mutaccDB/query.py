@@ -1,5 +1,6 @@
 import logging
 import json
+import copy
 
 from mutacc.utils.region_handler import overlapping_region
 from mutacc.utils.pedigree import make_family_from_case
@@ -29,11 +30,8 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
             variants (list(dict)): list of variants
     """
     #If a case_query is given, find the cases for the query
-    if case_query:
-
-        case_query = json.loads(case_query)
+    if case_query is not None:
         cases = mutacc_adapter.find_cases(case_query)
-
     else:
         cases = []
 
@@ -42,8 +40,7 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
 
     #If variant_query is given, find the cases for the variants corresponding
     #to the query, if the case_id is not already in case_ids
-    if variant_query:
-
+    if variant_query is not None:
         variant_cases = cases_from_variants(mutacc_adapter, variant_query, case_ids)
         cases.extend(variant_cases)
 
@@ -59,7 +56,7 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
     return final_samples, final_regions, final_variants
 
 
-def cases_from_variants(mutacc_adapter, variant_query, not_cases=None):
+def cases_from_variants(mutacc_adapter, query, not_cases=None):
 
     """
         Given a variant query, return the cases for these variants
@@ -74,9 +71,7 @@ def cases_from_variants(mutacc_adapter, variant_query, not_cases=None):
             cases (list): list of cases.
 
     """
-
-    variant_query = json.loads(variant_query)
-
+    variant_query = copy.deepcopy(query)
     if not_cases:
         variant_query['case'] = {'$nin': not_cases}
 
