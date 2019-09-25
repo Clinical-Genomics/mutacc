@@ -1,0 +1,40 @@
+#Minimalistic example of case yaml file:
+
+#case:
+#The only required field for case is a 'case_id.
+case:
+    case_id: 'demo_trio'
+
+#samples
+#A list of samples. For each of the samples a 'sample_id' must be given, together
+#with pedigree information ('mother', 'father'). A list of fastq files and a bam file
+#must be given. Each case can be filled with an arbitrary amount of meta data
+#for each sample
+samples:
+  - sample_id: 'child'
+    analysis_type: wgs
+    sex: male
+    phenotype: affected
+    mother: 'mother'
+    father: 'father'
+    bam_file: 'mutacc/resources/child.bam'
+
+  - sample_id: 'father'
+    analysis_type: wgs
+    sex: male
+    phenotype: unaffected
+    mother: '0'
+    father: '0'
+    bam_file: 'mutacc/resources/father.bam'
+
+  - sample_id: 'mother'
+    analysis_type: wgs
+    sex: female
+    phenotype: unaffected
+    mother: '0'
+    father: '0'
+    bam_file: 'mutacc/resources/mother.bam'
+
+#variant:
+#'variant_id', 'chromosome', 'position', 'alt', 'ref' must be given.
+variants: 'mutacc/resources/variant1.vcf.gz'

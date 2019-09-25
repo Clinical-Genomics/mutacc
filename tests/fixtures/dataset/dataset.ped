@@ -1,0 +1,4 @@
+#Family ID	Individual ID	Paternal ID	Maternal ID	Sex	Phenotype
+dataset	sample_1	0	0	1	1
+dataset	sample_2	sample_1	sample_3	1	2
+dataset	sample_3	0	0	2	1

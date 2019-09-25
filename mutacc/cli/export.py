@@ -2,7 +2,6 @@
     Command to export variants
 """
 import logging
-import pickle
 import json
 
 import click
@@ -15,8 +14,11 @@ from mutacc.utils.sort_variants import sort_variants
 LOG = logging.getLogger(__name__)
 
 @click.command()
-@click.option('-c', '--case-query')
-@click.option('-v', '--variant-query')
+@click.option('-c', '--case-mongo')
+@click.option('-v', '--variant-mongo')
+@click.option('-t', '--variant-type')
+@click.option('-a', '--analysis', type=click.Choice(['wes', 'wgs']))
+@click.option('--all-variants', is_flag=True)
 @click.option('-m', '--member',
               type=click.Choice(['father', 'mother', 'child', 'affected']),
               default='affected')
@@ -28,8 +30,11 @@ LOG = logging.getLogger(__name__)
 @click.option('-j', '--json-out', is_flag=True)
 @click.pass_context
 def export(context,
-           case_query,
-           variant_query,
+           case_mongo,
+           variant_mongo,
+           variant_type,
+           analysis,
+           all_variants,
            member,
            sex,
            vcf_dir,
@@ -43,6 +48,26 @@ def export(context,
 
     #Get mongo adapter from context
     adapter = context.obj['adapter']
+
+    variant_query=None
+    case_query=None
+    if all_variants:
+        variant_query = {}
+    else:
+        if variant_mongo is not None:
+            variant_query=json.loads(variant_mongo)
+        if case_mongo is not None:
+            case_query=json.loads(case_mongo)
+        if variant_type is not None:
+            if variant_query is None:
+                variant_query = {'variant_type': variant_type}
+            else:
+                variant_query['variant_type'] = variant_type
+        if analysis:
+            if case_query is None:
+                case_query = {'samples.0.analysis_type': analysis}
+            else:
+                case_query['samples.0.analysis_type'] = analysis
 
     #Query the cases in mutaccDB
     samples, regions, variants = mutacc_query(
@@ -61,14 +86,14 @@ def export(context,
 
     query_dir = context.obj.get('query_dir')
 
-    #pickle query
-    pickle_file = query_dir.joinpath(sample_name + "_query.mutacc")
+    #json query and dump to file for later use with 'synthesize' command
+    json_file = query_dir.joinpath(sample_name + "_query_mutacc.json")
 
-    with open(pickle_file, "wb") as pickle_handle:
+    with open(json_file, "w") as json_handle:
 
-        pickle.dump(query, pickle_handle)
+        json.dump(query, json_handle)
 
-    log_msg = f"Query stored in {pickle_file}"
+    log_msg = f"Query stored in {json_file}"
     LOG.info(log_msg)
 
     #sort variants
@@ -85,7 +110,6 @@ def export(context,
     vcf_writer(found_variants, vcf_file, sample_name)
 
     if json_out:
-        output_info = {'query_file': str(pickle_file), 'vcf_file': str(vcf_file)}
+        output_info = {'query_file': str(json_file), 'vcf_file': str(vcf_file)}
         output_json = json.dumps(output_info)
-
         click.echo(output_json)

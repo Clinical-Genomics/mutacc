@@ -6,7 +6,7 @@ def test_mutacc_query(mock_adapter):
 
     samples, regions, variants = mutacc_query(
         mock_adapter,
-        case_query = '{}',
+        case_query = {},
         variant_query = None,
         member = 'child'
         )
@@ -15,7 +15,7 @@ def test_mutacc_query(mock_adapter):
 
     samples, regions, variants = mutacc_query(
         mock_adapter,
-        case_query = '{}',
+        case_query = {},
         variant_query = None,
         member = 'mother'
         )
@@ -27,7 +27,7 @@ def test_mutacc_query(mock_adapter):
     samples, regions, variants = mutacc_query(
         mock_adapter,
         case_query = None,
-        variant_query = '{}',
+        variant_query = {},
         member = 'father'
         )
 

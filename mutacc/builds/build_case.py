@@ -3,6 +3,7 @@
 """
 
 import logging
+import time
 
 from mutacc.builds.build_variant import get_variants
 from mutacc.builds.build_sample import get_samples
@@ -80,9 +81,10 @@ class Case(dict):
                 stored.
         """
 
+        date_str = time.strftime('%Y-%m-%d')
+        sub_dir = f"{self.input_case['case']['case_id']}/{date_str}"
 
-
-        case_dir = make_dir(read_dir.joinpath(self.input_case['case']['case_id']))
+        case_dir = make_dir(read_dir.joinpath(sub_dir))
         sample_objects = []
         for sample in get_samples(samples=self.input_case["samples"],
                                   variants=self['variants'],

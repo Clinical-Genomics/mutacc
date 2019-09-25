@@ -57,7 +57,7 @@ def vcf_writer(found_variants, vcf_path, sample_name):
             if variant.get('rank_model_version'):
                 info += f"RMV={variant['rank_model_version']};"
 
-            if variant['variant_type'].lower() in ('snp', 'mnp', 'ins', 'del', 'complex'):
+            if variant['variant_type'].lower() in ('snp', 'snv', 'mnp', 'indel', 'complex'):
                 info += f"TYPE={variant['variant_type']}"
             else:
                 info += f"SVTYPE={variant['variant_type']}"

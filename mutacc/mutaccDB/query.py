@@ -1,7 +1,6 @@
 import logging
 import json
-
-import pymongo
+import copy
 
 from mutacc.utils.region_handler import overlapping_region
 from mutacc.utils.pedigree import make_family_from_case
@@ -31,11 +30,8 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
             variants (list(dict)): list of variants
     """
     #If a case_query is given, find the cases for the query
-    if case_query:
-
-        case_query = json.loads(case_query)
+    if case_query is not None:
         cases = mutacc_adapter.find_cases(case_query)
-
     else:
         cases = []
 
@@ -44,8 +40,7 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
 
     #If variant_query is given, find the cases for the variants corresponding
     #to the query, if the case_id is not already in case_ids
-    if variant_query:
-
+    if variant_query is not None:
         variant_cases = cases_from_variants(mutacc_adapter, variant_query, case_ids)
         cases.extend(variant_cases)
 
@@ -61,7 +56,7 @@ def mutacc_query(mutacc_adapter, case_query, variant_query, sex=None, member='af
     return final_samples, final_regions, final_variants
 
 
-def cases_from_variants(mutacc_adapter, variant_query, not_cases=None):
+def cases_from_variants(mutacc_adapter, query, not_cases=None):
 
     """
         Given a variant query, return the cases for these variants
@@ -76,9 +71,7 @@ def cases_from_variants(mutacc_adapter, variant_query, not_cases=None):
             cases (list): list of cases.
 
     """
-
-    variant_query = json.loads(variant_query)
-
+    variant_query = copy.deepcopy(query)
     if not_cases:
         variant_query['case'] = {'$nin': not_cases}
 
@@ -118,11 +111,17 @@ def get_samples_from_cases(mutacc_adapter, cases, sex=None, member='affected', p
         family = make_family_from_case(case)
 
         #Try to find relevant individual from family
-        individual = family.get_individual(member = member, sex = sex, proband = proband)
+        individual = family.get_individual(member=member, sex=sex, proband=proband)
 
         if individual:
 
             individual_id = individual.individual_id
+
+            #Find sample object
+            target_sample = {}
+            for sample in case['samples']:
+                if sample['sample_id'] == individual_id:
+                    target_sample = sample
 
             #Store variants and regions from case
             case_variants = []
@@ -131,25 +130,27 @@ def get_samples_from_cases(mutacc_adapter, cases, sex=None, member='affected', p
             overlaps = False
 
             #Get variants from case from database
-            variants = mutacc_adapter.find_variants(
-                    {"_id": {"$in": case["variants"]}}
-                )
+            variants = mutacc_adapter.find_variants({"_id": {"$in": case["variants"]}})
 
             for variant in variants:
                 #Add correct genotype of sample to variant
                 variant["genotype"] = variant["samples"].get(individual_id)
-                region =  {"chrom": variant["chrom"],
-                           "start": variant["reads_region"]["start"],
-                           "end": variant["reads_region"]["end"]}
+                region = {"chrom": variant["chrom"],
+                          "start": variant["reads_region"]["start"],
+                          "end": variant["reads_region"]["end"]}
 
                 #See if region overlaps with already found regions
                 #If it does, continue with next case
                 if overlapping_region(region, final_regions):
-                    LOG.warning("case {} contain overlapping variant".format(
-                    case["case_id"])
-                    )
+
+                    log_msg = f"case {case['case_id']} contain overlapping variant"
+                    LOG.warning(log_msg)
                     overlaps = True
                     break
+
+                #remove _id (mongodb object id) from variant object so that it
+                #can be serialized as json
+                del variant['_id']
 
                 case_variants.append(variant)
                 case_regions.append(region)
@@ -158,9 +159,7 @@ def get_samples_from_cases(mutacc_adapter, cases, sex=None, member='affected', p
             #Append sample, variant, and region to be returned from function.
 
             if not overlaps:
-                #Add the regions and variants to each case before parsing
-                #with make_family_from_case
-                final_samples.append(individual)
+                final_samples.append(target_sample)
                 final_variants.extend(case_variants)
                 final_regions.extend(case_regions)
 

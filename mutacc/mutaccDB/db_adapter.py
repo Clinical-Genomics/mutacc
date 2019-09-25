@@ -32,8 +32,16 @@ class MutaccAdapter(MongoAdapter):
 
             self.db.create_collection("cases")
 
+        if "datasets" not in self.db.list_collection_names():
+            self.db.create_collection("datasets")
+
         self.variants_collection = self.db.variants
         self.cases_collection = self.db.cases
+        self.datasets_collection = self.db.datasets
+
+    def add_dataset(self, dataset):
+        
+        self.datasets_collection.insert_one(dataset)
 
     def add_variants(self, variants):
         """
@@ -57,6 +65,7 @@ class MutaccAdapter(MongoAdapter):
             Args:
                 case(dict): dictionary containing information about the case.
         """
+
         self.cases_collection.insert_one(case)
 
     def case_exists(self, case_id):
@@ -74,7 +83,6 @@ class MutaccAdapter(MongoAdapter):
 
         return False
 
-
     def find_cases(self, query):
 
         return [case for case in self.cases_collection.find(query)]
@@ -82,6 +90,7 @@ class MutaccAdapter(MongoAdapter):
     def find_case(self, query):
 
         return self.cases_collection.find_one(query)
+
     def find_variants(self, query):
 
         return [variant for variant in self.variants_collection.find(query)]
