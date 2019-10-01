@@ -4,6 +4,7 @@
 from mutacc.builds.build_variant import get_variants, Variant
 
 VARIANT_FIELDS = ["variant_type",
+                  "variant_subtype",
                   "alt",
                   "ref",
                   "chrom",
