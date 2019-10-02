@@ -62,13 +62,24 @@ class Variant(dict):
         #For variants with an ID 'SVTYPE' in the INFO field of the vcf entry
         start, end = self._find_start_end()
 
-        vtype = self.entry.INFO.get("TYPE") or self.entry.INFO.get("SVTYPE") or 'None'
-        vtype = vtype.upper()
-
         region = {"start": start - padding,
                   "end": end + padding}
 
-        return vtype, region
+        return region
+
+    def _find_type(self):
+
+        variant_type = None
+        variant_subtype = None
+
+        if self.entry.INFO.get('TYPE') is not None:
+            variant_type = 'SNV'
+            variant_subtype = self.entry.INFO['TYPE']
+        elif self.entry.INFO.get('SVTYPE') is not None:
+            variant_type = 'SV'
+            variant_subtype = self.entry.INFO['SVTYPE']
+
+        return variant_type, variant_subtype
 
     def _find_start_end(self):
         start = self.entry.start
@@ -128,12 +139,15 @@ class Variant(dict):
         """
 
         #Find genotype and sample id for the samples given in the vcf file
-        vtype, region = self._find_region(padding)
+        region = self._find_region(padding)
         samples = self._find_genotypes()
         genes = self._find_genes()
+        variant_type, variant_subtype = self._find_type()
+
 
         self['display_name'] = self.display_name
-        self['variant_type'] = vtype
+        self['variant_type'] = variant_type
+        self['variant_subtype'] = variant_subtype
         self['alt'] = self.entry.ALT
         self['ref'] = self.entry.REF
         self['chrom'] = self.entry.CHROM

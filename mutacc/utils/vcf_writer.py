@@ -51,16 +51,16 @@ def vcf_writer(found_variants, vcf_path, sample_name):
             #Write info field
             info = ""
             info += f"END={variant['end']};"
-
             if variant.get('RankScore'):
                 info += f"MutaccRankScore={variant['RankScore']};"
             if variant.get('rank_model_version'):
                 info += f"RMV={variant['rank_model_version']};"
 
-            if variant['variant_type'].lower() in ('snp', 'snv', 'mnp', 'indel', 'complex'):
-                info += f"TYPE={variant['variant_type']}"
-            else:
-                info += f"SVTYPE={variant['variant_type']}"
+            if variant['variant_type'].upper() == 'SNV':
+                info += f"TYPE={variant['variant_subtype']}"
+            elif variant['variant_type'].upper() == 'SV':
+                info += f"SVTYPE={variant['variant_subtype']}"
+
 
             #write format field and gt
             format_list = []
