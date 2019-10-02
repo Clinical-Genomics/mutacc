@@ -1,10 +1,5 @@
 # Contributing to mutacc
 
-## Workflow
-
-This project adheres to the [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
-Workflow.
-
 ## Pull Requests
 
 - At least one reviewer must be assigned before a PR gets merged
