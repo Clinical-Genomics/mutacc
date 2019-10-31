@@ -8,10 +8,14 @@ mother_bam_filename = 'resources/mother.bam'
 child_bam_filename = 'resources/child.bam'
 vcf_filename = 'resources/variant1.vcf.gz'
 
+vcf_info_def = 'resources/vcf-info-def.yaml'
+
 path_to_case_file = pkg_resources.resource_filename('mutacc', case_filename)
 path_to_background_fastq1_file = pkg_resources.resource_filename('mutacc', father_fastq1_filename)
 path_to_background_fastq2_file = pkg_resources.resource_filename('mutacc', father_fastq2_filename)
 path_to_background_bam_file = pkg_resources.resource_filename('mutacc', father_bam_filename)
+
+path_vcf_info_def = pkg_resources.resource_filename('mutacc', vcf_info_def)
 
 DEMO_CASE = {
     'case': {

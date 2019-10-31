@@ -1,0 +1,19 @@
+### IDs in INFO column that should be exracted.
+
+  - id: ANN
+    multivalue: true
+    type: list
+    separator: ','
+    format_separator: '|'
+    format: 'Allele|Annotation|Annotation_Impact|Gene_Name|Gene_ID|Feature_Type|Feature_ID|Transcript_BioType|Rank|HGVS.c|HGVS.p|cDNA.pos/cDNA.length|CDS.pos/CDS.length|AA.pos/AA.length|Distance|ERRORS/WARNINGS/INFO'
+    target: all
+    out_type: list
+
+  - id: RankScore
+    type: str
+    multivalue: false
+    format_separator: ':'
+    format: 'case_id: rank_score'
+    target:
+      - 'rank_score'
+    out_type: int

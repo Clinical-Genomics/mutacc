@@ -31,7 +31,7 @@ class Variant(dict):
         Class to represent variant
     """
 
-    def __init__(self, vcf_entry, samples, padding, rank_model_version=None):
+    def __init__(self, vcf_entry, samples, padding, parse_info, rank_model_version=None):
 
         super(Variant, self).__init__()
 
@@ -39,8 +39,60 @@ class Variant(dict):
         self.samples = samples
 
         self.build_variant_object(padding, rank_model_version=rank_model_version)
-
         self.entry = str(self.entry)
+        ##
+        self.parsers = self.get_parse(parse_info)
+        for parser in self.parsers:
+            if vcf_entry.INFO.get(parser['id']):
+                print(parser['parse_func'](vcf_entry.INFO.get(parser['id'])))
+
+    def get_parse(self, parse_info):
+
+        def _construct_parser(entry):
+
+            def _type_conv(type_str=None):
+                if type_str == 'str':
+                    return lambda value: str(value)
+                if type_str == 'int':
+                    return lambda value: int(value)
+                if type_str == 'list':
+                    return lambda value: list(value)
+                if type_str == 'float':
+                    return lambda value: float(value)
+                return lambda value: value
+
+            def parser_func(raw_value):
+                if entry['multivalue']:
+                    info_list = []
+                    for raw_value_entry in raw_value.split(entry['separator']):
+                        info_dict = {}
+                        if entry.get('format_separator'):
+                            for target, value in zip(entry['format'].split(entry['format_separator']), raw_value_entry.split(entry['format_separator'])):
+                                target = target.strip()
+                                if entry['target'] == 'all' or target in entry['target']:
+                                    info_dict[target] = value
+                        info_list.append(info_dict)
+                    return _type_conv(entry.get('out_type'))(info_list)
+                else:
+                    if entry.get('format') and entry.get('format_separator'):
+                        for target, value in zip(entry['format'].split(entry['format_separator']), raw_value.split(entry['format_separator'])):
+                            target = target.strip()
+                            if target in entry['target']:
+                                return _type_conv(entry.get('out_type'))(value)
+                    else:
+                        return _type_conv(entry.get('out_type'))(raw_value)
+
+
+            return parser_func
+
+        parsers = []
+        for entry in parse_info:
+            parser = {}
+            parser['id'] = entry['id']
+            parser['parse_func'] = _construct_parser(entry)
+            parsers.append(parser)
+        return parsers
+
 
     def _find_region(self, padding):
         """
@@ -190,17 +242,14 @@ def resolve_cyvcf2_genotype(cyvcf2_gt):
         separator = '|'
     else:
         separator = '/'
-
     if cyvcf2_gt[0] == -1:
         a_1 = '.'
     else:
         a_1 = str(cyvcf2_gt[0])
-
     if cyvcf2_gt[1] == -1:
         a_2 = '.'
     else:
         a_2 = str(cyvcf2_gt[1])
-
     genotype = a_1 + separator + a_2
 
     return genotype
@@ -221,13 +270,23 @@ def get_variants(vcf_file, padding, rank_model_version=None):
     """
 
     vcf_file = parse_path(vcf_file)
-
     vcf = VCF(str(vcf_file), 'r')
-
     samples = vcf.samples
-
     for entry in vcf:
-
-        yield Variant(entry, samples, padding, rank_model_version=rank_model_version)
-
+        yield Variant(entry, samples, padding, parse_info={}, rank_model_version=rank_model_version)
     vcf.close()
+
+if __name__ == '__main__':
+    import yaml
+    vcf_file = '/Users/adam.rosenbaum/mutacc_validation/mip7/test_set_gatkcomb_rhocall_vt_frqf_cadd_vep_parsed_snpeff_ranked.selected.vcf.gz'
+    vcf = VCF(vcf_file)
+    samples = vcf.samples
+    count = 0
+    with open('/Users/adam.rosenbaum/develop/mutacc/mutacc/resources/vcf-info-def.yaml') as handle:
+        parse_info = yaml.load(handle)
+    for entry in vcf:
+        variant = Variant(entry, samples, 300, parse_info=parse_info)
+
+        count += 1
+        if count == 10:
+            break
