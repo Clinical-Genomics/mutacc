@@ -5,7 +5,7 @@
     type: list
     separator: ','
     format_separator: '|'
-    format: 'Allele|Annotation|Annotation_Impact|Gene_Name|Gene_ID|Feature_Type|Feature_ID|Transcript_BioType|Rank|HGVS.c|HGVS.p|cDNA.pos/cDNA.length|CDS.pos/CDS.length|AA.pos/AA.length|Distance|ERRORS/WARNINGS/INFO'
+    format: 'hgnc_symbol|region_annotation|functional_annotation|sift_prediction|polyphen_prediction'
     target: all
     out_type: list
 
