@@ -8,15 +8,6 @@ import yaml
 
 from mutacc.parse.path_parse import parse_path
 
-from mutacc.resources import path_vcf_info_def
-
-GENE_INFO = ('hgnc_symbol',
-             'region_annotation',
-             'functional_annotation',
-             'sift_prediction',
-             'polyphen_prediction')
-ANNOTATION = 'ANN'
-
 LOG = logging.getLogger(__name__)
 
 
@@ -35,7 +26,9 @@ class Variant(dict):
 
         self.build_variant_object(padding, rank_model_version=rank_model_version)
         self.entry = str(self.entry)
-        self.update(parser.parse(vcf_entry))
+
+        if parser is not None:
+            self.update(parser.parse(vcf_entry))
 
     def _find_region(self, padding):
         """
@@ -100,23 +93,6 @@ class Variant(dict):
 
         return samples
 
-    def _find_genes(self):
-
-        genes = self.entry.INFO.get('ANN')
-        if genes is None:
-            LOG.debug("Could not find ANN field in vcf")
-            return []
-
-        gene_list = []
-        for gene in genes.split(','):
-            gene_info = {}
-            for ann_id, info in zip(GENE_INFO, gene.split('|')):
-                gene_info[ann_id] = info.strip() if info else 'unknown'
-            gene_list.append(gene_info)
-
-        return gene_list
-
-
     def build_variant_object(self, padding, rank_model_version=None):
         """
             makes a dictionary of the variant to be loaded into a mongodb
@@ -125,7 +101,6 @@ class Variant(dict):
         #Find genotype and sample id for the samples given in the vcf file
         vtype, region = self._find_region(padding)
         samples = self._find_genotypes()
-        genes = self._find_genes()
 
         self['display_name'] = self.display_name
         self['variant_type'] = vtype
@@ -138,7 +113,6 @@ class Variant(dict):
         self['reads_region'] = region
         self['samples'] = samples
         self['padding'] = padding
-        self['genes'] = genes
 
         #Add rank_model_version if given
         if rank_model_version is not None:
@@ -171,7 +145,7 @@ class INFOParser:
     def __init__(self, parser_info_file):
 
         with open(parser_info_file) as parser_handle:
-            parse_info = yaml.load(parser_handle)
+            parse_info = yaml.load(parser_handle, Loader=yaml.FullLoader)
             self.parsers = self._get_parsers(parse_info)
 
 
@@ -188,8 +162,9 @@ class INFOParser:
         for parser in self.parsers:
             if vcf_entry.INFO.get(parser['id']):
                 info_id = parser['id']
+                display_name = parser['display_name']
                 parser_func = parser['parse_func']
-                results[info_id] = parser_func(vcf_entry.INFO.get(info_id))
+                results[display_name] = parser_func(vcf_entry.INFO.get(info_id))
         return results
 
     def _get_parsers(self, parse_info):
@@ -204,10 +179,15 @@ class INFOParser:
                 parsers (list): list of parsers
         """
 
+        if not self._check(parse_info):
+            LOG.warning('Parser info not given correctly')
+            raise ValueError
+
         parsers = []
         for entry in parse_info:
             parser = {}
             parser['id'] = entry['id']
+            parser['display_name'] = entry.get('out_name') or entry['id']
             parser['parse_func'] = self._construct_parser(entry)
             parsers.append(parser)
         return parsers
@@ -235,13 +215,14 @@ class INFOParser:
                 return lambda value: float(value)
             return lambda value: value
 
-        def parser_func(raw_value):
+        def _parser_func(raw_value):
             if entry['multivalue']:
                 info_list = []
                 for raw_value_entry in raw_value.split(entry['separator']):
                     info_dict = {}
                     if entry.get('format_separator'):
-                        for target, value in zip(entry['format'].split(entry['format_separator']), raw_value_entry.split(entry['format_separator'])):
+                        for target, value in zip(entry['format'].split(entry['format_separator']),
+                                                 raw_value_entry.split(entry['format_separator'])):
                             target = target.strip()
                             if entry['target'] == 'all' or target in entry['target']:
                                 info_dict[target] = value
@@ -249,7 +230,8 @@ class INFOParser:
                 return _type_conv(entry.get('out_type'))(info_list)
             else:
                 if entry.get('format') and entry.get('format_separator'):
-                    for target, value in zip(entry['format'].split(entry['format_separator']), raw_value.split(entry['format_separator'])):
+                    for target, value in zip(entry['format'].split(entry['format_separator']),
+                                             raw_value.split(entry['format_separator'])):
                         target = target.strip()
                         if target in entry['target']:
                             return _type_conv(entry.get('out_type'))(value)
@@ -257,7 +239,31 @@ class INFOParser:
                     return _type_conv(entry.get('out_type'))(raw_value)
 
 
-        return parser_func
+        return _parser_func
+
+    def _check(self, parse_info):
+
+        """
+            Checks if parse info is given in the correct format
+        """
+
+        if not isinstance(parse_info, list):
+            LOG.warning("parser info must be given as a list")
+            return False
+
+        for entry in parse_info:
+
+            if not isinstance(entry, dict):
+                LOG.warning("Each entry must be a dictionary")
+                return False
+
+            if entry.get('multivalue', False) and not entry.get('separator', False):
+                LOG.warning("a separator must be given if multivalue is set to True")
+                return False
+
+        return True
+
+
 
 
 
@@ -290,7 +296,7 @@ def resolve_cyvcf2_genotype(cyvcf2_gt):
     return genotype
 
 
-def get_variants(vcf_file, padding, rank_model_version=None):
+def get_variants(vcf_file, padding, rank_model_version=None, vcf_parse=None):
 
     """
 
@@ -307,21 +313,9 @@ def get_variants(vcf_file, padding, rank_model_version=None):
     vcf_file = parse_path(vcf_file)
     vcf = VCF(str(vcf_file), 'r')
     samples = vcf.samples
-    parser = INFOParser(path_vcf_info_def)
+    parser = None
+    if vcf_parse:
+        parser = INFOParser(vcf_parse)
     for entry in vcf:
         yield Variant(entry, samples, padding, parser=parser, rank_model_version=rank_model_version)
     vcf.close()
-
-if __name__ == '__main__':
-
-    vcf_file = '/Users/adam.rosenbaum/mutacc_validation/mip7/test_set_gatkcomb_rhocall_vt_frqf_cadd_vep_parsed_snpeff_ranked.selected.vcf.gz'
-
-    count = 0
-    for variant in get_variants(vcf_file,300):
-        print(variant['display_name'])
-        print(variant['genes'])
-        print(variant['ANN'])
-        print(variant['RankScore'])
-        count += 1
-        if count > 100:
-            break

@@ -2,18 +2,14 @@
 
   - id: ANN
     multivalue: true
-    type: list
     separator: ','
     format_separator: '|'
     format: 'hgnc_symbol|region_annotation|functional_annotation|sift_prediction|polyphen_prediction'
     target: all
     out_type: list
+    out_name: genes
 
   - id: RankScore
-    type: str
-    multivalue: false
-    format_separator: ':'
-    format: 'case_id: rank_score'
-    target:
-      - 'rank_score'
+    multivalue: False
     out_type: int
+    out_name: RankScore

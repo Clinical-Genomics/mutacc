@@ -14,6 +14,7 @@ from mutacc.mutaccDB.db_adapter import MutaccAdapter
 from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.builds.build_case import Case
 from mutacc.mutaccDB.insert import insert_entire_case
+from mutacc.resources import path_vcf_info_def
 from .random_case import random_trio
 
 DATASET_DIR = "tests/fixtures/dataset/"
@@ -128,7 +129,8 @@ def mock_real_adapter(tmpdir):
     case["case"]["case_id"] = "1111"
     case = Case(input_case=case,
                 read_dir=mutacc_dir,
-                padding=200)
+                padding=200,
+                vcf_parse=path_vcf_info_def)
 
     insert_entire_case(adapter, case)
 

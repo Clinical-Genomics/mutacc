@@ -11,7 +11,7 @@ from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.builds.build_case import Case
 
 from mutacc.resources import DEMO_CASE
-
+from mutacc.resources import path_vcf_info_def
 
 LOG = logging.getLogger(__name__)
 
@@ -22,9 +22,11 @@ LOG = logging.getLogger(__name__)
                     "to include or example .yaml file in data/data.yaml")
              )
 @click.option('--padding', type=int, default=1000)
+@click.option('--vcf-parse', type=click.Path(exists=True), default=path_vcf_info_def,
+              help="yaml file with vcf parsing information")
 @click.option('--picard-executable', type=click.Path(exists=True))
 @click.pass_context
-def extract_command(context, case, padding, picard_executable):
+def extract_command(context, case, padding, vcf_parse, picard_executable):
 
     """
         extract reads from case
@@ -43,7 +45,8 @@ def extract_command(context, case, padding, picard_executable):
     case_obj = Case(input_case=input_case,
                     read_dir=read_dir,
                     padding=padding,
-                    picard_exe=picard_executable)
+                    picard_exe=picard_executable,
+                    vcf_parse=vcf_parse)
 
     import_dir = context.obj.get('import_dir')
 

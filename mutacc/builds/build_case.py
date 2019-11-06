@@ -16,7 +16,7 @@ class Case(dict):
     """
         Class with methods for handling case objects
     """
-    def __init__(self, input_case, read_dir, padding=None, picard_exe=None):
+    def __init__(self, input_case, read_dir, padding=None, picard_exe=None, vcf_parse=None):
 
         """
             Object is instantiated with a case, a dictionary giving all relevant information about
@@ -36,7 +36,8 @@ class Case(dict):
         # Build variants
         rank_model_version = self.input_case['case'].get('rank_model_version')
         self['variants'] = self._build_variants(padding=padding,
-                                                rank_model_version=rank_model_version)
+                                                rank_model_version=rank_model_version,
+                                                vcf_parse=vcf_parse)
 
         # Build samples
         self['samples'] = self._build_samples(read_dir=read_dir,
@@ -45,7 +46,7 @@ class Case(dict):
         # Build case
         self['case'] = self.input_case['case']
 
-    def _build_variants(self, padding=None, rank_model_version=None):
+    def _build_variants(self, padding=None, rank_model_version=None, vcf_parse=None):
         """
             Method that parses the vcf in the case dictionary.
 
@@ -62,7 +63,8 @@ class Case(dict):
 
         for variant_object in get_variants(self.input_case["variants"],
                                            padding=padding,
-                                           rank_model_version=rank_model_version):
+                                           rank_model_version=rank_model_version,
+                                           vcf_parse=vcf_parse):
 
             # Append the variant object to the list
             variant_objects.append(variant_object)
