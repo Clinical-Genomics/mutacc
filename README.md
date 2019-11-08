@@ -5,12 +5,12 @@
 
 ## The mutation accumulation database
 
-mutacc is a tool that makes it possible to create synthetic datasets to be used
+**mutacc** is a tool that makes it possible to create synthetic datasets to be used
 for quality control or benchmarking of bioinformatic tools and pipelines intended
 for variant calling of clinical variants. Using raw reads that supports a known
-variant from a real NGS data, mutacc stores the relevant read from each case into
-a database. This database can then be queried to create validation sets with true
-positives with the same properties as a real NGS data.
+variant from a real NGS data, *mutacc* stores the relevant reads from each case into
+a database. This database can then be queried to create synthetic datasets that can
+be used as positive controls bioinformatics pipelines.
 
 ## Installation
 ### Conda
@@ -46,9 +46,7 @@ pip install mutacc
 To install from PyPI, or clone this repo and install
 
 ```console
-git clone https://github.com/adrosenbaum/mutacc
-cd mutacc
-pip install -e .
+pip install git+https://github.com/Clinical-Genomics/mutacc
 ```
 
 ## Usage
@@ -76,7 +74,7 @@ E.g. all generated fastq files will be stored in /.../root_dir/reads/
 ### Populate the mutacc database
 
 To export data sets from the mutacc DB, the database must first be populated. To
-extract the raw reads supporting a known variant, mutacc takes use of all
+extract the raw reads supporting a known variant, mutacc takes use some
 relevant files generated from a NGS experiment up to the variant calling itself.
 That is the bam file, and vcf file containing only the variants of interest.
 
@@ -122,7 +120,7 @@ variants: /path/to/vcf
 
 This will find the reads from the bam files specified for each sample. If it
 is desired that the reads are found from the fastq files instead, this can be
-done by specifying the fastq files as such
+done by specifying the fastq-files as such
 
 ```yaml
   - sample_id: 'sample1'
@@ -163,7 +161,7 @@ with the --host and --port options.
 
 
 ```console
-mutacc db -h <host> -p <port> import case_id.mutacc
+mutacc db -h <host> -p <port> import <case_id>.json
 ```
 
 If authentication is required, this can be specified with the --username and
@@ -178,52 +176,42 @@ password: <password>
 ```
 
 ```console
-mutacc --config-file <config.yaml> db import case_id.mutacc
+mutacc --config-file <config.yaml> db import <case_id>.json
 ```
 
 
 ### Export datasets from the database
-The datasets are exported one sample at the time. At the moment, mutacc only
-supports father/mother/child-trios and single samples. To export a synthetic
+The datasets are exported one sample at the time. To export a synthetic
 dataset, the export command is used together with options.
+```
+Usage: mutacc db export [OPTIONS]
 
-export:
+  exports dataset from DB
 
-  -m/--member [child|father|mother|affected]
-    specifies what family member to create a dataset for. Finds the correct
-    member in each case (if trio) in the database, and uses the reads from this
-    sample only to enrich the background samples. If a single sample dataset is
-    required, the option can be passed with the 'affected' argument, use the
-    reads from only one of the affected samples from each case.
-
-  -c/--case-query \
-    Query to search among the case collection in the mongodb. A json string,
-    with valid mongodb query language.
-
-  -v/--variant-query \
-    Query to search among the variants collection.
-
-
-
-  -s/--sex [male|female] \
-    Specify the sex of the sample
-
-  -n/--sample-name \
-    name of the sample
-
-  -p/--proband \
-    This flag will make the sample 'proband', this will force all variants from
-    single cases to be included into this sample
-
-  --vcf-dir \
-    Specify the directory where the vcf file (truth set) is stored. defaults
-    to /.../root_dir/variants/
-
+Options:
+  -c, --case-mongo TEXT           mongodb query language json-string to query
+                                  for cases in database
+  -v, --variant-mongo TEXT        mongodb query language json-string to query
+                                  for variants in database
+  -t, --variant-type TEXT         Type of variant
+  -a, --analysis [wes|wgs]        Type of analysis
+  --all-variants                  Export all variants in database
+  -m, --member [father|mother|child|affected]
+                                  Type of sample
+  -s, --sex [male|female]         Sex of sample
+  --vcf-dir PATH                  Directory where vcf is created. Defaults to
+                                  mutacc-root/variants
+  -p, --proband                   Variants from all affected samples,
+                                  regardless of pedigree
+  -n, --sample-name TEXT          Name of sample
+  -j, --json-out                  Print results to stdout as json-string
+  --help                          Show this message and exit.
+```
 
 example:
 
 ```console
-mutacc --config-file <config.yaml> db export -m affected -c '{}'
+mutacc --config-file <config.yaml> db export -m affected --all-variants
 ```
 will find all the cases from the mutacc DB, and store this
 information in a file /.../root_dir/queries/sample_name_query.mutacc.
@@ -231,9 +219,9 @@ information in a file /.../root_dir/queries/sample_name_query.mutacc.
 to export an entire trio, this can be done by
 
 ```console
-mutacc --config-file <config_file> db export -m child -c '{}' -p -n child
-mutacc --config-file <config_file> db export -m father -c '{}' -n father
-mutacc --config-file <config_file> db export -m mother -c '{}' -n mother
+mutacc --config-file <config_file> db export -m child --all-variants -p -n child
+mutacc --config-file <config_file> db export -m father --all-variants -n father
+mutacc --config-file <config_file> db export -m mother --all-variants -n mother
 ```
 This will create three files child_query_mutacc.json, father_query_mutacc.json, and
 mother_query_mutacc.json.
@@ -254,7 +242,7 @@ with the following options
     Path to second fastq file (if paired end experiment)
 
   -q/--query \
-    Path to the query files created with the export command
+    Path to the query json-files created with the export command
 
   --dataset-dir \
     Directory where fastq files will be stored. defaults to
@@ -280,10 +268,3 @@ generated from that case from disk, the remove command is used
 ```console
 mutacc --config-file <config.yaml> db remove <case_id>
 ```
-
-## Limitations
-
-mutacc is currently under development and only supports either single cases
-(cases with one sample) or mother/father/child trios. Furthermore, all cases
-uploaded, and exported from the mutacc DB are assumed to be paired-end reads
-experiments.

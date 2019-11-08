@@ -14,20 +14,31 @@ from mutacc.utils.sort_variants import sort_variants
 LOG = logging.getLogger(__name__)
 
 @click.command()
-@click.option('-c', '--case-mongo')
-@click.option('-v', '--variant-mongo')
-@click.option('-t', '--variant-type')
-@click.option('-a', '--analysis', type=click.Choice(['wes', 'wgs']))
-@click.option('--all-variants', is_flag=True)
+@click.option('-c', '--case-mongo',
+              help="mongodb query language json-string to query for cases in database")
+@click.option('-v', '--variant-mongo',
+              help="mongodb query language json-string to query for variants in database")
+@click.option('-t', '--variant-type',
+              help="Type of variant")
+@click.option('-a', '--analysis', type=click.Choice(['wes', 'wgs']),
+              help="Type of analysis")
+@click.option('--all-variants', is_flag=True,
+              help="Export all variants in database")
 @click.option('-m', '--member',
               type=click.Choice(['father', 'mother', 'child', 'affected']),
-              default='affected')
+              default='affected',
+              help="Type of sample")
 @click.option('-s', '--sex',
-              type=click.Choice(['male', 'female']))
-@click.option('--vcf-dir', type=click.Path(exists=True))
-@click.option('-p', '--proband', is_flag=True)
-@click.option('-n', '--sample-name')
-@click.option('-j', '--json-out', is_flag=True)
+              type=click.Choice(['male', 'female']),
+              help="Sex of sample")
+@click.option('--vcf-dir', type=click.Path(exists=True),
+              help="Directory where vcf is created. Defaults to mutacc-root/variants")
+@click.option('-p', '--proband', is_flag=True,
+              help="Variants from all affected samples, regardless of pedigree")
+@click.option('-n', '--sample-name',
+              help="Name of sample")
+@click.option('-j', '--json-out', is_flag=True,
+              help="Print results to stdout as json-string")
 @click.pass_context
 def export(context,
            case_mongo,
