@@ -92,12 +92,10 @@ class Variant(dict):
 
             #IDs from sample specific genotype field
             sample = {
-
                 'GT': resolve_cyvcf2_genotype(self.entry.genotypes[i]),
                 'DP': int(self.entry.gt_depths[i]),
                 'GQ': int(self.entry.gt_quals[i]),
                 'AD': int(self.entry.gt_alt_depths[i])
-
             }
 
             samples[sample_id] = sample
@@ -155,11 +153,14 @@ class INFOParser:
         Class to customize parsing of INFO column in vcf
     """
 
-    def __init__(self, parser_info_file):
+    def __init__(self, parser_info):
 
-        with open(parser_info_file) as parser_handle:
-            parse_info = yaml.load(parser_handle, Loader=yaml.FullLoader)
-            self.parsers = self._get_parsers(parse_info)
+        if isinstance(parser_info, list):
+            parse_info = parser_info
+        else:
+            with open(parser_info) as parser_handle:
+                parse_info = yaml.load(parser_handle, Loader=yaml.FullLoader)
+        self.parsers = self._get_parsers(parse_info)
 
 
     def parse(self, vcf_entry):
@@ -232,14 +233,18 @@ class INFOParser:
             if entry['multivalue']:
                 info_list = []
                 for raw_value_entry in raw_value.split(entry['separator']):
-                    info_dict = {}
+                    element = None
                     if entry.get('format_separator'):
+                        info_dict = {}
                         for target, value in zip(entry['format'].split(entry['format_separator']),
                                                  raw_value_entry.split(entry['format_separator'])):
                             target = target.strip()
                             if entry['target'] == 'all' or target in entry['target']:
                                 info_dict[target] = value
-                    info_list.append(info_dict)
+                        element = info_dict
+                    else:
+                        element = raw_value_entry
+                    info_list.append(element)
                 return _type_conv(entry.get('out_type'))(info_list)
             else:
                 if entry.get('format') and entry.get('format_separator'):
@@ -274,10 +279,11 @@ class INFOParser:
                 LOG.warning("a separator must be given if multivalue is set to True")
                 return False
 
+            if entry.get('target') and not (isinstance(entry['target'], list) or entry['target'] == 'all'):
+                LOG.warning('target must be a list')
+                return False
+
         return True
-
-
-
 
 
 def resolve_cyvcf2_genotype(cyvcf2_gt):

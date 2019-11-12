@@ -23,9 +23,13 @@ class Case(dict):
             the case.
 
             Args:
-
-                case(dict): dictionary containing information about the variant, with three fields;
-                            case, samples, and variants.
+                input_case(dict): dictionary containing information about the variant, with three fields;
+                                  case, samples, and variants.
+                read_dir(str): Directory fastq-files are placed
+                padding(int): given in bp, extends the region for where to look for reads in the
+                               alignment file.
+                picard_exe(str): path to picard executable
+                vcf_parse(str): path to yaml file with vcf parsing information
         """
 
         super(Case, self).__init__()
@@ -53,7 +57,10 @@ class Case(dict):
             Args:
 
                 padding(int): given in bp, extends the region for where to look for reads in the
-                alignment file.
+                              alignment file.
+                rank_model_version(str): The rank_model varsion that has been used
+                vcf_parse(str): path to yaml file with vcf parsing information
+
         """
 
         # Get padding
