@@ -1,17 +1,18 @@
 ##fileformat=VCFv4.2'
-##INFO=<ID=END,Number=1,Type=Integer,Description="Stop position of the interval">'
-##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">'
-##INFO=<ID=TYPE,Number=A,Type=String,Description="The type of allele, either snp, mnp, ins, del, or complex.">'
-##INFO=<ID=RankScore,Number=.,Type=String,Description="The rank score for this variant in this family. family_id:rank_score.">'
-##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">'
-##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">'
-##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">'
+##INFO=<ID=END,Number=1,Type=Integer,Description="Stop position of the interval">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=ANN,Number=.,Type=String,Description="">
+##INFO=<ID=TYPE,Number=A,Type=String,Description="The type of allele, either snp, mnp, ins, del, or complex.">
+##INFO=<ID=RankScore,Number=.,Type=String,Description="The rank score for this variant in this family. family_id:rank_score.">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
 ##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sample1	sample2	sample3
-1	1285001	.	G	<DEL>	.	PASS RankScore=20;SVTYPE=DEL	GT 0/1	0/1 ./.
-1	1584546	.	A	AG]19:2301862]	596	PASS	SVTYPE=BND	GT	0/1	0/1 0/1
-1	1584649	.	N	N[hs37d5:12066566[	.	PASS	SVTYPE=BND	GT	./.	./.	1/1
-1	1584805	.	N	N[hs37d5:33110541[	.	PASS	SVTYPE=BND	GT	1/1	1/1	1/1
-1	1588656	.	N	N[1:1653590[	.	PASS	SVTYPE=BND	GT	0/1	0/1	1/1
-1	1595196	.	N	N[1:1660624[	.	PASS	SVTYPE=BND	GT	0/1	./.	0/1
-4	10000500	.	G	<DEL>	.	PASS	END=10000500;SVLEN=-500;SVTYPE=DEL	GT	./.	0/1	./.
+1	1285001	.	G	<DEL>	.	PASS	RankScore=20;SVTYPE=DEL;ANN=1|1|1|1|1|1	GT	0/1	0/1	./.
+1	1584546	.	A	AG]19:2301862]	596	PASS	RankScore=20;SVTYPE=BND;ANN=1|1|1|1|1|1	GT	0/1	0/1	0/1
+1	1584649	.	N	N[hs37d5:12066566[	.	PASS	RankScore=20;SVTYPE=BND;ANN=1|1|1|1|1|1	GT	./.	./.	1/1
+1	1584805	.	N	N[hs37d5:33110541[	.	PASS	RankScore=20;SVTYPE=BND;ANN=1|1|1|1|1|1	GT	1/1	1/1	1/1
+1	1588656	.	N	N[1:1653590[	.	PASS	RankScore=20;TYPE=SNV;ANN=1|1|1|1|1|1	GT	0/1	0/1	1/1
+1	1595196	.	N	N[1:1660624[	.	PASS	RankScore=20;SVTYPE=BND;ANN=1|1|1|1|1|1	GT	0/1	./.	0/1
+4	10000500	.	G	<DEL>	.	PASS	RankScore=20;END=10000500;SVLEN=-500;SVTYPE=DEL;ANN=1|1|1|1|1|1	GT	./.	0/1	./.

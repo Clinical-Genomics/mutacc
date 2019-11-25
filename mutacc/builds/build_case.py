@@ -16,16 +16,20 @@ class Case(dict):
     """
         Class with methods for handling case objects
     """
-    def __init__(self, input_case, read_dir, padding=None, picard_exe=None):
+    def __init__(self, input_case, read_dir, padding=None, picard_exe=None, vcf_parse=None):
 
         """
             Object is instantiated with a case, a dictionary giving all relevant information about
             the case.
 
             Args:
-
-                case(dict): dictionary containing information about the variant, with three fields;
-                            case, samples, and variants.
+                input_case(dict): dictionary containing information about the variant, with three fields;
+                                  case, samples, and variants.
+                read_dir(str): Directory fastq-files are placed
+                padding(int): given in bp, extends the region for where to look for reads in the
+                               alignment file.
+                picard_exe(str): path to picard executable
+                vcf_parse(str): path to yaml file with vcf parsing information
         """
 
         super(Case, self).__init__()
@@ -36,7 +40,8 @@ class Case(dict):
         # Build variants
         rank_model_version = self.input_case['case'].get('rank_model_version')
         self['variants'] = self._build_variants(padding=padding,
-                                                rank_model_version=rank_model_version)
+                                                rank_model_version=rank_model_version,
+                                                vcf_parse=vcf_parse)
 
         # Build samples
         self['samples'] = self._build_samples(read_dir=read_dir,
@@ -45,14 +50,17 @@ class Case(dict):
         # Build case
         self['case'] = self.input_case['case']
 
-    def _build_variants(self, padding=None, rank_model_version=None):
+    def _build_variants(self, padding=None, rank_model_version=None, vcf_parse=None):
         """
             Method that parses the vcf in the case dictionary.
 
             Args:
 
                 padding(int): given in bp, extends the region for where to look for reads in the
-                alignment file.
+                              alignment file.
+                rank_model_version(str): The rank_model varsion that has been used
+                vcf_parse(str): path to yaml file with vcf parsing information
+
         """
 
         # Get padding
@@ -62,7 +70,8 @@ class Case(dict):
 
         for variant_object in get_variants(self.input_case["variants"],
                                            padding=padding,
-                                           rank_model_version=rank_model_version):
+                                           rank_model_version=rank_model_version,
+                                           vcf_parse=vcf_parse):
 
             # Append the variant object to the list
             variant_objects.append(variant_object)

@@ -4,23 +4,9 @@
 import logging
 
 from cyvcf2 import VCF
+import yaml
 
 from mutacc.parse.path_parse import parse_path
-
-
-#IDs in the INFO field that should be included in the database
-INFO_IDS = (
-
-    'RankScore',
-
-)
-
-GENE_INFO = ('hgnc_symbol',
-             'region_annotation',
-             'functional_annotation',
-             'sift_prediction',
-             'polyphen_prediction')
-ANNOTATION = 'ANN'
 
 LOG = logging.getLogger(__name__)
 
@@ -31,7 +17,7 @@ class Variant(dict):
         Class to represent variant
     """
 
-    def __init__(self, vcf_entry, samples, padding, rank_model_version=None):
+    def __init__(self, vcf_entry, samples, padding, parser=None, rank_model_version=None):
 
         super(Variant, self).__init__()
 
@@ -39,8 +25,10 @@ class Variant(dict):
         self.samples = samples
 
         self.build_variant_object(padding, rank_model_version=rank_model_version)
-
         self.entry = str(self.entry)
+
+        if parser is not None:
+            self.update(parser.parse(vcf_entry))
 
     def _find_region(self, padding):
         """
@@ -104,34 +92,15 @@ class Variant(dict):
 
             #IDs from sample specific genotype field
             sample = {
-
                 'GT': resolve_cyvcf2_genotype(self.entry.genotypes[i]),
                 'DP': int(self.entry.gt_depths[i]),
                 'GQ': int(self.entry.gt_quals[i]),
                 'AD': int(self.entry.gt_alt_depths[i])
-
             }
 
             samples[sample_id] = sample
 
         return samples
-
-    def _find_genes(self):
-
-        genes = self.entry.INFO.get('ANN')
-        if genes is None:
-            LOG.debug("Could not find ANN field in vcf")
-            return []
-
-        gene_list = []
-        for gene in genes.split(','):
-            gene_info = {}
-            for ann_id, info in zip(GENE_INFO, gene.split('|')):
-                gene_info[ann_id] = info.strip() if info else 'unknown'
-            gene_list.append(gene_info)
-
-        return gene_list
-
 
     def build_variant_object(self, padding, rank_model_version=None):
         """
@@ -141,9 +110,7 @@ class Variant(dict):
         #Find genotype and sample id for the samples given in the vcf file
         region = self._find_region(padding)
         samples = self._find_genotypes()
-        genes = self._find_genes()
         variant_type, variant_subtype = self._find_type()
-
 
         self['display_name'] = self.display_name
         self['variant_type'] = variant_type
@@ -157,12 +124,6 @@ class Variant(dict):
         self['reads_region'] = region
         self['samples'] = samples
         self['padding'] = padding
-        self['genes'] = genes
-
-        #Add data from the info INFO field
-        for info_id in INFO_IDS:
-            if self.entry.INFO.get(info_id):
-                self[info_id] = self.entry.INFO[info_id]
 
         #Add rank_model_version if given
         if rank_model_version is not None:
@@ -187,6 +148,143 @@ class Variant(dict):
         return display_name
 
 
+class INFOParser:
+    """
+        Class to customize parsing of INFO column in vcf
+    """
+
+    def __init__(self, parser_info):
+
+        if isinstance(parser_info, list):
+            parse_info = parser_info
+        else:
+            with open(parser_info) as parser_handle:
+                parse_info = yaml.load(parser_handle, Loader=yaml.FullLoader)
+        self.parsers = self._get_parsers(parse_info)
+
+
+    def parse(self, vcf_entry):
+        """
+            Given a vcf entry, parse the INFO column
+
+            args:
+                vcf_entry (Cyvcf2.Variant)
+            returns:
+                results (dict): Dictionary with the parsed fields
+        """
+        results = {}
+        for parser in self.parsers:
+            if vcf_entry.INFO.get(parser['id']):
+                info_id = parser['id']
+                display_name = parser['display_name']
+                parser_func = parser['parse_func']
+                results[display_name] = parser_func(vcf_entry.INFO.get(info_id))
+        return results
+
+    def _get_parsers(self, parse_info):
+        """
+            Gets a parser for each ID specified
+
+            args:
+                parse_info (list(dict)): list where each element gives specifications
+                    on how an ID in the INFO column should be parsed
+
+            returns:
+                parsers (list): list of parsers
+        """
+
+        if not self._check(parse_info):
+            LOG.warning('Parser info not given correctly')
+            raise ValueError
+
+        parsers = []
+        for entry in parse_info:
+            parser = {}
+            parser['id'] = entry['id']
+            parser['display_name'] = entry.get('out_name') or entry['id']
+            parser['parse_func'] = self._construct_parser(entry)
+            parsers.append(parser)
+        return parsers
+
+    @staticmethod
+    def _construct_parser(entry):
+        """
+            Constructs python function that based on the specifications
+            given parses an id in the INFO column of the vcf.
+
+            args:
+                entry (dict): dictionary with instructions on how id is parsed
+            returns:
+                parser_func (function): Function that parse ID in INFO column
+        """
+
+        def _type_conv(type_str=None):
+            if type_str == 'str':
+                return lambda value: str(value)
+            if type_str == 'int':
+                return lambda value: int(value)
+            if type_str == 'list':
+                return lambda value: list(value)
+            if type_str == 'float':
+                return lambda value: float(value)
+            return lambda value: value
+
+        def _parser_func(raw_value):
+            if entry['multivalue']:
+                info_list = []
+                for raw_value_entry in raw_value.split(entry['separator']):
+                    element = None
+                    if entry.get('format_separator'):
+                        info_dict = {}
+                        for target, value in zip(entry['format'].split(entry['format_separator']),
+                                                 raw_value_entry.split(entry['format_separator'])):
+                            target = target.strip()
+                            if entry['target'] == 'all' or target in entry['target']:
+                                info_dict[target] = value
+                        element = info_dict
+                    else:
+                        element = raw_value_entry
+                    info_list.append(element)
+                return _type_conv(entry.get('out_type'))(info_list)
+            else:
+                if entry.get('format') and entry.get('format_separator'):
+                    for target, value in zip(entry['format'].split(entry['format_separator']),
+                                             raw_value.split(entry['format_separator'])):
+                        target = target.strip()
+                        if target in entry['target']:
+                            return _type_conv(entry.get('out_type'))(value)
+                else:
+                    return _type_conv(entry.get('out_type'))(raw_value)
+
+
+        return _parser_func
+
+    def _check(self, parse_info):
+
+        """
+            Checks if parse info is given in the correct format
+        """
+
+        if not isinstance(parse_info, list):
+            LOG.warning("parser info must be given as a list")
+            return False
+
+        for entry in parse_info:
+
+            if not isinstance(entry, dict):
+                LOG.warning("Each entry must be a dictionary")
+                return False
+
+            if entry.get('multivalue', False) and not entry.get('separator', False):
+                LOG.warning("a separator must be given if multivalue is set to True")
+                return False
+
+            if entry.get('target') and not (isinstance(entry['target'], list) or entry['target'] == 'all'):
+                LOG.warning('target must be a list')
+                return False
+
+        return True
+
 
 def resolve_cyvcf2_genotype(cyvcf2_gt):
     """
@@ -204,23 +302,20 @@ def resolve_cyvcf2_genotype(cyvcf2_gt):
         separator = '|'
     else:
         separator = '/'
-
     if cyvcf2_gt[0] == -1:
         a_1 = '.'
     else:
         a_1 = str(cyvcf2_gt[0])
-
     if cyvcf2_gt[1] == -1:
         a_2 = '.'
     else:
         a_2 = str(cyvcf2_gt[1])
-
     genotype = a_1 + separator + a_2
 
     return genotype
 
 
-def get_variants(vcf_file, padding, rank_model_version=None):
+def get_variants(vcf_file, padding, rank_model_version=None, vcf_parse=None):
 
     """
 
@@ -235,13 +330,11 @@ def get_variants(vcf_file, padding, rank_model_version=None):
     """
 
     vcf_file = parse_path(vcf_file)
-
     vcf = VCF(str(vcf_file), 'r')
-
     samples = vcf.samples
-
+    parser = None
+    if vcf_parse:
+        parser = INFOParser(vcf_parse)
     for entry in vcf:
-
-        yield Variant(entry, samples, padding, rank_model_version=rank_model_version)
-
+        yield Variant(entry, samples, padding, parser=parser, rank_model_version=rank_model_version)
     vcf.close()
