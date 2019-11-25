@@ -1,0 +1,15 @@
+version: "2"
+services:
+  mutacc:
+    build: ../.
+    links:
+      - mongo
+    command: --version
+    container_name: mutacc
+
+  mongo:
+    image: mongo
+    volumes:
+      - /Users/adam.rosenbaum/Volumes/db:/data/db
+    container_name: mongo
+    command: --bind_ip_all
