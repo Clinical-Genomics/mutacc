@@ -1,0 +1,6 @@
+port: 27017
+host: mongo
+database: mutacc
+#username: myUserAdmin
+#password: abc123
+#root_dir: /mutacc_root/
