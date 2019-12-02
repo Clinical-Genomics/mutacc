@@ -3,13 +3,16 @@ services:
   mutacc:
     build: ../.
     links:
-      - mongo
+      - mongo_container
     command: --version
     container_name: mutacc
 
-  mongo:
+  mongo_container:
     image: mongo
+    hostname: mongo_container
     volumes:
       - /Users/adam.rosenbaum/Volumes/db:/data/db
-    container_name: mongo
+    container_name: mongo_container
+    expose:
+      - "27017"
     command: --bind_ip_all

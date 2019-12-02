@@ -45,4 +45,4 @@ RUN mkdir $MUTACC_ROOT_DIR
 
 COPY docker/mutacc-docker-config.yaml $MUTACC_CONFIG_PATH
 
-ENTRYPOINT ["/bin/bash", "-c",  "mutacc --config-file /root/mutacc-config.yaml --root-dir /root/mutacc_root/"]
+ENTRYPOINT ["mutacc", "--config-file", "/root/mutacc-config.yaml", "--root-dir", "/root/mutacc_root/"]
