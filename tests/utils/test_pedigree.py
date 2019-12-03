@@ -39,13 +39,14 @@ def test_Family(individuals_fixed):
     assert mother.individual_id == 'mother'
     assert affected.affected
 
-def test_make_family_from_case(individuals_fixed):
 
-    c0 = {
+def test_make_family_from_trio():
+    # GIVEN a trio case
+    case = {
         'case_id': 'test_family0',
         'samples': [
             {
-                'sample_id': 'proband',
+                'sample_id': 'child',
                 'father': 'father',
                 'mother': 'mother',
                 'sex': 'male',
@@ -74,7 +75,35 @@ def test_make_family_from_case(individuals_fixed):
         ]
     }
 
-    c1 = {
+    # WHEN trio is converted to a family object
+    family = make_family_from_case(case)
+
+    # THEN the child is found
+    assert family.get_individual('child').individual_id == "child"
+
+    # THEN the father is found
+    assert family.get_individual('father').individual_id == "father"
+
+    # THEN the mother is found
+    assert family.get_individual('mother').individual_id == "mother"
+
+    # THEN no female child is found
+    assert not family.get_individual('child', sex = 'female')
+
+    # THEN a male child is found
+    assert family.get_individual('child', sex = 'male').individual_id == "child"
+
+    # THEN mother is found when searching for an affected female individual
+    assert family.get_individual('affected', sex = 'female').individual_id == "mother"
+
+    # THEN the child is found when searching for an affected male
+    assert family.get_individual('affected', sex = 'male').individual_id == "child"
+
+
+def test_make_family_from_single():
+
+    # GIVEN a case with a single affected individual
+    case = {
         'case_id': 'test_family1',
         'samples': [
             {
@@ -89,22 +118,77 @@ def test_make_family_from_case(individuals_fixed):
         ]
     }
 
-    fam0 = make_family_from_case(c0)
-    fam1 = make_family_from_case(c1)
+    # WHEN case is converted to a family object
+    family = make_family_from_case(case)
 
-    assert fam0.get_individual('child').individual_id == "proband"
-    assert fam0.get_individual('child').sex == 1
-    assert fam0.get_individual('father').individual_id == "father"
-    assert fam0.get_individual('mother').individual_id == "mother"
-    assert not fam0.get_individual('child', sex = 'female')
-    assert fam0.get_individual('child', sex = 'male').individual_id == "proband"
-    assert fam0.get_individual('affected', sex = 'female').individual_id == "mother"
-    assert fam0.get_individual('affected', sex = 'male').individual_id == "proband"
+    # THEN no child is found
+    assert (not family.get_individual('child'))
 
-    assert (not fam1.get_individual('child'))
-    assert (not fam1.get_individual('father'))
-    assert (not fam1.get_individual('mother'))
-    assert fam1.get_individual('affected').affected
-    assert not fam1.get_individual('affected', sex ='female')
-    assert fam1.get_individual('affected', sex ='male')
-    assert fam1.get_individual('affected', sex = 'male').individual_id == "single"
+    # THEN no father is found
+    assert (not family.get_individual('father'))
+
+    # THEN no mother is found
+    assert (not family.get_individual('mother'))
+
+    # THEN an affected is found
+    assert family.get_individual('affected').affected
+
+    # THEN no affected female is found
+    assert not family.get_individual('affected', sex ='female')
+
+    # THEN an affected male is found and is the individual
+    assert family.get_individual('affected', sex ='male')
+    assert family.get_individual('affected', sex = 'male').individual_id == "single"
+
+
+def test_make_family_from_quertet():
+
+    # GIVEN a case with two siblings, where just one is affected
+    case = {
+        'case_id': 'test_family0',
+        'samples': [
+            {
+                'sample_id': 'proband',
+                'father': 'father',
+                'mother': 'mother',
+                'sex': 'male',
+                'phenotype': 'affected',
+                'variant_bam_file': 'example_bam',
+                'variant_fastq_files': []
+            },
+            {
+                'sample_id': 'sibling',
+                'father': 'father',
+                'mother': 'mother',
+                'sex': 'male',
+                'phenotype': 'unaffected',
+                'variant_bam_file': 'example_bam',
+                'variant_fastq_files': []
+            },
+            {
+                'sample_id': 'father',
+                'father': '0',
+                'mother': '0',
+                'sex': 'male',
+                'phenotype': 'unaffected',
+                'variant_bam_file': 'example_bam',
+                'variant_fastq_files': []
+            },
+            {
+                'sample_id': 'mother',
+                'father': '0',
+                'mother': '0',
+                'sex': 'female',
+                'phenotype': 'affected',
+                'variant_bam_file': 'example_bam',
+                'variant_fastq_files': []
+            }
+        ]
+    }
+
+    # WHEN case is converted to a family object
+    family = make_family_from_case(case)
+
+    # THEN the affected sibling is found and not the unaffected
+    assert family.get_individual('child').affected
+    assert family.get_individual('child').individual_id == 'proband'
