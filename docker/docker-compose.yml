@@ -7,7 +7,7 @@ services:
     command: --version
     container_name: mutacc
     volumes:
-      - /Users/adam.rosenbaum/mutacc_base/mutacc_root:/mutacc/mutacc_root
+      - <HOST_MUTACC_ROOT_DIR>:/mutacc/mutacc_root
 
 
   mutacc-db:
@@ -16,6 +16,6 @@ services:
     ports:
       - 27030:27017
     volumes:
-      - /Users/adam.rosenbaum/mutacc_base/mutacc_db:/data/db
+      - <HOST_MONGODB_DIR>:/data/db
     container_name: mutacc-db
     restart: always

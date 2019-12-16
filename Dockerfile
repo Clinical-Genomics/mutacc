@@ -6,6 +6,8 @@ ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 ENV PATH /opt/conda/bin:${PATH}
 
+COPY . /source/mutacc
+
 RUN apt-get update --fix-missing && apt-get install -y \
         build-essential \
         coreutils \
@@ -36,7 +38,7 @@ RUN conda config --add channels defaults && \
     conda config --add channels bioconda && \
     conda install --yes python=3.6 cython numpy picard seqkit && \
     conda clean -tipsy && \
-    pip install git+https://github.com/Clinical-Genomics/mutacc
+    pip install -e source/mutacc
 
 ENV MUTACC_CONFIG_PATH /root/mutacc-config.yaml
 COPY docker/mutacc-docker-config.yaml $MUTACC_CONFIG_PATH
