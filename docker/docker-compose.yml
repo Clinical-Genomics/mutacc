@@ -1,18 +1,21 @@
-version: "2"
+version: "3"
 services:
   mutacc:
     build: ../.
     links:
-      - mongo_container
+      - mutacc-db
     command: --version
     container_name: mutacc
-
-  mongo_container:
-    image: mongo
-    hostname: mongo_container
     volumes:
-      - /Users/adam.rosenbaum/Volumes/db:/data/db
-    container_name: mongo_container
-    expose:
-      - "27017"
-    command: --bind_ip_all
+      - /Users/adam.rosenbaum/mutacc_base/mutacc_root:/mutacc/mutacc_root
+
+
+  mutacc-db:
+    image: mongo
+    hostname: mutacc-db
+    ports:
+      - 27030:27017
+    volumes:
+      - /Users/adam.rosenbaum/mutacc_base/mutacc_db:/data/db
+    container_name: mutacc-db
+    restart: always
