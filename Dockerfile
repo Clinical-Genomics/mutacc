@@ -39,10 +39,6 @@ RUN conda config --add channels defaults && \
     pip install git+https://github.com/Clinical-Genomics/mutacc
 
 ENV MUTACC_CONFIG_PATH /root/mutacc-config.yaml
-ENV MUTACC_ROOT_DIR /root/mutacc_root/
-
-RUN mkdir $MUTACC_ROOT_DIR
-
 COPY docker/mutacc-docker-config.yaml $MUTACC_CONFIG_PATH
 
-ENTRYPOINT ["mutacc", "--config-file", "/root/mutacc-config.yaml", "--root-dir", "/root/mutacc_root/"]
+ENTRYPOINT ["mutacc", "--config-file", "/root/mutacc-config.yaml"]
