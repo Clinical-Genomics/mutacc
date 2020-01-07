@@ -35,7 +35,9 @@ def vcf_writer(found_variants, vcf_path, sample_name, adapter, variant_info_spec
 
     with open(vcf_path, "w") as vcf_handle:
         vcf_handle.write(FILEFORMAT + "\n")
-        write_info_header(variant_info_spec, vcf_handle)
+
+        if variant_info_spec is not None:
+            write_info_header(variant_info_spec, vcf_handle)
         for header_line in HEADER:
             vcf_handle.write(header_line + "\n")
         write_contigs(found_variants, vcf_handle)

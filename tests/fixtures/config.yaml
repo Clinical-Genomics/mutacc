@@ -4,3 +4,23 @@ port: 27017
 username: testuser123
 password: abc123
 
+
+vcf_info_export:
+
+  variant:
+    - id: RankScore, MutaccRankScore
+      type: Integer
+      description: "The rankscore for this variant"
+
+  case:
+    - id: rank_model_version, RMV
+      type: float
+      description: "Rank model version"
+
+    - id: sv_rank_model_version, SVRMV
+      type: Float
+      description: "SV Rank model version"
+
+    - id: case_id, case
+      type: String
+      description: "Name of case where variant is found"
