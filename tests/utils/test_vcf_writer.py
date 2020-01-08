@@ -124,5 +124,3 @@ def test_write_contigs(tmpdir):
     with open(out_vcf, "r") as vcf_handle:
         for line in vcf_handle:
             assert line.startswith("##contig=<ID=")
-
-    assert 1 == 2
