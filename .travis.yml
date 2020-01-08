@@ -2,10 +2,12 @@ language: python
 
 python:
   - "3.6"
-  - "3.7"
 
 services:
   - mongodb
+
+script:
+  - py.test -rxs --cov mutacc/ tests/
 
 jobs:
     include:
@@ -15,9 +17,8 @@ jobs:
           - mutacc --demo extract --padding 100 && mutacc --demo db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
           - mutacc --demo db export --all-variants --member child --proband --sample-name child
           - mutacc --demo synthesize --query ./mutacc_demo_root/queries/child_query_mutacc.json
-      - name: 'unit tests'
-        script:
-          - py.test -rxs --cov mutacc/ tests/
+
+cache: pip
 
 before_install:
   - wget -q http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh

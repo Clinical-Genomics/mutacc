@@ -45,7 +45,8 @@ def cli(context, loglevel, config_file, root_dir, demo):
         password = None
         root_dir = make_dir(root_dir or "./mutacc_demo_root")
         vcf_info_export = {
-            "case": [{"id": "case, case", "type": "String", "description": "case"}]
+            "case": [{"id": "case,case", "type": "String", "description": "case"}],
+            "variant": [{"id": "rank, rank", "type": "Integer", "description": "rank"}],
         }
 
     else:
