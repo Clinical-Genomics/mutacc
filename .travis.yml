@@ -9,6 +9,15 @@ services:
 script:
   - py.test -rxs --cov mutacc/ tests/
 
+jobs:
+    include:
+      - name: 'demo'
+        script:
+          - mutacc --demo extract --padding 100
+          - mutacc --demo extract --padding 100 && mutacc --demo db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
+          - mutacc --demo db export --case-query '{}' --member child --proband --sample-name child
+          - mutacc --demo synthesize --query ./mutacc_demo_root/queries/child_query_mutacc.json
+
 before_install:
   - wget -q http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
