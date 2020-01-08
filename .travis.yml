@@ -15,7 +15,7 @@ jobs:
       - name: 'integrated test'
         script:
           - mutacc --demo extract --padding 100
-          - mutacc --demo extract --padding 100 && mutacc --demo db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
+          - mutacc --demo db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
           - mutacc --demo db export --all-variants --member child --proband --sample-name child
           - mutacc --demo synthesize --query ./mutacc_demo_root/queries/child_query_mutacc.json
 
