@@ -3,6 +3,8 @@
 """
 import logging
 
+from mutacc.utils.vcf_handler import INFOParser
+
 HEADER = (
     '##INFO=<ID=END,Number=1,Type=Integer,Description="Stop position of the interval">',
     '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
@@ -18,7 +20,7 @@ FILEFORMAT = "##fileformat=VCFv4.2"
 LOG = logging.getLogger(__name__)
 
 
-def vcf_writer(found_variants, vcf_path, sample_name, adapter, variant_info_spec=None):
+def vcf_writer(found_variants, vcf_path, sample_name, adapter, vcf_parser=None):
 
     """
         Given a list of variants documents from the database,
@@ -36,8 +38,8 @@ def vcf_writer(found_variants, vcf_path, sample_name, adapter, variant_info_spec
     with open(vcf_path, "w") as vcf_handle:
         vcf_handle.write(FILEFORMAT + "\n")
 
-        if variant_info_spec is not None:
-            write_info_header(variant_info_spec, vcf_handle)
+        if vcf_parser is not None:
+            write_info_header(vcf_parser, vcf_handle)
         for header_line in HEADER:
             vcf_handle.write(header_line + "\n")
         write_contigs(found_variants, vcf_handle)
@@ -56,15 +58,10 @@ def vcf_writer(found_variants, vcf_path, sample_name, adapter, variant_info_spec
             elif variant["variant_type"].upper() == "SV":
                 info_list.append(f"SVTYPE={variant['variant_subtype']}")
 
-            if variant_info_spec is not None:
-                if variant_info_spec.get("variant"):
-                    info_list.extend(
-                        get_meta_info_from_dict(case, variant_info_spec["case"])
-                    )
-                if variant_info_spec.get("case"):
-                    info_list.extend(
-                        get_meta_info_from_dict(variant, variant_info_spec["variant"])
-                    )
+            if vcf_parser is not None:
+                parser = INFOParser(vcf_parser, stream="write")
+                info_list.extend(parser.parse(case))
+                info_list.extend(parser.parse(variant))
 
             info = ";".join(info_list)
             # write format field and gt
@@ -94,28 +91,7 @@ def vcf_writer(found_variants, vcf_path, sample_name, adapter, variant_info_spec
             vcf_handle.write(entry)
 
 
-def get_meta_info_from_dict(input_dict: dict, variant_info_spec: list):
-    """
-        Get meta data from case that should be included in the INFO column
-
-        Args:
-            input_dict (dict): Dictionary to get info from
-            variant_info_spec (dict): Dict specifying fields to extract into vcf
-
-        Returns:
-            (list): VCF INFO list
-    """
-
-    info_list = []
-    for field in variant_info_spec:
-        # print(field)
-        in_id, out_id = field["id"].replace(" ", "").split(",")
-        if input_dict.get(in_id) is not None:
-            info_list.append(f"{out_id}={input_dict[in_id]}")
-    return info_list
-
-
-def write_info_header(variant_info_spec, vcf_handle):
+def write_info_header(vcf_parser, vcf_handle):
 
     """
         Writes headers for INFO ids
@@ -126,12 +102,11 @@ def write_info_header(variant_info_spec, vcf_handle):
 
     """
     template = '##INFO=<ID={},Number=1,Type={},Description="{}">\n'
-    for key in variant_info_spec.keys():
-        for field in variant_info_spec[key]:
-            vcf_id = field["id"].replace(" ", "").split(",")[-1]
-            vcf_type = field["type"]
-            vcf_desc = field["description"]
-            vcf_handle.write(template.format(vcf_id, vcf_type, vcf_desc))
+    for field in vcf_parser:
+        vcf_id = field["out_name"]
+        vcf_type = field["vcf_type"]
+        vcf_desc = field["description"]
+        vcf_handle.write(template.format(vcf_id, vcf_type, vcf_desc))
 
 
 def write_contigs(variants, vcf_handle):

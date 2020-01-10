@@ -116,14 +116,8 @@ def export(
     vcf_dir = make_dir(vcf_dir)
     vcf_file = vcf_dir.joinpath("{}_variants.vcf".format(sample_name))
     LOG.info("creating vcf file %s", vcf_file)
-    variant_info_spec = context.obj.get("vcf_info_export")
-    vcf_writer(
-        found_variants,
-        vcf_file,
-        sample_name,
-        adapter,
-        variant_info_spec=variant_info_spec,
-    )
+    vcf_parser = context.obj.get("vcf_parser_export")
+    vcf_writer(found_variants, vcf_file, sample_name, adapter, vcf_parser=vcf_parser)
     if json_out:
         output_info = {"query_file": str(json_file), "vcf_file": str(vcf_file)}
         output_json = json.dumps(output_info)

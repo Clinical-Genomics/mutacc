@@ -1,5 +1,5 @@
-### IDs in INFO column that should be exracted.
-
+### IDs in INFO column that should be exracted from vcf to database.
+import:
   - id: ANN
     multivalue: true
     separator: ','
@@ -8,8 +8,26 @@
     target: all
     out_type: list
     out_name: genes
-
   - id: RankScore
     multivalue: False
     out_type: int
     out_name: RankScore
+
+# Meta data for variant that should be exported to vcf
+export:
+  - id: RankScore
+    vcf_type: Integer
+    out_name: MutaccRankScore
+    description: "Rank score for variant"
+  - id: rank_model_version
+    vcf_type: String
+    out_name: RMV
+    description: "Rank model version used for SNVs and INDELs"
+  - id: sv_rank_model_version
+    vcf_type: String
+    out_name: SVRMV
+    description: "Rank model version used for SVs"
+  - id: case_id
+    vcf_type: String
+    out_name: case
+    description: "case name"

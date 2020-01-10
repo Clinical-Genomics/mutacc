@@ -7,6 +7,7 @@ from cyvcf2 import VCF
 import yaml
 
 from mutacc.parse.path_parse import parse_path
+from mutacc.utils.vcf_handler import INFOParser
 
 LOG = logging.getLogger(__name__)
 
@@ -137,148 +138,6 @@ class Variant(dict):
         return display_name
 
 
-class INFOParser:
-    """
-        Class to customize parsing of INFO column in vcf
-    """
-
-    def __init__(self, parser_info):
-
-        if isinstance(parser_info, list):
-            parse_info = parser_info
-        else:
-            with open(parser_info) as parser_handle:
-                parse_info = yaml.load(parser_handle, Loader=yaml.FullLoader)
-        self.parsers = self._get_parsers(parse_info)
-
-    def parse(self, vcf_entry):
-        """
-            Given a vcf entry, parse the INFO column
-
-            args:
-                vcf_entry (Cyvcf2.Variant)
-            returns:
-                results (dict): Dictionary with the parsed fields
-        """
-        results = {}
-        for parser in self.parsers:
-            if vcf_entry.INFO.get(parser["id"]):
-                info_id = parser["id"]
-                display_name = parser["display_name"]
-                parser_func = parser["parse_func"]
-                results[display_name] = parser_func(vcf_entry.INFO.get(info_id))
-        return results
-
-    def _get_parsers(self, parse_info):
-        """
-            Gets a parser for each ID specified
-
-            args:
-                parse_info (list(dict)): list where each element gives specifications
-                    on how an ID in the INFO column should be parsed
-
-            returns:
-                parsers (list): list of parsers
-        """
-
-        if not self._check(parse_info):
-            LOG.warning("Parser info not given correctly")
-            raise ValueError
-
-        parsers = []
-        for entry in parse_info:
-            parser = {}
-            parser["id"] = entry["id"]
-            parser["display_name"] = entry.get("out_name") or entry["id"]
-            parser["parse_func"] = self._construct_parser(entry)
-            parsers.append(parser)
-        return parsers
-
-    @staticmethod
-    def _construct_parser(entry):
-        """
-            Constructs python function that based on the specifications
-            given parses an id in the INFO column of the vcf.
-
-            args:
-                entry (dict): dictionary with instructions on how id is parsed
-            returns:
-                parser_func (function): Function that parse ID in INFO column
-        """
-
-        def _type_conv(type_str=None):
-            if type_str == "str":
-                return lambda value: str(value)
-            if type_str == "int":
-                return lambda value: int(value)
-            if type_str == "list":
-                return lambda value: list(value)
-            if type_str == "float":
-                return lambda value: float(value)
-            return lambda value: value
-
-        def _parser_func(raw_value):
-            if entry["multivalue"]:
-                info_list = []
-                for raw_value_entry in raw_value.split(entry["separator"]):
-                    element = None
-                    if entry.get("format_separator"):
-                        info_dict = {}
-                        for target, value in zip(
-                            entry["format"].split(entry["format_separator"]),
-                            raw_value_entry.split(entry["format_separator"]),
-                        ):
-                            target = target.strip()
-                            if entry["target"] == "all" or target in entry["target"]:
-                                info_dict[target] = value
-                        element = info_dict
-                    else:
-                        element = raw_value_entry
-                    info_list.append(element)
-                return _type_conv(entry.get("out_type"))(info_list)
-            else:
-                if entry.get("format") and entry.get("format_separator"):
-                    for target, value in zip(
-                        entry["format"].split(entry["format_separator"]),
-                        raw_value.split(entry["format_separator"]),
-                    ):
-                        target = target.strip()
-                        if target in entry["target"]:
-                            return _type_conv(entry.get("out_type"))(value)
-                else:
-                    return _type_conv(entry.get("out_type"))(raw_value)
-
-        return _parser_func
-
-    def _check(self, parse_info):
-
-        """
-            Checks if parse info is given in the correct format
-        """
-
-        if not isinstance(parse_info, list):
-            LOG.warning("parser info must be given as a list")
-            return False
-
-        for entry in parse_info:
-
-            if not isinstance(entry, dict):
-                LOG.warning("Each entry must be a dictionary")
-                return False
-
-            if entry.get("multivalue", False) and not entry.get("separator", False):
-                LOG.warning("a separator must be given if multivalue is set to True")
-                return False
-
-            if entry.get("target") and not (
-                isinstance(entry["target"], list) or entry["target"] == "all"
-            ):
-                LOG.warning("target must be a list")
-                return False
-
-        return True
-
-
 def resolve_cyvcf2_genotype(cyvcf2_gt):
     """
         Given a genotype given by cyvcf2, translate this to a valid
@@ -327,7 +186,7 @@ def get_variants(vcf_file, padding, vcf_parse=None):
     samples = vcf.samples
     parser = None
     if vcf_parse:
-        parser = INFOParser(vcf_parse)
+        parser = INFOParser(vcf_parse, "read")
     for entry in vcf:
         yield Variant(entry, samples, padding, parser=parser)
     vcf.close()

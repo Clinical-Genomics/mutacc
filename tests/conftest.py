@@ -15,7 +15,7 @@ from mutacc.mutaccDB.db_adapter import MutaccAdapter
 from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.builds.build_case import Case
 from mutacc.mutaccDB.insert import insert_entire_case
-from mutacc.resources import path_vcf_info_def
+from mutacc.resources import default_vcf_parser
 from .random_case import random_trio
 
 DATASET_DIR = "tests/fixtures/dataset/"
@@ -88,6 +88,13 @@ CASES_NO = 5
 
 
 @pytest.fixture
+def vcf_parser():
+    with open(default_vcf_parser, "r") as handle:
+        _vcf_parser = yaml.load(handle, Loader=yaml.FullLoader)
+    return _vcf_parser
+
+
+@pytest.fixture
 def mock_adapter():
 
     """
@@ -118,7 +125,7 @@ def mock_adapter():
 
 
 @pytest.fixture
-def mock_real_adapter(tmpdir):
+def mock_real_adapter(tmpdir, vcf_parser):
 
     """
         Mock adapter to populated database
@@ -132,7 +139,10 @@ def mock_real_adapter(tmpdir):
     case = yaml_parse(CASE_YAML)
     case["case"]["case_id"] = "1111"
     case = Case(
-        input_case=case, read_dir=mutacc_dir, padding=200, vcf_parse=path_vcf_info_def
+        input_case=case,
+        read_dir=mutacc_dir,
+        padding=200,
+        vcf_parse=vcf_parser["import"],
     )
 
     insert_entire_case(adapter, case)

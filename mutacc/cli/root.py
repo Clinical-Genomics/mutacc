@@ -8,6 +8,7 @@ from pathlib import Path
 
 from mutacc.parse.path_parse import parse_path, make_dir
 from mutacc.mutaccDB.db_adapter import MutaccAdapter
+from mutacc.resources import default_vcf_parser
 
 from .database import database_group as database_group
 from .extract import extract_command as extract_command
@@ -27,16 +28,15 @@ LOG = logging.getLogger(__name__)
 @click.option("-c", "--config-file", type=click.Path(exists=True))
 @click.option("-r", "--root-dir", type=click.Path(exists=True))
 @click.option("-d", "--demo", is_flag=True)
+@click.option("--vcf-parser", type=click.Path(exists=True))
 @click.version_option(__version__)
 @click.pass_context
-def cli(context, loglevel, config_file, root_dir, demo):
+def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
 
     coloredlogs.install(level=loglevel)
-
     LOG.info("Running mutacc")
 
     cli_config = {}
-
     if demo:
         host = "localhost"
         port = 27017
@@ -44,10 +44,6 @@ def cli(context, loglevel, config_file, root_dir, demo):
         username = None
         password = None
         root_dir = make_dir(root_dir or "./mutacc_demo_root")
-        vcf_info_export = {
-            "case": [{"id": "case,case", "type": "String", "description": "case"}],
-            "variant": [{"id": "rank, rank", "type": "Integer", "description": "rank"}],
-        }
 
     else:
 
@@ -68,13 +64,23 @@ def cli(context, loglevel, config_file, root_dir, demo):
             )
             context.abort()
 
+    if vcf_parser is not None:
+        with open(vcf_parser, "r") as parser_handle:
+            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+    elif cli_config.get("vcf_parser") is not None:
+        vcf_parser = cli_config["vcf_parser"]
+    else:
+        with open(default_vcf_parser, "r") as parser_handle:
+            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+
     mutacc_config = {}
     mutacc_config["host"] = host
     mutacc_config["port"] = port
     mutacc_config["username"] = username
     mutacc_config["password"] = password
     mutacc_config["db_name"] = db_name
-    mutacc_config["vcf_info_export"] = vcf_info_export
+    mutacc_config["vcf_parser_import"] = vcf_parser.get("import")
+    mutacc_config["vcf_parser_export"] = vcf_parser.get("export")
     mutacc_config["root_dir"] = parse_path(root_dir, file_type="dir")
     mutacc_config["demo"] = demo
 

@@ -1,13 +1,7 @@
 import pytest
 from pathlib import Path
 
-from mutacc.utils.vcf_writer import (
-    vcf_writer,
-    get_meta_info_from_dict,
-    HEADER,
-    write_info_header,
-    write_contigs,
-)
+from mutacc.utils.vcf_writer import vcf_writer, HEADER, write_info_header, write_contigs
 
 VARIANT1 = {
     "vcf_entry": "4\t65071643\t.\tT\t<INV>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
@@ -50,7 +44,7 @@ def test_vcf_writer(tmpdir, mock_real_adapter):
         assert count == len(VARIANTS)
 
 
-def test_vcf_write_with_spec(tmpdir, mock_real_adapter, config_dict):
+def test_vcf_write_with_spec(tmpdir, mock_real_adapter, vcf_parser):
 
     # GIVEN a file path, an adapter and a dictionary specifying what
     # should be passed to the INFO column from the database
@@ -59,11 +53,7 @@ def test_vcf_write_with_spec(tmpdir, mock_real_adapter, config_dict):
 
     # WHEN writing the vcf file
     vcf_writer(
-        VARIANTS,
-        out_vcf,
-        "father",
-        mock_real_adapter,
-        variant_info_spec=config_dict["vcf_info_export"],
+        VARIANTS, out_vcf, "father", mock_real_adapter, vcf_parser=vcf_parser["export"]
     )
 
     # THEN all variants should be written to the file
@@ -77,25 +67,11 @@ def test_vcf_write_with_spec(tmpdir, mock_real_adapter, config_dict):
         assert count == len(VARIANTS)
 
 
-def test_get_meta_info_from_dict(mock_real_adapter, config_dict):
-
-    # GIVEN an adapter, and a dictionary specifying what should be passed to
-    # the vcf-file from the database
-    case = mock_real_adapter.find_case({"case_id": "1111"})
-    info_spec = config_dict["vcf_info_export"]["case"]
-
-    # WHEN getting the entries for the INFO column
-    info_list = get_meta_info_from_dict(case, info_spec)
-
-    # THEN these should be returned as a list
-    assert isinstance(info_list, list)
-
-
-def test_write_info_header(tmpdir, config_dict):
+def test_write_info_header(tmpdir, vcf_parser):
 
     # GIVEN a file path and a dictionary specifying what should be passed to
     # the vcf-file from the database
-    info_spec = config_dict["vcf_info_export"]
+    info_spec = vcf_parser["export"]
 
     out_path = Path(tmpdir.mkdir("test_vcf_writer"))
     out_vcf = out_path.joinpath("test_write_info_header.vcf")
