@@ -60,8 +60,8 @@ def vcf_writer(found_variants, vcf_path, sample_name, adapter, vcf_parser=None):
 
             if vcf_parser is not None:
                 parser = INFOParser(vcf_parser, stream="write")
-                info_list.extend(parser.parse(case))
-                info_list.extend(parser.parse(variant))
+                info_list.extend([parser.parse(case)])
+                info_list.extend([parser.parse(variant)])
 
             info = ";".join(info_list)
             # write format field and gt
