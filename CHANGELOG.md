@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- User can specify what meta data to import/export from the vcf in a yaml file
+
+## [1.2.1]
+
 ### Changed
 
 - mutacc dumps files as json files for later import
