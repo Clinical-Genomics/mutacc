@@ -101,12 +101,13 @@ def write_info_header(vcf_parser, vcf_handle):
             vcf_handle (file handle): file handle to vcf_file
 
     """
-    template = '##INFO=<ID={},Number=1,Type={},Description="{}">\n'
+    template = '##INFO=<ID={},Number={},Type={},Description="{}">\n'
     for field in vcf_parser:
         vcf_id = field["out_name"]
         vcf_type = field["vcf_type"]
         vcf_desc = field["description"]
-        vcf_handle.write(template.format(vcf_id, vcf_type, vcf_desc))
+        vcf_number = "." if field.get("multivalue") else "1"
+        vcf_handle.write(template.format(vcf_id, vcf_number, vcf_type, vcf_desc))
 
 
 def write_contigs(variants, vcf_handle):
