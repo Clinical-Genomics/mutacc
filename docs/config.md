@@ -110,6 +110,7 @@ export:
     vcf_type: String
     out_name: ANN
     description: "Gene annotation, format: hgnc_id|gene_name"
+    target: all
     format_separator: "|"
 ```
 
@@ -120,7 +121,7 @@ ANN=ID1|GENE1,ID2|GENE2
 
 And a header
 ```
-##INFO=<ID=ANN,Number=1,Type=String,Description="Gene annotation, format: hgnc_id|gene_name">
+##INFO=<ID=ANN,Number=.,Type=String,Description="Gene annotation, format: hgnc_id|gene_name">
 ```
 
 In this way, it is up to the user what meta data is imported and exported in the vcf.
