@@ -175,8 +175,8 @@ class INFOParser:
                 info_list.append(str(element))
 
         out_name = parse_info["out_name"] or parse_info["id"]
-        info_entry = f"{out_name}{EQUALS}{COMMA.join(info_list)}"
-        return info_entry
+        info_field = get_vcf_info_field(info_list, out_name)
+        return info_field
 
     @staticmethod
     def _check(parse_info: list):
@@ -265,6 +265,11 @@ def _parse_multi_value(raw_value: str, parse_info: dict):
             element = raw_value_element
         info_list.append(element)
     return info_list
+
+
+def get_vcf_info_field(info_list: list, vcf_name: str):
+
+    return f"{vcf_name}{EQUALS}{COMMA.join(info_list)}"
 
 
 def vcf_writer(found_variants, vcf_path, sample_name, adapter, vcf_parser=None):

@@ -11,7 +11,7 @@ script:
 
 jobs:
     include:
-      - name: unittest
+      - name: unit tests
         script:
           - py.test -rxs --cov mutacc/ tests/
         after_success:
