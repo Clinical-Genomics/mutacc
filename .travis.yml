@@ -2,7 +2,6 @@ language: python
 
 python:
   - "3.6"
-  - "3.7"
 
 services:
   - mongodb
@@ -12,7 +11,12 @@ script:
 
 jobs:
     include:
-      - name: 'integrated test'
+      - name: unittest
+        script:
+          - py.test -rxs --cov mutacc/ tests/
+        after_success:
+          - coveralls
+      - name: 'integration test'
         script:
           - mutacc --demo extract --padding 100
           - mutacc --demo db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
