@@ -56,7 +56,6 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
         db_name = cli_config.get("database") or "mutacc"
         username = cli_config.get("username")
         password = cli_config.get("password")
-        vcf_info_export = cli_config.get("vcf_info_export")
         root_dir = cli_config.get("root_dir") or root_dir
         if not root_dir:
             LOG.warning(
@@ -64,14 +63,7 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
             )
             context.abort()
 
-    if vcf_parser is not None:
-        with open(vcf_parser, "r") as parser_handle:
-            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
-    elif cli_config.get("vcf_parser") is not None:
-        vcf_parser = cli_config["vcf_parser"]
-    else:
-        with open(default_vcf_parser, "r") as parser_handle:
-            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+    vcf_parser = get_vcf_parser(parser_file=vcf_parser, config_dict=cli_config)
 
     mutacc_config = {}
     mutacc_config["host"] = host
@@ -105,3 +97,24 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
 cli.add_command(extract_command)
 cli.add_command(synthesize_command)
 cli.add_command(database_group)
+
+
+def get_vcf_parser(parser_file: str = None, config_dict: dict = None):
+
+    """
+        Finds and return vcf parser specification from file, config or default
+
+        Args:
+            from_file(str): file path to yaml formatted parser specifications
+            from_config(dict): vcf
+    """
+    if parser_file:
+        with open(parser_file, "r") as parser_handle:
+            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+    elif config_dict and config_dict.get("vcf_parser"):
+        vcf_parser = config_dict["vcf_parser"]
+    else:
+        with open(default_vcf_parser, "r") as parser_handle:
+            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+
+    return vcf_parser

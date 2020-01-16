@@ -1,15 +1,14 @@
 ### IDs in INFO column that should be exracted from vcf to database.
 import:
   - id: ANN
-    multivalue: true
+    multi_value: true
     separator: ','
     format_separator: '|'
     format: 'hgnc_symbol|region_annotation|functional_annotation|sift_prediction|polyphen_prediction'
-    target: all
     out_type: list
     out_name: genes
   - id: RankScore
-    multivalue: False
+    multi_value: False
     out_type: int
     out_name: RankScore
 

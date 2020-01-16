@@ -8,7 +8,7 @@ import click
 
 from mutacc.parse.path_parse import make_dir
 from mutacc.mutaccDB.query import mutacc_query
-from mutacc.utils.vcf_writer import vcf_writer
+from mutacc.utils.vcf_handler import vcf_writer
 from mutacc.utils.sort_variants import sort_variants
 
 LOG = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 # mutacc configuration
 
-## vcf parsing
+## Vcf parsing
 
 In general, mutacc should allow any amount of meta data to be inserted to the database.
 To extract the relevant meta data from the INFO column in the passed vcf, the user
@@ -8,7 +8,7 @@ must specify what keys should be added to the variant document. This can be spec
 the config file passed with the `--config-file` option, adding a key 'vcf_parser' in the yaml file.
 Alternatively, this information can be passed on in a separate yaml file, using the `--vcf-parser` option.
 
-### import
+### Import
 
 To specify what information should be extracted from the INFO column upon importing to the database,
 each relevant key should be given as an element in an list. Below is an example of how
@@ -17,17 +17,17 @@ to extract a single valued field from INFO
 ```yaml
 import:
   - id: <ID> # the ID of the field in the vcf
-    multivalue: <true|false> # Specify if the field contains multiple values
+    multi_value: <true|false> # Specify if the field contains multiple values
     out_type: int # What datatype the value should be casted to
     out_name: <name> # This will be the name for the value in the variant document in the database
     ...
 ```
 
-If there are multiple values under one key in INFO, the key `multivalue` needs to
+If there are multiple values under one key in INFO, the key `multi_value` needs to
 be set to **true**, and the user must specify how the values are separated in the vcf
 by adding a `separator`, e.g. `separator: ','`.
 
-In case each data value in a multivalued key is given in a specific format, e.g.
+In case each data value in a multi valued key is given in a specific format, e.g.
 `...,value_1|value_2|value_3,...`. The user can specify the format under the `format` key
 , e.g. `format: 'value_1|value_2|value_3'` and specify how the data values are separated with
 the `format_separator` key, e.g. `format_separator: '1'`. Furthermore, the user can specify what data
@@ -39,18 +39,17 @@ target:
   _ value_2
 ...
 ```
-would only extract the first and third data value. Optionally if `target: all`,
+would only extract the first and third data value. Optionally if `target` is not given,
 all values would be extracted. to convert the INFO entry `ANN=a|b|c,d|e|f,g|h|i` in a vcf
 One could specify this in the yaml with
 
 ```yaml
 import:
   - id: ANN
-    multivalue: true
+    multi_value: true
     separator: ','
     format_separator: '|'
     format: 'value_1|value_2|value_3'
-    target: all
     out_type: list
     out_name: annotation
 ```  
@@ -65,7 +64,7 @@ This would give a `annotation` field in the mongodb variant document
   ]
 ```
 
-### export
+### Export
 
 When exporting with mutacc, a vcf of all queried variants will be created. Just as
 when importing from a vcf, what meta data that should get included in the exported vcf.
@@ -110,7 +109,6 @@ export:
     vcf_type: String
     out_name: ANN
     description: "Gene annotation, format: hgnc_id|gene_name"
-    target: all
     format_separator: "|"
 ```
 
