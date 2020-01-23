@@ -4,3 +4,35 @@ port: 27017
 username: testuser123
 password: abc123
 
+vcf_parser:
+  import:
+    - id: ANN
+      multivalue: true
+      separator: ','
+      format_separator: '|'
+      format: 'hgnc_symbol|region_annotation|functional_annotation|sift_prediction|polyphen_prediction'
+      target: all
+      out_type: list
+      out_name: genes
+    - id: RankScore
+      multivalue: False
+      out_type: int
+      out_name: RankScore
+      
+  export:
+    - id: RankScore,
+      out_name: MutaccRankScore
+      vcf_type: Integer
+      description: "The rankscore for this variant"
+    - id: rank_model_version
+      out_name: RMV
+      vcf_type: String
+      description: "Rank model version"
+    - id: sv_rank_model_version
+      out_name: SVRMV
+      vcf_type: Float
+      description: "SV Rank model version"
+    - id: case_id
+      out_name: case
+      vcf_type: String
+      description: "Name of case where variant is found"

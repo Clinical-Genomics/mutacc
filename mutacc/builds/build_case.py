@@ -12,11 +12,15 @@ from mutacc.utils.constants import PADDING
 
 LOG = logging.getLogger(__name__)
 
+
 class Case(dict):
     """
         Class with methods for handling case objects
     """
-    def __init__(self, input_case, read_dir, padding=None, picard_exe=None, vcf_parse=None):
+
+    def __init__(
+        self, input_case, read_dir, padding=None, picard_exe=None, vcf_parse=None
+    ):
 
         """
             Object is instantiated with a case, a dictionary giving all relevant information about
@@ -35,22 +39,19 @@ class Case(dict):
         super(Case, self).__init__()
 
         self.input_case = input_case
-        self.case_id = input_case['case']['case_id']
+        self.case_id = input_case["case"]["case_id"]
 
         # Build variants
-        rank_model_version = self.input_case['case'].get('rank_model_version')
-        self['variants'] = self._build_variants(padding=padding,
-                                                rank_model_version=rank_model_version,
-                                                vcf_parse=vcf_parse)
+        self["variants"] = self._build_variants(padding=padding, vcf_parse=vcf_parse)
 
         # Build samples
-        self['samples'] = self._build_samples(read_dir=read_dir,
-                                              padding=padding,
-                                              picard_exe=picard_exe)
+        self["samples"] = self._build_samples(
+            read_dir=read_dir, padding=padding, picard_exe=picard_exe
+        )
         # Build case
-        self['case'] = self.input_case['case']
+        self["case"] = self.input_case["case"]
 
-    def _build_variants(self, padding=None, rank_model_version=None, vcf_parse=None):
+    def _build_variants(self, padding=None, vcf_parse=None):
         """
             Method that parses the vcf in the case dictionary.
 
@@ -58,7 +59,6 @@ class Case(dict):
 
                 padding(int): given in bp, extends the region for where to look for reads in the
                               alignment file.
-                rank_model_version(str): The rank_model varsion that has been used
                 vcf_parse(str): path to yaml file with vcf parsing information
 
         """
@@ -68,10 +68,9 @@ class Case(dict):
 
         variant_objects = []
 
-        for variant_object in get_variants(self.input_case["variants"],
-                                           padding=padding,
-                                           rank_model_version=rank_model_version,
-                                           vcf_parse=vcf_parse):
+        for variant_object in get_variants(
+            self.input_case["variants"], padding=padding, vcf_parse=vcf_parse
+        ):
 
             # Append the variant object to the list
             variant_objects.append(variant_object)
@@ -90,16 +89,18 @@ class Case(dict):
                 stored.
         """
 
-        date_str = time.strftime('%Y-%m-%d')
+        date_str = time.strftime("%Y-%m-%d")
         sub_dir = f"{self.input_case['case']['case_id']}/{date_str}"
 
         case_dir = make_dir(read_dir.joinpath(sub_dir))
         sample_objects = []
-        for sample in get_samples(samples=self.input_case["samples"],
-                                  variants=self['variants'],
-                                  padding=padding,
-                                  picard_exe=picard_exe,
-                                  case_dir=case_dir):
+        for sample in get_samples(
+            samples=self.input_case["samples"],
+            variants=self["variants"],
+            padding=padding,
+            picard_exe=picard_exe,
+            case_dir=case_dir,
+        ):
 
             sample_objects.append(sample)
 

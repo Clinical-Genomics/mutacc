@@ -4,6 +4,7 @@
 #The only required field for case is a 'case_id.
 case:
     case_id: '12345'
+    rank_model_version: 1.25
 
 #samples
 #A list of samples. For each of the samples a 'sample_id' must be given, together

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from mutacc.parse.path_parse import parse_path, make_dir
 from mutacc.mutaccDB.db_adapter import MutaccAdapter
+from mutacc.resources import default_vcf_parser
 
 from .database import database_group as database_group
 from .extract import extract_command as extract_command
@@ -18,72 +19,77 @@ from .root_dirs import SUB_DIRS
 from mutacc import __version__
 
 
-
-LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 LOG = logging.getLogger(__name__)
 
+
 @click.group()
-@click.option('--loglevel', default='INFO', type=click.Choice(LOG_LEVELS))
-@click.option('-c', '--config-file', type=click.Path(exists=True))
-@click.option('-r', '--root-dir', type=click.Path(exists=True))
-@click.option('-d', '--demo', is_flag=True)
+@click.option("--loglevel", default="INFO", type=click.Choice(LOG_LEVELS))
+@click.option("-c", "--config-file", type=click.Path(exists=True))
+@click.option("-r", "--root-dir", type=click.Path(exists=True))
+@click.option("-d", "--demo", is_flag=True)
+@click.option("--vcf-parser", type=click.Path(exists=True))
 @click.version_option(__version__)
 @click.pass_context
-def cli(context, loglevel, config_file, root_dir, demo):
+def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
 
-    coloredlogs.install(level = loglevel)
-
+    coloredlogs.install(level=loglevel)
     LOG.info("Running mutacc")
 
     cli_config = {}
-
     if demo:
-        host = 'localhost'
+        host = "localhost"
         port = 27017
-        db_name = 'mutacc-demo'
+        db_name = "mutacc-demo"
         username = None
         password = None
-        root_dir = make_dir(root_dir or './mutacc_demo_root')
+        root_dir = make_dir(root_dir or "./mutacc_demo_root")
 
     else:
 
         if config_file:
-            with open(config_file, 'r') as in_handle:
+            with open(config_file, "r") as in_handle:
                 cli_config = yaml.load(in_handle, Loader=yaml.FullLoader)
 
-        host = cli_config.get('host') or 'localhost'
-        port = cli_config.get('port') or 27017
-        db_name = cli_config.get('database') or 'mutacc'
-        username = cli_config.get('username')
-        password = cli_config.get('password')
-        root_dir = cli_config.get('root_dir') or root_dir
+        host = cli_config.get("host") or "localhost"
+        port = cli_config.get("port") or 27017
+        db_name = cli_config.get("database") or "mutacc"
+        username = cli_config.get("username")
+        password = cli_config.get("password")
+        root_dir = cli_config.get("root_dir") or root_dir
         if not root_dir:
-            LOG.warning('Please provide a root directory, through option --root-dir or in config_file')
+            LOG.warning(
+                "Please provide a root directory, through option --root-dir or in config_file"
+            )
             context.abort()
 
-    mutacc_config = {}
-    mutacc_config['host'] = host
-    mutacc_config['port'] = port
-    mutacc_config['username'] = username
-    mutacc_config['password'] = password
-    mutacc_config['db_name'] = db_name
-    mutacc_config['root_dir'] = parse_path(root_dir, file_type = 'dir')
-    mutacc_config['demo'] = demo
+    vcf_parser = get_vcf_parser(parser_file=vcf_parser, config_dict=cli_config)
 
-    #Create subdirectories in root, if not already created
+    mutacc_config = {}
+    mutacc_config["host"] = host
+    mutacc_config["port"] = port
+    mutacc_config["username"] = username
+    mutacc_config["password"] = password
+    mutacc_config["db_name"] = db_name
+    mutacc_config["vcf_parser_import"] = vcf_parser.get("import")
+    mutacc_config["vcf_parser_export"] = vcf_parser.get("export")
+    mutacc_config["root_dir"] = parse_path(root_dir, file_type="dir")
+    mutacc_config["demo"] = demo
+
+    # Create subdirectories in root, if not already created
     for dir_type in SUB_DIRS.keys():
-        subdir = mutacc_config['root_dir'].joinpath(SUB_DIRS[dir_type])
+        subdir = mutacc_config["root_dir"].joinpath(SUB_DIRS[dir_type])
         mutacc_config[dir_type] = make_dir(subdir)
 
-    #Get binaries for picard and seqkit if specified in config
-    mutacc_config['binaries'] = {}
+    # Get binaries for picard and seqkit if specified in config
+    mutacc_config["binaries"] = {}
 
     binaries = {}
-    if cli_config.get('binaries'):
-        binaries = cli_config['binaries']
+    if cli_config.get("binaries"):
+        binaries = cli_config["binaries"]
 
-    mutacc_config['binaries']['picard'] = binaries.get('picard')
-    mutacc_config['binaries']['seqkit'] = binaries.get('seqkit')
+    mutacc_config["binaries"]["picard"] = binaries.get("picard")
+    mutacc_config["binaries"]["seqkit"] = binaries.get("seqkit")
 
     context.obj = mutacc_config
 
@@ -91,3 +97,24 @@ def cli(context, loglevel, config_file, root_dir, demo):
 cli.add_command(extract_command)
 cli.add_command(synthesize_command)
 cli.add_command(database_group)
+
+
+def get_vcf_parser(parser_file: str = None, config_dict: dict = None):
+
+    """
+        Finds and return vcf parser specification from file, config or default
+
+        Args:
+            from_file(str): file path to yaml formatted parser specifications
+            from_config(dict): vcf
+    """
+    if parser_file:
+        with open(parser_file, "r") as parser_handle:
+            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+    elif config_dict and config_dict.get("vcf_parser"):
+        vcf_parser = config_dict["vcf_parser"]
+    else:
+        with open(default_vcf_parser, "r") as parser_handle:
+            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+
+    return vcf_parser
