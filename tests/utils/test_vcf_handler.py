@@ -54,7 +54,7 @@ def test_INFOParser_parse_read():
     """
         Test parsing mocked variant entries given different parser info
     """
-    # test multi_value, array of arrays, eg separated with ',' and then  '|'
+    # GIVEN a mocked
     class MockVariant:
         def __init__(self, info_dict):
             self.INFO = info_dict
@@ -164,35 +164,14 @@ def test_INFOParser_parse_write_list_of_dict():
     assert parsed_variant == "parsed_value=1|2|3,4|5|6"
 
 
-VARIANT1 = {
-    "vcf_entry": "4\t65071643\t.\tT\t<INV>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
-    "end": 6,
-    "chrom": "7",
-    "genotype": {"GT": "1/0"},
-    "variant_type": "snp",
-    "_id": "456",
-    "case": "1111",
-}
-VARIANT2 = {
-    "vcf_entry": "6\t75071643\t.\tT\t<DUP>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
-    "end": 123,
-    "chrom": "X",
-    "genotype": {"GT": "1/1", "DP": 30},
-    "variant_type": "BND",
-    "_id": "123",
-    "case": "1111",
-}
-VARIANTS = [VARIANT1, VARIANT2]
-
-
-def test_vcf_writer(tmpdir, mock_real_adapter):
+def test_vcf_writer(tmpdir, mock_real_adapter, variants):
 
     # GIVEN a file path and an adapter
     out_path = Path(tmpdir.mkdir("test_vcf_writer"))
     out_vcf = out_path.joinpath("test_vcf_father.vcf")
 
     # WHEN writing vcf-file
-    vcf_writer(VARIANTS, out_vcf, "father", mock_real_adapter)
+    vcf_writer(variants, out_vcf, "father", mock_real_adapter)
 
     # THEN all variants should have been written to the file
     with open(out_vcf, "r") as handle:
@@ -202,10 +181,10 @@ def test_vcf_writer(tmpdir, mock_real_adapter):
             if not line.startswith("#"):
                 count += 1
 
-        assert count == len(VARIANTS)
+        assert count == len(variants)
 
 
-def test_vcf_write_with_spec(tmpdir, mock_real_adapter, vcf_parser):
+def test_vcf_write_with_spec(tmpdir, mock_real_adapter, vcf_parser, variants):
 
     # GIVEN a file path, an adapter and a dictionary specifying what
     # should be passed to the INFO column from the database
@@ -214,7 +193,7 @@ def test_vcf_write_with_spec(tmpdir, mock_real_adapter, vcf_parser):
 
     # WHEN writing the vcf file
     vcf_writer(
-        VARIANTS, out_vcf, "father", mock_real_adapter, vcf_parser=vcf_parser["export"]
+        variants, out_vcf, "father", mock_real_adapter, vcf_parser=vcf_parser["export"]
     )
 
     # THEN all variants should be written to the file
@@ -225,7 +204,7 @@ def test_vcf_write_with_spec(tmpdir, mock_real_adapter, vcf_parser):
             if not line.startswith("#"):
                 count += 1
 
-        assert count == len(VARIANTS)
+        assert count == len(variants)
 
 
 def test_write_info_header(tmpdir, vcf_parser):
@@ -247,7 +226,7 @@ def test_write_info_header(tmpdir, vcf_parser):
             assert line.startswith("##INFO=<ID")
 
 
-def test_write_contigs(tmpdir):
+def test_write_contigs(tmpdir, variants):
 
     # GIVEN a file path and a list of variants
     out_path = Path(tmpdir.mkdir("test_vcf_writer"))
@@ -255,7 +234,7 @@ def test_write_contigs(tmpdir):
 
     # WHEN writing the contigs in the header
     with open(out_vcf, "w") as vcf_handle:
-        write_contigs(VARIANTS, vcf_handle)
+        write_contigs(variants, vcf_handle)
 
     # THEN all lines should start with '##contig=<ID='
     with open(out_vcf, "r") as vcf_handle:

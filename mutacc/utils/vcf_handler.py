@@ -5,19 +5,20 @@ import logging
 import yaml
 
 from .constants import (
-    SEMICOLON,
     COLON,
     COMMA,
-    TYPES,
-    VCF_HEADER,
-    VCF_FILEFORMAT,
-    PIPE,
-    EQUALS,
-    TAB,
-    NEW_LINE,
     DOT,
+    EQUALS,
+    NEW_LINE,
+    PIPE,
+    SEMICOLON,
     SLASH,
+    TAB,
+    TYPES,
+    VCF_FILEFORMAT,
+    VCF_HEADER
 )
+
 
 LOG = logging.getLogger(__name__)
 

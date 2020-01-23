@@ -165,3 +165,27 @@ def dataset_dir():
 @pytest.fixture
 def ped_path():
     return PED_PATH
+
+VARIANT1 = {
+    "vcf_entry": "4\t65071643\t.\tT\t<INV>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
+    "end": 6,
+    "chrom": "7",
+    "genotype": {"GT": "1/0"},
+    "variant_type": "snp",
+    "_id": "456",
+    "case": "1111",
+}
+VARIANT2 = {
+    "vcf_entry": "6\t75071643\t.\tT\t<DUP>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
+    "end": 123,
+    "chrom": "X",
+    "genotype": {"GT": "1/1", "DP": 30},
+    "variant_type": "BND",
+    "_id": "123",
+    "case": "1111",
+}
+
+@pytest.fixture
+def variants():
+
+    return [VARIANT1, VARIANT2]
