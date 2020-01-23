@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.3.0]
 
 ### Added
 - User can specify what meta data to import/export from the vcf in a yaml file
