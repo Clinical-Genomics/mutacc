@@ -206,8 +206,8 @@ def make_family_from_case(case):
         individual = Individual(
             ind=sample['sample_id'],
             family=family_id,
-            mother=sample['mother'],
-            father=sample['father'],
+            mother=str(sample['mother']),
+            father=str(sample['father']),
             sex=sex,
             phenotype=phenotype,
             variant_bam_file=sample.get('variant_bam_file'),
