@@ -59,61 +59,6 @@ class BAMContext:
         read_names = [read.query_name for read in self.sam.fetch(chrom, start, end)]
         self.found_reads = self.found_reads.union(set(read_names))
 
-    def _find_reads_from_region(self, chrom, start, end):
-        """
-            Given a region defined by chrom, start, end, find all reads, and mates to those reads
-            overlapping with this region.
-
-            Args:
-                chrom(str): chromosome/contig name
-                start(int): start position
-                end(int): end position
-        """
-
-        # Fetch iterator for reads in given region
-        for read in self.sam.fetch(chrom, start, end):
-            # If name of read not among the keys in reads dict AND if both mates have not been found
-            # already make list to hold mates
-            read_name = read.query_name
-            if read_name not in self.reads.keys() and read_name not in self.found_reads:
-                self.reads[read_name] = []
-            # If both mates are not found already, append read to mate list in reads
-            # and write to bam_out. Remove mates from reads dictionary, and add name to found_reads
-            if read_name not in self.found_reads:
-                if not self.reads[read_name]:
-                    self.reads[read_name].append(read)
-                # Make sure the two reads is not the sameself.
-                # May happen if the region overlaps
-                elif str(self.reads[read.query_name][0]) != str(read):
-                    self.reads[read.query_name].append(read)
-
-                # If both mates are found
-                if len(self.reads[read.query_name]) == self.ends:
-                    self.found_reads = self.found_reads.union({read.query_name})
-                    # Write to file only if a out_dir is given in __init__
-                    if self.out_dir:
-                        for mate in self.reads[read.query_name]:
-                            self.out_bam.write(mate)
-                    self.reads.pop(read.query_name)
-
-        # Find the mates of the reads not found in the same region
-        keys = list(self.reads.keys())
-        for key in keys:
-            mate = self._find_mate(self.reads[key][0])
-            if mate:
-                self.reads[key].append(mate)
-                log_msg = (
-                    f"Mate found for read {key},"
-                    f" {self.reads[key][0].next_reference_id} \n"
-                    f"mate is unmapped: {self.reads[key][0].mate_is_unmapped}"
-                )
-                LOG.debug(log_msg)
-                if self.out_dir:
-                    for mate in self.reads[key]:
-                        self.out_bam.write(mate)
-                self.found_reads = self.found_reads.union({key})
-            self.reads.pop(key)
-
     def find_reads_from_region(self, chrom, start, end, brute=False, find_mates=True):
 
         for read in self.sam.fetch(chrom, start, end):
