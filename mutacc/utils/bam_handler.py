@@ -54,12 +54,33 @@ class BAMContext:
             pass
 
     def find_read_names_from_region(self, chrom, start, end):
+        """Adds the read names in region to the set found_reads
+
+            Args:
+                chrom (str): name of contig
+                start (int): start of region
+                end (int): end of region
+        """
 
         read_names = [read.query_name for read in self.bam.fetch(chrom, start, end)]
         self.found_reads = self.found_reads.union(set(read_names))
 
     def find_reads_from_region(self, chrom, start, end, brute=False, find_mates=True):
 
+        """
+            Writes the found reads in region to a new bam-file, if a out-dir is
+            given to the constructor, else adds the read names to set self.found_reads
+
+            Args:
+                chrom (str): name of contig
+                start (int): start of region
+                end (int): end of region
+                brute (bool): if True, finds the read mates just by looking in
+                    the proximity of specified region. If False, searches for the
+                    mate in the bam file.
+                find_mates (bool): If True, tries to find the mates of unmatched reads
+
+        """
         for read in self.bam.fetch(chrom, start, end):
             read_name = read.query_name
             if read_name in self.found_reads:
@@ -86,6 +107,10 @@ class BAMContext:
         self._reset_reads()
 
     def _flush_reads(self, read_name: str):
+        """Flushes the read pair to new bam-file
+            Args:
+                read_name (str): read name of read-pairs
+        """
         if self.out_dir:
             for end in self.reads[read_name]:
                 self.out_bam.write(end)
@@ -93,6 +118,9 @@ class BAMContext:
         self.reads.pop(read_name)
 
     def _find_mates_explicitly(self):
+        """
+            Find mates by looking in bam_file
+        """
         unmatched_reads = list(self.unmatched_reads)
         for unmatched_read in unmatched_reads:
             mate = self._find_mate(self.reads[unmatched_read][0])
@@ -105,6 +133,7 @@ class BAMContext:
             self.reads.pop(unmatched_read)
 
     def _find_mate(self, read):
+
         """
             Find mate for read
         """
@@ -115,6 +144,9 @@ class BAMContext:
         return mate
 
     def _find_mates_close(self, chrom, start, end):
+        """
+            Tries to find mates in specified region
+        """
         for read in self.bam.fetch(chrom, start, end):
             read_name = read.query_name
             if read_name in self.found_reads:
@@ -128,6 +160,9 @@ class BAMContext:
                 self._flush_reads(read_name)
 
     def _reset_reads(self):
+        """
+            Removes reads with no mates found
+        """
         self.reads.clear()
 
     @property
@@ -139,6 +174,7 @@ class BAMContext:
 
     @property
     def unmatched_reads(self):
+        """Returns reads without found mates"""
         _unmatched_reads = self.reads.keys()
         return _unmatched_reads
 
