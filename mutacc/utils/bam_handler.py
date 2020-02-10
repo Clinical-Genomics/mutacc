@@ -27,7 +27,7 @@ class BAMContext:
         """
         self.bam_file = parse_path(bam_file)
         self.file_name = self.bam_file.name
-        self.sam = pysam.AlignmentFile(self.bam_file, "rb")
+        self.bam = pysam.AlignmentFile(self.bam_file, "rb")
         self.reads = {}
         self.ends = 2 if paired else 1
         self.found_reads = set()
@@ -35,7 +35,7 @@ class BAMContext:
         if self.out_dir:
             self.out_dir = parse_path(out_dir, file_type="dir")
             self.out_name = out_dir.joinpath("mutacc_" + self.file_name)
-            self.out_bam = pysam.AlignmentFile(self.out_name, "wb", template=self.sam)
+            self.out_bam = pysam.AlignmentFile(self.out_name, "wb", template=self.bam)
 
     def __enter__(self):
 
@@ -43,9 +43,8 @@ class BAMContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
 
-        self.sam.close()
+        self.bam.close()
 
-        # If out_dir is given, also close the out_bam file created in __init__
         if self.out_dir:
             self.out_bam.close()
 
@@ -56,12 +55,12 @@ class BAMContext:
 
     def find_read_names_from_region(self, chrom, start, end):
 
-        read_names = [read.query_name for read in self.sam.fetch(chrom, start, end)]
+        read_names = [read.query_name for read in self.bam.fetch(chrom, start, end)]
         self.found_reads = self.found_reads.union(set(read_names))
 
     def find_reads_from_region(self, chrom, start, end, brute=False, find_mates=True):
 
-        for read in self.sam.fetch(chrom, start, end):
+        for read in self.bam.fetch(chrom, start, end):
             read_name = read.query_name
             if read_name in self.found_reads:
                 continue
@@ -110,13 +109,13 @@ class BAMContext:
             Find mate for read
         """
         try:
-            mate = self.sam.mate(read)
+            mate = self.bam.mate(read)
         except ValueError:
             mate = None
         return mate
 
     def _find_mates_close(self, chrom, start, end):
-        for read in self.sam.fetch(chrom, start, end):
+        for read in self.bam.fetch(chrom, start, end):
             read_name = read.query_name
             if read_name in self.found_reads:
                 continue
