@@ -22,8 +22,9 @@ class BAMContext:
     def __init__(self, bam_file, out_dir=None, paired=True):
         """
             Args:
-                bam_file(str): path to bam file
-                ends(int): 2 if paired end reads, 1 if not
+                bam_file (str): path to bam file
+                out_dir (Path): Directory where new bam-file is created
+                pared (bool): If bam containes paired reads
         """
         self.bam_file = parse_path(bam_file)
         self.file_name = self.bam_file.name
@@ -264,7 +265,7 @@ def get_overlaping_reads(file_name, chrom, start, end):
     """Extracts all read names from a bam file, overlapping the specified region.
 
         Args:
-            fileName (string): name of bam file
+            file_name (string): name of bam file
             chrom (string): name of chromosome
             start (int): start of region
             end (int): end of region
