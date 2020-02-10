@@ -273,8 +273,8 @@ def get_overlaping_reads(file_name, chrom, start, end):
             reads (set): set of read names.
     """
     file_name = parse_path(file_name)
-    sam_file = pysam.AlignmentFile(file_name, "rb")
-    reads = sam_file.fetch(reference=chrom, start=start, end=end)
+    bam_file = pysam.AlignmentFile(file_name, "rb")
+    reads = bam_file.fetch(reference=chrom, start=start, end=end)
     ids = [read.query_name for read in reads]
-    sam_file.close()
+    bam_file.close()
     return set(ids)
