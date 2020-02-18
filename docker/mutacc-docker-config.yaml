@@ -1,4 +1,0 @@
-port: 27017
-host: mutacc-db
-database: mutacc
-root_dir: /mutacc/mutacc_root
