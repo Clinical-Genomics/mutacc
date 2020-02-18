@@ -25,22 +25,17 @@ RUN apt-get update --fix-missing && apt-get install -y \
         wget \
         zlib1g-dev && apt-get clean
 
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     source /opt/conda/etc/profile.d/conda.sh && \
-    conda install -c bioconda cython numpy seqkit picard && \
     conda clean -tipsy
 
 RUN conda config --add channels defaults && \
     conda config --add channels conda-forge && \
     conda config --add channels bioconda && \
-    conda install --yes python=3.6 cython numpy picard seqkit && \
-    conda clean -tipsy && \
-    pip install -e source/mutacc
+    conda install --yes python=3.6 cython=0.29 numpy=1.17 picard=2.18 seqkit=0.11 && \
+    conda clean -tipsy
 
-ENV MUTACC_CONFIG_PATH /root/mutacc-config.yaml
-COPY docker/mutacc-docker-config.yaml $MUTACC_CONFIG_PATH
-
-ENTRYPOINT ["mutacc", "--config-file", "/root/mutacc-config.yaml"]
+RUN pip install source/mutacc
