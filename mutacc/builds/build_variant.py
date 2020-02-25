@@ -18,18 +18,34 @@ class Variant(dict):
         Class to represent variant
     """
 
-    def __init__(self, vcf_entry, samples, padding, parser=None):
+    def __init__(self, vcf_entry, samples, padding, sv_padding, parser=None):
 
         super(Variant, self).__init__()
 
         self.entry = vcf_entry
         self.samples = samples
-
-        self.build_variant_object(padding)
-        self.entry = str(self.entry)
+        self.padding = padding
+        self.sv_padding = sv_padding
+        self.build_variant_object()
 
         if parser is not None:
             self.update(parser.parse(vcf_entry))
+
+    def _get_padding(self, variant_type):
+
+        if variant_type == "SNV":
+            return self.padding
+
+        if self.entry.INFO.get("CIPOS") and self.entry.INFO.get("CIEND"):
+
+            cipos = abs(self.entry.INFO["CIPOS"][0])
+            ciend = abs(self.entry.INFO["CIEND"][-1])
+            ci = max([cipos, ciend])
+            return ci + self.sv_padding
+
+        return self.sv_padding
+
+
 
     def _find_region(self, padding):
         """
@@ -101,15 +117,16 @@ class Variant(dict):
 
         return samples
 
-    def build_variant_object(self, padding):
+    def build_variant_object(self):
         """
             makes a dictionary of the variant to be loaded into a mongodb
         """
 
         # Find genotype and sample id for the samples given in the vcf file
-        region = self._find_region(padding)
         samples = self._find_genotypes()
         variant_type, variant_subtype = self._find_type()
+        padding = self._get_padding(variant_type=variant_type)
+        region = self._find_region(padding)
 
         self["display_name"] = self.display_name
         self["variant_type"] = variant_type
@@ -167,7 +184,7 @@ def resolve_cyvcf2_genotype(cyvcf2_gt):
     return genotype
 
 
-def get_variants(vcf_file, padding, vcf_parse=None):
+def get_variants(vcf_file, padding, sv_padding, vcf_parse=None):
 
     """
 
@@ -188,5 +205,5 @@ def get_variants(vcf_file, padding, vcf_parse=None):
     if vcf_parse:
         parser = INFOParser(vcf_parse, "read")
     for entry in vcf:
-        yield Variant(entry, samples, padding, parser=parser)
+        yield Variant(entry, samples, padding, sv_padding, parser=parser)
     vcf.close()

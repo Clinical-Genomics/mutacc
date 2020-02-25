@@ -43,6 +43,8 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
         db_name = "mutacc-demo"
         username = None
         password = None
+        padding = 300
+        sv_padding = 1000
         root_dir = make_dir(root_dir or "./mutacc_demo_root")
 
     else:
@@ -57,6 +59,9 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
         username = cli_config.get("username")
         password = cli_config.get("password")
         root_dir = cli_config.get("root_dir") or root_dir
+        padding = cli_config.get("padding")
+        sv_padding = cli_config.get("sv_padding")
+
         if not root_dir:
             LOG.warning(
                 "Please provide a root directory, through option --root-dir or in config_file"
@@ -75,6 +80,9 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
     mutacc_config["vcf_parser_export"] = vcf_parser.get("export")
     mutacc_config["root_dir"] = parse_path(root_dir, file_type="dir")
     mutacc_config["demo"] = demo
+    mutacc_config["padding"] = padding
+    mutacc_config["sv_padding"] = sv_padding
+
 
     # Create subdirectories in root, if not already created
     for dir_type in SUB_DIRS.keys():

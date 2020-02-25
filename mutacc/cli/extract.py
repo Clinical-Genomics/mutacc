@@ -9,6 +9,7 @@ import click
 
 from mutacc.parse.yaml_parse import yaml_parse
 from mutacc.builds.build_case import Case
+from mutacc.cli.constants import PADDING, SV_PADDING
 
 from mutacc.resources import DEMO_CASE
 
@@ -25,10 +26,11 @@ LOG = logging.getLogger(__name__)
         "to include or example .yaml file in data/data.yaml"
     ),
 )
-@click.option("--padding", type=int, default=1000)
+@click.option("--padding", type=int)
+@click.option("--sv-padding", type=int)
 @click.option("--picard-executable", type=click.Path(exists=True))
 @click.pass_context
-def extract_command(context, case, padding, picard_executable):
+def extract_command(context, case, padding, sv_padding, picard_executable):
 
     """
         extract reads from case
@@ -44,10 +46,13 @@ def extract_command(context, case, padding, picard_executable):
         input_case = yaml_parse(case)
 
     picard_executable = context.obj["binaries"].get("picard") or picard_executable
+    padding = padding or context.obj.get("padding") or PADDING
+    sv_padding = sv_padding or context.obj.get("sv_padding") or SV_PADDING
     case_obj = Case(
         input_case=input_case,
         read_dir=read_dir,
         padding=padding,
+        sv_padding=sv_padding,
         picard_exe=picard_executable,
         vcf_parse=context.obj.get("vcf_parser_import"),
     )
