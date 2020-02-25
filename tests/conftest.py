@@ -142,6 +142,7 @@ def mock_real_adapter(tmpdir, vcf_parser):
         input_case=case,
         read_dir=mutacc_dir,
         padding=200,
+        sv_padding=1000,
         vcf_parse=vcf_parser["import"],
     )
 

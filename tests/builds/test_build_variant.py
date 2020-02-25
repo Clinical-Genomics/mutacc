@@ -31,7 +31,7 @@ def test_get_variants(vcf_parser):
 
     count = 0
     for variant in get_variants(
-        "tests/fixtures/vcf_test.vcf", padding=100, vcf_parse=vcf_parser["import"]
+        "tests/fixtures/vcf_test.vcf", padding=100, sv_padding=300, vcf_parse=vcf_parser["import"]
     ):
         count += 1
         assert isinstance(variant, Variant)
@@ -46,7 +46,7 @@ def test_variant_with_parser(vcf_parser):
 
     # Try with parser
     for variant in get_variants(
-        "tests/fixtures/vcf_test.vcf", padding=1000, vcf_parse=vcf_parser["import"]
+        "tests/fixtures/vcf_test.vcf", padding=1000, sv_padding=1300, vcf_parse=vcf_parser["import"]
     ):
 
         assert set(variant.keys()) == set(VARIANT_FIELDS)
@@ -56,6 +56,6 @@ def test_variant_without_parser():
     """
         Test variant without info parser
     """
-    for variant in get_variants("tests/fixtures/vcf_test.vcf", padding=300):
+    for variant in get_variants("tests/fixtures/vcf_test.vcf", padding=300, sv_padding=1000):
 
         assert set(variant.keys()) == set(VARIANT_FIELDS) - {"genes", "RankScore"}

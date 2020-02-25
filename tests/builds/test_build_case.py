@@ -19,7 +19,7 @@ def test_case(tmpdir, vcf_parser):
 
     tmp_dir = Path(tmpdir.mkdir("build_case_test"))
     case = Case(
-        input_case=CASE, read_dir=tmp_dir, padding=100, vcf_parse=vcf_parser["import"]
+        input_case=CASE, read_dir=tmp_dir, padding=100, sv_padding=300, vcf_parse=vcf_parser["import"]
     )
 
     for sample in case["samples"]:
@@ -32,6 +32,7 @@ def test_case(tmpdir, vcf_parser):
         input_case=CASE_FASTQ,
         read_dir=tmp_dir,
         padding=100,
+        sv_padding=300,
         vcf_parse=vcf_parser["import"],
     )
 

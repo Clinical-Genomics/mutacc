@@ -31,6 +31,8 @@ class Variant(dict):
         if parser is not None:
             self.update(parser.parse(vcf_entry))
 
+        del self.entry
+
     def _get_padding(self, variant_type):
 
         if variant_type == "SNV":
