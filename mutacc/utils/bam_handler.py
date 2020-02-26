@@ -225,9 +225,9 @@ class BAMContext:
             insert_sizes.append(read.template_length)
             if count == no_reads:
                 break
-        mean_length = acc_length / no_reads
+        mean_length = acc_length / count
         insert_sizes.sort()
-        median_insert_size = insert_sizes[int(no_reads/2)]
+        median_insert_size = insert_sizes[int(count/2)]
 
 
         return paired, mean_length, median_insert_size
