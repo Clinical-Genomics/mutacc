@@ -227,7 +227,7 @@ class BAMContext:
                 break
         mean_length = acc_length / no_reads
         insert_sizes.sort()
-        median_insert_size = insert_sizes[no_reads/2]
+        median_insert_size = insert_sizes[int(no_reads/2)]
 
 
         return paired, mean_length, median_insert_size
