@@ -217,7 +217,7 @@ class BAMContext:
         paired = False
         count = 0
         no_reads = 10000
-        for read in self.bam():
+        for read in self.bam:
             count += 1
             if read.is_paired:
                 paired = True
@@ -231,30 +231,6 @@ class BAMContext:
 
 
         return paired, mean_length, median_insert_size
-
-
-    def get_length(bam_file):
-        """Calculate the average read length from first 1000 reads in bam
-        Args:
-            bam_file (path): path to bam file
-        Returns:
-            average_length (int): average read length
-        """
-        acc_length = 0
-        acc_insert_size = 0
-
-        with pysam.AlignmentFile(bam_file) as bam:
-            count = 0
-            for read in bam:
-                count += 1
-                acc_length += read.query_length
-                acc_insert_size += read.temlate_length
-                if count == 1000:
-                    break
-
-        average_length = acc_length / 1000
-
-        return average_length
 
 
     def _adjust_padding(self, padding):
