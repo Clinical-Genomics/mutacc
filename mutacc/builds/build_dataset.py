@@ -5,7 +5,7 @@
 import logging
 import os
 
-from mutacc.utils.bam_handler import (BAMContext, get_real_padding, get_length)
+from mutacc.utils.bam_handler import BAMContext
 from mutacc.subprocessing.exclude_from_fastq import exclude_from_fastq
 from mutacc.subprocessing.merge_fastqs import merge_fastqs as merge_fastqs_sub
 from mutacc.parse.path_parse import parse_path
@@ -56,16 +56,13 @@ class Dataset():
         bam_file = parse_path(self.background["bam_file"])
         fastq_files = [parse_path(fastq) for fastq in self.background["fastq_files"]]
 
-        read_length = get_length(bam_file)
-
         with BAMContext(bam_file=bam_file) as bam_handle:
             #for each region, find the reads overlapping
             for variant in self.variants:
-
-                padding = get_real_padding(read_length, padding=variant['padding'])
-                bam_handle.find_read_names_from_region(chrom=variant['chrom'],
-                                                       start=variant['start']-padding,
-                                                       end=variant['end']+padding)
+                bam_handle.find_read_names_from_region(chrom=variant["chrom"],
+                                                       start=variant["start"],
+                                                       end=variant["end"],
+                                                       padding=variant["padding"])
 
             log_msg = f"{bam_handle.record_number} reads to be excluded from {fastq_files}"
             LOG.info(log_msg)
