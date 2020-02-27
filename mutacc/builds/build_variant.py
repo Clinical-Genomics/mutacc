@@ -38,12 +38,15 @@ class Variant(dict):
         if variant_type == "SNV":
             return self.padding
 
-        if self.entry.INFO.get("CIPOS") and self.entry.INFO.get("CIEND"):
+        if self.entry.INFO.get("CIPOS") or self.entry.INFO.get("CIEND"):
 
-            cipos = abs(self.entry.INFO["CIPOS"][0])
-            ciend = abs(self.entry.INFO["CIEND"][-1])
-            ci = max([cipos, ciend])
-            return ci + self.sv_padding
+            cis = []
+            if self.entry.INFO.get("CIPOS"):
+                cis.append(abs(self.entry.INFO["CIPOS"][0]))
+            if self.entry.INFO.get("CIEND"):
+                cis.append(abs(self.entry.INFO["CIEND"][-1]))
+            ci_max = max(cis)
+            return ci_max + self.sv_padding
 
         return self.sv_padding
 
