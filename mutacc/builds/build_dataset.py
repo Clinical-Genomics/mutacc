@@ -59,10 +59,10 @@ class Dataset():
         with BAMContext(bam_file=bam_file) as bam_handle:
             #for each region, find the reads overlapping
             for variant in self.variants:
-                bam_handle.find_read_names_from_region(chrom=variant["chrom"],
-                                                       start=variant["start"],
-                                                       end=variant["end"],
-                                                       padding=variant["padding"])
+                bam_handle.find_names_from_region(chrom=variant["chrom"],
+                                                  start=variant["start"],
+                                                  end=variant["end"],
+                                                  padding=variant["padding"])
 
             log_msg = f"{bam_handle.record_number} reads to be excluded from {fastq_files}"
             LOG.info(log_msg)

@@ -14,7 +14,7 @@ from .database import database_group as database_group
 from .extract import extract_command as extract_command
 from .synthesize import synthesize_command as synthesize_command
 
-from .root_dirs import SUB_DIRS
+from .constants import SUB_DIRS, PADDING, SV_PADDING
 
 from mutacc import __version__
 
@@ -43,8 +43,8 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
         db_name = "mutacc-demo"
         username = None
         password = None
-        padding = 300
-        sv_padding = 1000
+        padding = PADDING
+        sv_padding = SV_PADDING
         root_dir = make_dir(root_dir or "./mutacc_demo_root")
 
     else:

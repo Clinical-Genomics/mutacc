@@ -42,7 +42,7 @@ class BAMContext:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Closes file handles and deletes tnp files"""
+        """Closes file handles and deletes tmp files"""
 
         self.bam.close()
 
@@ -54,7 +54,7 @@ class BAMContext:
         except AttributeError:
             pass
 
-    def find_read_names_from_region(self, chrom, start, end, padding=None):
+    def find_names_from_region(self, chrom, start, end, padding=None):
         """Adds the read names in region to the set found_reads
 
             Args:
@@ -209,25 +209,28 @@ class BAMContext:
             bam_file (path): path to bam file
 
         Returns:
-            paired (bool): True if reads are paired
+            (paired (bool), mean_length (int), median_insert_size (int)):
+            paired: True if reads are paired
+            mean_length: mean read length
+            median_insert_size: median insert size
         """
 
         insert_sizes = []
         acc_length = 0
         paired = False
-        count = 0
-        no_reads = 10000
+        read_count = 0
+        MAX_READ_COUNT = 10000
         for read in self.bam:
-            count += 1
+            read_count += 1
             if read.is_paired:
                 paired = True
             acc_length += read.query_length
-            insert_sizes.append(read.template_length)
-            if count == no_reads:
+            insert_sizes.append(abs(read.template_length))
+            if read_count == MAX_READ_COUNT:
                 break
-        mean_length = acc_length / count
+        mean_length = acc_length / read_count
         insert_sizes.sort()
-        median_insert_size = insert_sizes[int(count/2)]
+        median_insert_size = insert_sizes[int(read_count/2)]
 
 
         return paired, mean_length, median_insert_size

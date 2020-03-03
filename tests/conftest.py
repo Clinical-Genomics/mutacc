@@ -21,20 +21,21 @@ from .random_case import random_trio
 DATASET_DIR = "tests/fixtures/dataset/"
 PED_PATH = "tests/fixtures/dataset/dataset.ped"
 CONFIG_PATH = "tests/fixtures/config.yaml"
-
+BAM_PATH = "tests/fixtures/reduced_ref_4_1000000_10002000.bam"
 
 @pytest.fixture
-def read_ids_fixed():
+def bam_path():
+    return BAM_PATH
+
+@pytest.fixture
+def read_ids_fixed(bam_path):
     """
         IDs for reads in bam file
     """
 
-    sam = AlignmentFile("tests/fixtures/reduced_ref_4_1000000_10002000.bam", "rb")
-
+    sam = AlignmentFile(bam_path, "rb")
     ids = set([read.query_name for read in sam])
-
     sam.close()
-
     return ids
 
 

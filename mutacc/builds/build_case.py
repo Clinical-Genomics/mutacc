@@ -69,7 +69,10 @@ class Case(dict):
         variant_objects = []
 
         for variant_object in get_variants(
-            self.input_case["variants"], padding=padding, sv_padding=sv_padding, vcf_parse=vcf_parse
+                vcf_file=self.input_case["variants"],
+                padding=padding,
+                sv_padding=sv_padding,
+                vcf_parse=vcf_parse
         ):
 
             # Append the variant object to the list

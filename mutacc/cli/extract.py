@@ -26,8 +26,8 @@ LOG = logging.getLogger(__name__)
         "to include or example .yaml file in data/data.yaml"
     ),
 )
-@click.option("--padding", type=int)
-@click.option("--sv-padding", type=int)
+@click.option("--padding", type=int, help="padding around SNVs and indels")
+@click.option("--sv-padding", type=int, help="padding around SVs")
 @click.option("--picard-executable", type=click.Path(exists=True))
 @click.pass_context
 def extract_command(context, case, padding, sv_padding, picard_executable):

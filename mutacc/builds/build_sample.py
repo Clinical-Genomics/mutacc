@@ -51,7 +51,7 @@ class Sample(dict):
         with BAMContext(bam_file=self.bam_file) as bam_handle:
             for variant in self.variants:
 
-                bam_handle.find_read_names_from_region(
+                bam_handle.find_names_from_region(
                     chrom=variant["chrom"],
                     start=variant["start"],
                     end=variant["end"],
