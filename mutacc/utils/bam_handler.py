@@ -95,7 +95,11 @@ class BAMContext:
                 paired_read = pair_list[0]
                 if str(paired_read) == str(read):
                     continue
-                pair_list.append(read)
+                if read.is_read1:
+                    pair_list.insert(0, read)
+                else:
+                    pair_list.append(read)
+
             else:
                 self.reads[read_name] = [read]
             if len(self.reads[read_name]) == self.ends:
@@ -130,7 +134,10 @@ class BAMContext:
         for unmatched_read in unmatched_reads:
             mate = self._find_mate(self.reads[unmatched_read][0])
             if mate:
-                self.reads[unmatched_read].append(mate)
+                if mate.is_read1:
+                    self.reads[unmatched_read].insert(0, mate)
+                else:
+                    self.reads[unmatched_read].append(mate)
                 if self.out_dir:
                     for end in self.reads[unmatched_read]:
                         self.out_bam.write(end)
