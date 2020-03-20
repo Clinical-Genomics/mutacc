@@ -18,7 +18,7 @@ URL = 'https://github.com/Clinical-Genomics/mutacc'
 EMAIL = 'adam.rosenbaum@scilifelab.se'
 AUTHOR = 'Adam Rosenbaum'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '1.3.2'
+VERSION = '1.4.0'
 
 here = os.path.abspath(os.path.dirname(__file__))
 
