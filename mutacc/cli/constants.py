@@ -1,9 +1,5 @@
-"""
-    Names of directories placed under the root-dir given by the user
-    The root dir is specified using the --root-dir option or
-    in the config file
-"""
-
+PADDING = 300
+SV_PADDING = 1000
 
 SUB_DIRS = {
 

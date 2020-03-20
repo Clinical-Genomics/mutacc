@@ -4,11 +4,7 @@
 
 import logging
 
-from mutacc.utils.bam_handler import (get_overlaping_reads,
-                                      BAMContext,
-                                      check_bam,
-                                      get_real_padding,
-                                      get_length)
+from mutacc.utils.bam_handler import BAMContext
 from mutacc.parse.path_parse import make_dir, parse_path
 from mutacc.utils.fastq_handler import fastq_extract
 from mutacc.subprocessing.bam_to_fastq import bam_to_fastq
@@ -37,39 +33,31 @@ class Sample(dict):
 
     def _build_sample(self):
 
-        # Get read length and calculate the wanted padding
-        read_length = get_length(self.bam_file)
-        real_padding = get_real_padding(read_length, padding=self.padding)
-
         sample_dir = make_dir(
             self.case_dir.joinpath(self.input_sample['sample_id'])
         )
 
-        # Check if reads are paired
-        paired = check_bam(self.bam_file)
-        self['paired_reads'] = paired
-
         if self.input_sample.get('fastq_files'):
-            self._extract_fastq(real_padding, sample_dir)
+            self._extract_fastq(sample_dir)
         else:
-            self._extract_bam(real_padding, sample_dir, paired=paired)
+            self._extract_bam(sample_dir)
 
-    def _extract_fastq(self, real_padding, sample_dir):
+    def _extract_fastq(self, sample_dir):
 
-        read_ids = set() #Holds the read_ids from the bam file
 
         # For each variant, the reads spanning this genomic region in
         # the bam file are found
-        for variant in self.variants:
 
-            overlapping = get_overlaping_reads(
-                start=variant["start"] - real_padding,
-                end=variant["end"] + real_padding,
-                chrom=variant["chrom"],
-                file_name=self.bam_file
-            )
+        with BAMContext(bam_file=self.bam_file) as bam_handle:
+            for variant in self.variants:
 
-            read_ids = read_ids.union(overlapping)
+                bam_handle.find_names_from_region(
+                    chrom=variant["chrom"],
+                    start=variant["start"],
+                    end=variant["end"],
+                    padding=variant["padding"])
+
+                read_ids = bam_handle.found_reads
 
         log_msg = f"{len(read_ids)} reads found for sample {self.input_sample['sample_id']}"
         LOG.info(log_msg)
@@ -90,16 +78,17 @@ class Sample(dict):
         self['variant_fastq_files'] = variant_fastq_files
 
 
-    def _extract_bam(self, real_padding, sample_dir, paired=True):
+    def _extract_bam(self, sample_dir):
 
-        with BAMContext(self.bam_file, out_dir=sample_dir, paired=paired) as bam_handle:
+        with BAMContext(self.bam_file, out_dir=sample_dir) as bam_handle:
 
             for variant in self.variants:
 
                 bam_handle.find_reads_from_region(
                     chrom=variant["chrom"],
-                    start=variant["start"] - real_padding,
-                    end=variant["end"] + real_padding
+                    start=variant["start"],
+                    end=variant["end"],
+                    padding=variant["padding"]
                 )
 
             log_msg = "{} reads found for sample {}".format(
@@ -107,12 +96,10 @@ class Sample(dict):
                 self.input_sample['sample_id']
             )
             LOG.info(log_msg)
-
             variant_bam_file = bam_handle.out_file
-
             self.input_sample["variant_bam_file"] = variant_bam_file
-
             file_name = parse_path(variant_bam_file).name
+            paired = bam_handle.paired
 
         # Convert bam to fastq
         fastq1 = str(sample_dir.joinpath(file_name.split('.')[0] + '_R1.fastq.gz'))
