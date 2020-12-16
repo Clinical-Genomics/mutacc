@@ -10,6 +10,7 @@ from mutacc.utils.vcf_handler import (
     vcf_writer,
     write_info_header,
     write_contigs,
+    write_filter_headers
 )
 
 
@@ -240,3 +241,19 @@ def test_write_contigs(tmpdir, variants):
     with open(out_vcf, "r") as vcf_handle:
         for line in vcf_handle:
             assert line.startswith("##contig=<ID=")
+
+
+def test_write_filter_headers(tmpdir, variants):
+
+    # GIVEN a file path and a list of variants
+    out_path = Path(tmpdir.mkdir("test_vcf_writer"))
+    out_vcf = out_path.joinpath("test_write_filters.vcf")
+
+    # WHEN writing the filters in the header
+    with open(out_vcf, "w") as vcf_handle:
+        write_filter_headers(variants, vcf_handle)
+
+    # THEN all lines should start with '##FILTER=<ID='
+    with open(out_vcf, "r") as vcf_handle:
+        line = vcf_handle.readline()
+        assert line == '##FILTER=<ID=Ploidy,Description="Ploidy">\n'
