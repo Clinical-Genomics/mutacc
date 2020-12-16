@@ -392,7 +392,6 @@ def write_filter_headers(variants, vcf_handle):
     template = '##FILTER=<ID={},Description="{}">\n'
     found_filters = {"PASS", DOT}
     for variant in variants:
-        print(variant)
         variant_filter = variant["vcf_entry"].strip(NEW_LINE).split(TAB)[6]
         if variant_filter in found_filters:
             continue
