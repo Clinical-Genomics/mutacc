@@ -295,6 +295,7 @@ def vcf_writer(found_variants, vcf_path, sample_name, adapter, vcf_parser=None):
             write_info_header(vcf_parser, vcf_handle)
         for header_line in VCF_HEADER:
             vcf_handle.write(header_line + NEW_LINE)
+        write_filter_headers(found_variants, vcf_handle)
         write_contigs(found_variants, vcf_handle)
         vcf_handle.write(
             f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{sample_name}\n"
@@ -376,5 +377,23 @@ def write_contigs(variants, vcf_handle):
     for variant in variants:
         if variant["chrom"] in found_contigs:
             continue
-        found_contigs.update(variant["chrom"])
+        found_contigs.add(variant["chrom"])
         vcf_handle.write(template.format(variant["chrom"]) + NEW_LINE)
+
+
+def write_filter_headers(variants, vcf_handle):
+    """
+        Writes filter headers
+
+        Args:
+            variants(list(dict)): list of variants
+            vcf_handle (file handle): file handle to vcf_file
+    """
+    template = '##FILTER=<ID={},Description="{}">\n'
+    found_filters = {"PASS", DOT}
+    for variant in variants:
+        variant_filter = variant["vcf_entry"].strip(NEW_LINE).split(TAB)[6]
+        if variant_filter in found_filters:
+            continue
+        found_filters.add(variant_filter)
+        vcf_handle.write(template.format(variant_filter, variant_filter))

@@ -178,7 +178,7 @@ VARIANT1 = {
     "case": "1111",
 }
 VARIANT2 = {
-    "vcf_entry": "6\t75071643\t.\tT\t<DUP>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
+    "vcf_entry": "6\t75071643\t.\tT\t<DUP>\t100\tPloidy\tSOMATIC;SVTYPE=INV\tGT\t./.",
     "end": 123,
     "chrom": "X",
     "genotype": {"GT": "1/1", "DP": 30},
