@@ -13,17 +13,30 @@ services:
     expose:
       - '27017'
 
-  # Service that extracts the reads from the case and saves them to database
-  mutacc-demodata:
+  # Does nothing for now, but can be invoked to run commands
+  mutacc-cli:
     build: .
-    image: mutacc-demodata
+    container_name: mutacc-cli
+    networks:
+      - mutacc-net
+    depends_on:
+      - mongodb
+      - mutacc-demodata
+
+  # Service that extracts the reads from the case and saves them to database and exports results
+  mutacc-demodata:
+    image: mutacc-cli
+    container_name: mutacc-demodata
     networks:
       - mutacc-net
     depends_on:
       - mongodb
     command: bash -c "
       mutacc --root-dir . extract --padding 600 -c mutacc/resources/case.yaml &&
-      mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import.mutacc"
+      mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import.mutacc &&
+      mutacc --root-dir . db -h mongodb -p 27017 export -m affected"
+    volumes:
+        - ./:/home/worker/app
 
 networks:
   mutacc-net:
