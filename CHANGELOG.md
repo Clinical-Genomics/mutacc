@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## []
+### Added
+- A docker-compose file that loads demo data on a MongoDB instance and exports results to host current directory
+### Changed
+- Dockerfile now based on a miniconda3 image and commands are runned from non-root user
+
 ## [1.3.0]
 
 ### Added
