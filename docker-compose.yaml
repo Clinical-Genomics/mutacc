@@ -1,0 +1,30 @@
+version: '3'
+# usage:
+# (sudo) docker-compose up
+# (sudo) docker-compose down
+services:
+  mongodb:
+    image: mongo:4.4.9
+    container_name: mongodb
+    networks:
+      - mutacc-net
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+
+  # Service that extracts the reads from the case and saves them to database
+  mutacc-demodata:
+    build: .
+    image: mutacc-demodata
+    networks:
+      - mutacc-net
+    depends_on:
+      - mongodb
+    command: bash -c "
+      mutacc --root-dir . extract --padding 600 -c mutacc/resources/case.yaml &&
+      mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import.mutacc"
+
+networks:
+  mutacc-net:
+    driver: bridge
