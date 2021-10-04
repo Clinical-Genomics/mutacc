@@ -12,6 +12,26 @@ variant from a real NGS data, *mutacc* stores the relevant reads from each case 
 a database. This database can then be queried to create synthetic datasets that can
 be used as positive controls bioinformatics pipelines.
 
+
+## Running the app using Docker (No installation of any software or database required)
+An example containing a demo setup for the app is included in the docker-compose file. Note that this file is not intended for use in production and is only provided to illustrate how an image containing the application could be connected to a MongoDB instance and perform commands provided when running it as a container. A Docker image file for Mutacc can be pulled from [Docker Hub](https://hub.docker.com/repository/docker/clinicalgenomics/mutacc), or can be built from the Dockerfile provided in the GitHub repository folder. Start the docker-compose demo using this command:
+
+```console
+docker-compose up -d
+```
+
+What the docker-compose command does:
+
+- Starts the database
+- extracts the reads from a demo case (demo case resouces are located under /mutacc/resources)
+- Saves them to database
+- Exports them from the database to a local file
+
+When the above command is executed, it creates the following 4 directories: `reads`, `imports`, `queries` and `variants` in the working directory. The directory names `variants` contains the vcf with the variants of interest for this demo case.
+
+After running the test, don't forget to run docker-compose to remove containers, networks, volumes and images created by docker-compose.
+
+
 ## Installation
 ### Conda
 For installation of mutacc and the external prerequisites, this is made easy by
