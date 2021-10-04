@@ -1,41 +1,23 @@
-FROM ubuntu:xenial
+FROM frolvlad/alpine-miniconda3
 
-SHELL ["/bin/bash", "-c"]
+# Install picard using conda
+RUN conda update -n base -c defaults conda && conda install -c bioconda picard
 
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
-ENV PATH /opt/conda/bin:${PATH}
+# Install required libs
+RUN apk update \
+	&& apk --no-cache add gcc bash python3 libc-dev zlib-dev
 
-COPY . /source/mutacc
+# Copy Mutacc to the image
+WORKDIR /home/worker/app
+COPY . /home/worker/app
 
-RUN apt-get update --fix-missing && apt-get install -y \
-        build-essential \
-        coreutils \
-        dialog \
-        git \
-        language-pack-en-base \
-        libbz2-dev \
-        libcurl4-openssl-dev \
-        liblzma-dev \
-        libncurses5-dev \
-        libncursesw5-dev \
-        libreadline-dev \
-        libssl-dev \
-        unzip \
-        wget \
-        zlib1g-dev && apt-get clean
+# Run commands as non-root user
+RUN adduser -D worker
 
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    source /opt/conda/etc/profile.d/conda.sh && \
-    conda clean -tipsy
+# Grant non-root user permissions over the working directory
+RUN chown worker:worker -R /home/worker
 
-RUN conda config --add channels defaults && \
-    conda config --add channels conda-forge && \
-    conda config --add channels bioconda && \
-    conda install --yes python=3.6 cython=0.29 numpy=1.17 picard=2.18 seqkit=0.11 && \
-    conda clean -tipsy
+# Install Mutacc
+RUN pip install mutacc
 
-RUN pip install source/mutacc
+USER worker
