@@ -22,20 +22,27 @@ LOG = logging.getLogger(__name__)
 @click.option('--password')
 @click.option('-h', '--host')
 @click.option('-p', '--port')
+@click.option('-u', '--uri')
 @click.option('-d', '--database')
 @click.pass_context
-def database_group(context, username, password, host, port, database):
+def database_group(context, username, password, host, port, uri, database):
 
     db_config = {}
     db_config['host'] = host or context.obj.get('host') or 'localhost'
     db_config['port'] = port or context.obj.get('port') or 27017
+    db_config['uri'] = uri or context.obj.get('uri')
     db_config['username'] = username or context.obj.get('username')
     db_config['password'] = password or context.obj.get('password')
 
-    LOG.info("Establishing connection with host {}, on port {}".format(
-        db_config['host'], db_config['port']
+    if uri:
+        LOG.info("Establishing connection with uri {}".format(
+            db_config['uri']
         )
-    )
+    else:
+        LOG.info("Establishing connection with host {}, on port {}".format(
+            db_config['host'], db_config['port']
+            )
+        )
 
     mutacc_client = mongo_adapter.get_client(**db_config)
 
