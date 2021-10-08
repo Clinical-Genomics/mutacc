@@ -37,6 +37,7 @@ def database_group(context, username, password, host, port, uri, database):
     if uri:
         LOG.info("Establishing connection with uri {}".format(
             db_config['uri']
+            )
         )
     else:
         LOG.info("Establishing connection with host {}, on port {}".format(
