@@ -1,23 +1,20 @@
 import logging
-import yaml
 import sys
-import coloredlogs
-import click
-import mongo_adapter
 from pathlib import Path
 
-from mutacc.parse.path_parse import parse_path, make_dir
+import click
+import coloredlogs
+import mongo_adapter
+import yaml
+from mutacc import __version__
 from mutacc.mutaccDB.db_adapter import MutaccAdapter
+from mutacc.parse.path_parse import make_dir, parse_path
 from mutacc.resources import default_vcf_parser
 
+from .constants import PADDING, SUB_DIRS, SV_PADDING
 from .database import database_group as database_group
 from .extract import extract_command as extract_command
 from .synthesize import synthesize_command as synthesize_command
-
-from .constants import SUB_DIRS, PADDING, SV_PADDING
-
-from mutacc import __version__
-
 
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 LOG = logging.getLogger(__name__)
@@ -55,6 +52,7 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
 
         host = cli_config.get("host") or "localhost"
         port = cli_config.get("port") or 27017
+        uri = cli_config.get("uri")
         db_name = cli_config.get("database") or "mutacc"
         username = cli_config.get("username")
         password = cli_config.get("password")
@@ -73,6 +71,7 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
     mutacc_config = {}
     mutacc_config["host"] = host
     mutacc_config["port"] = port
+    mutacc_config["uri"] = uri
     mutacc_config["username"] = username
     mutacc_config["password"] = password
     mutacc_config["db_name"] = db_name
@@ -82,7 +81,6 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
     mutacc_config["demo"] = demo
     mutacc_config["padding"] = padding
     mutacc_config["sv_padding"] = sv_padding
-
 
     # Create subdirectories in root, if not already created
     for dir_type in SUB_DIRS.keys():
@@ -110,11 +108,11 @@ cli.add_command(database_group)
 def get_vcf_parser(parser_file: str = None, config_dict: dict = None):
 
     """
-        Finds and return vcf parser specification from file, config or default
+    Finds and return vcf parser specification from file, config or default
 
-        Args:
-            from_file(str): file path to yaml formatted parser specifications
-            from_config(dict): vcf
+    Args:
+        from_file(str): file path to yaml formatted parser specifications
+        from_config(dict): vcf
     """
     if parser_file:
         with open(parser_file, "r") as parser_handle:
