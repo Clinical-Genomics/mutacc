@@ -23,7 +23,7 @@ docker-compose up -d
 What the docker-compose command does:
 
 - Starts the database
-- extracts the reads from a demo case (demo case resouces are located under /mutacc/resources)
+- extracts the reads from a demo case (demo case resources are located under /mutacc/resources)
 - Saves them to database
 - Exports them from the database to a local file
 
