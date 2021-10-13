@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## []
+## [1.5]
 ### Added
 - A docker-compose file that loads demo data on a MongoDB instance and exports results to the current directory of the user
 - A GitHub actions building a repo image and pushing it to Docker Hub whenever a new release is published
