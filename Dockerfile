@@ -17,7 +17,10 @@ RUN adduser -D worker
 # Grant non-root user permissions over the working directory
 RUN chown worker:worker -R /home/worker
 
+# Install mutacc requirements
+RUN pip install --no-cache-dir -r requirements.txt
+
 # Install Mutacc
-RUN pip install -e .
+RUN pip install .
 
 USER worker
