@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## []
 ### Changed
 - Build and use local Dockerfile when creating demo container in docker-compose
+- Optimize Dockerfile by adding multi-stage vuild and basing builder on pre-existing cyvcf2 image
 ### Fixed
 - Parse yaml config files using `yaml.safe_load` to avoid `missing Loader error` due to deprecation introduced by PyYAML 6.0
 - Typo in docker-compose file

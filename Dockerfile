@@ -1,26 +1,42 @@
-FROM frolvlad/alpine-miniconda3
+###########
+# BUILDER #
+###########
+FROM northwestwitch/python3.8-cyvcf2-venv:1.0 AS python-builder
 
-# Install picard using conda
-RUN conda update -n base -c defaults conda && conda install -c bioconda picard
+ENV PATH="/venv/bin:$PATH"
 
-# Install required libs
-RUN apk update \
-	&& apk --no-cache add gcc bash python3 libc-dev zlib-dev
+WORKDIR /app
 
-# Copy Mutacc to the image
-WORKDIR /home/worker/app
-COPY . /home/worker/app
-
-# Run commands as non-root user
-RUN adduser -D worker
-
-# Grant non-root user permissions over the working directory
-RUN chown worker:worker -R /home/worker
-
-# Install mutacc requirements
+# Install Mutacc dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Mutacc
-RUN pip install .
 
+#########
+# FINAL #
+#########
+FROM python:3.8-slim
+
+LABEL about.home="https://github.com/Clinical-Genomics/mutacc"
+LABEL about.documentation="https://github.com/Clinical-Genomics/mutacc/blob/master/docs/demo.md"
+LABEL about.license="MIT License (MIT)"
+
+# Do not upgrade to the latest pip version to ensure more reproducible builds
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PATH="/venv/bin:$PATH"
+RUN echo export PATH="/venv/bin:\$PATH" > /etc/profile.d/venv.sh
+
+# Create a non-root user to run commands
+RUN groupadd --gid 10001 worker && useradd -g worker --uid 10001 --shell /usr/sbin/nologin --create-home worker
+
+# Copy virtual environment from builder
+COPY --chown=worker:worker --from=python-builder /venv /venv
+
+WORKDIR /worker/app
+COPY . /worker/app
+
+# Install the app
+RUN pip install --no-cache-dir .
+
+# Run the app as non-root user
 USER worker
