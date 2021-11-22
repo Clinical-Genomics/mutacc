@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.5]
+### Fixed
+- Parse yaml config files using `yaml.safe_load` to avoid `missing 'Loader' error`
+
+## [1.5]
 ### Added
 - A docker-compose file that loads demo data on a MongoDB instance and exports results to the current directory of the user
 - GitHub action building a repo image and pushing it to Docker Hub when a new release is published

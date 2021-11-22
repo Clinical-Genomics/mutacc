@@ -23,14 +23,16 @@ PED_PATH = "tests/fixtures/dataset/dataset.ped"
 CONFIG_PATH = "tests/fixtures/config.yaml"
 BAM_PATH = "tests/fixtures/reduced_ref_4_1000000_10002000.bam"
 
+
 @pytest.fixture
 def bam_path():
     return BAM_PATH
 
+
 @pytest.fixture
 def read_ids_fixed(bam_path):
     """
-        IDs for reads in bam file
+    IDs for reads in bam file
     """
 
     sam = AlignmentFile(bam_path, "rb")
@@ -42,7 +44,7 @@ def read_ids_fixed(bam_path):
 @pytest.fixture
 def individuals_fixed():
     """
-        Generate random individuals
+    Generate random individuals
     """
 
     bam = "/path/to/bam"
@@ -91,7 +93,7 @@ CASES_NO = 5
 @pytest.fixture
 def vcf_parser():
     with open(default_vcf_parser, "r") as handle:
-        _vcf_parser = yaml.load(handle, Loader=yaml.FullLoader)
+        _vcf_parser = yaml.safe_load(handle)
     return _vcf_parser
 
 
@@ -99,7 +101,7 @@ def vcf_parser():
 def mock_adapter():
 
     """
-        Mock pymongo adapter
+    Mock pymongo adapter
     """
 
     client = mongomock.MongoClient(port=27017, host="localhost")
@@ -129,7 +131,7 @@ def mock_adapter():
 def mock_real_adapter(tmpdir, vcf_parser):
 
     """
-        Mock adapter to populated database
+    Mock adapter to populated database
     """
 
     mutacc_dir = Path(str(tmpdir.mkdir("mutacc_test")))
@@ -155,7 +157,7 @@ def mock_real_adapter(tmpdir, vcf_parser):
 @pytest.fixture
 def config_dict():
     with open(CONFIG_PATH, "r") as in_handle:
-        config = yaml.load(in_handle, Loader=yaml.FullLoader)
+        config = yaml.safe_load(in_handle)
     return config
 
 
@@ -167,6 +169,7 @@ def dataset_dir():
 @pytest.fixture
 def ped_path():
     return PED_PATH
+
 
 VARIANT1 = {
     "vcf_entry": "4\t65071643\t.\tT\t<INV>\t100\tPASS\tSOMATIC;SVTYPE=INV\tGT\t./.",
@@ -186,6 +189,7 @@ VARIANT2 = {
     "_id": "123",
     "case": "1111",
 }
+
 
 @pytest.fixture
 def variants():
