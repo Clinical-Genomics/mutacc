@@ -48,7 +48,7 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
 
         if config_file:
             with open(config_file, "r") as in_handle:
-                cli_config = yaml.load(in_handle, Loader=yaml.FullLoader)
+                cli_config = yaml.safe_load(in_handle)
 
         host = cli_config.get("host") or "localhost"
         port = cli_config.get("port") or 27017
@@ -116,11 +116,11 @@ def get_vcf_parser(parser_file: str = None, config_dict: dict = None):
     """
     if parser_file:
         with open(parser_file, "r") as parser_handle:
-            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+            vcf_parser = yaml.safe_load(parser_handle)
     elif config_dict and config_dict.get("vcf_parser"):
         vcf_parser = config_dict["vcf_parser"]
     else:
         with open(default_vcf_parser, "r") as parser_handle:
-            vcf_parser = yaml.load(parser_handle, Loader=yaml.FullLoader)
+            vcf_parser = yaml.safe_load(parser_handle)
 
     return vcf_parser

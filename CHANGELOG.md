@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## []
+### Changed
+- Build and use local Dockerfile when creating demo container in docker-compose
+### Fixed
+- Parse yaml config files using `yaml.safe_load` to avoid `missing Loader error` due to deprecation introduced by PyYAML 6.0
+- Typo in docker-compose file
+
 ## [1.5]
 ### Added
 - A docker-compose file that loads demo data on a MongoDB instance and exports results to the current directory of the user
