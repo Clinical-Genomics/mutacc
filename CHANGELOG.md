@@ -2,8 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 ## []
+### Changed
+- Build and use local Dockerfile when creating demo container in docker-compose
 ### Fixed
-- Depend on mongo-adapter>=3.3. Previous versions have a way too short connection timeout and approximate log_uri print
+- Parse yaml config files using `yaml.safe_load` to avoid `missing Loader error` due to deprecation introduced by PyYAML 6.0
+- Typo in docker-compose file
+- Fix mongo-adapter dependency to use version>=3.3. Previous versions have a way too short connection timeout and approximate URI log print
 
 ## [1.5]
 ### Added
