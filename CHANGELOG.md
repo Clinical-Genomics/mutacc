@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.5]
+## []
 ### Changed
 - Build and use local Dockerfile when creating demo container in docker-compose
 ### Fixed
