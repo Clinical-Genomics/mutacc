@@ -3,7 +3,7 @@ pysam
 coloredlogs
 biopython
 cyvcf2<0.10.0
-mongo-adapter
+mongo-adapter>=3.3
 ped_parser
 PyYaml>=5.1
 pymongo

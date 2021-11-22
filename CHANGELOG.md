@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## []
+### Fixed
+- Depend on mongo-adapter>=3.3. Previous versions have a way too short connection timeout and approximate log_uri print
+
 ## [1.5]
 ### Added
 - A docker-compose file that loads demo data on a MongoDB instance and exports results to the current directory of the user
