@@ -18,6 +18,6 @@ RUN adduser -D worker
 RUN chown worker:worker -R /home/worker
 
 # Install Mutacc
-RUN pip install mutacc
+RUN pip install -e .
 
 USER worker

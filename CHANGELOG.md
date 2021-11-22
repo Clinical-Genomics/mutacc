@@ -2,8 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.5]
+### Changed
+- Build and use local Dockerfile when creating demo container in docker-compose
 ### Fixed
-- Parse yaml config files using `yaml.safe_load` to avoid `missing 'Loader' error`
+- Parse yaml config files using `yaml.safe_load` to avoid `missing Loader error` due to deprecation introduced by PyYAML 6.0
 
 ## [1.5]
 ### Added
