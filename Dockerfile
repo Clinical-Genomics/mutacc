@@ -1,19 +1,9 @@
 ###########
 # BUILDER #
 ###########
-FROM python:3.7.3-slim-stretch as builder
+FROM clinicalgenomics/python3.7.3-slim-stretch-cyvcf2-venv:1.0 AS builder
+
 ENV PATH="/venv/bin:$PATH"
-
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get -y install -y --no-install-recommends gcc libc-dev libz-dev
-
-# Install virtualenv
-RUN pip install virtualenv
-RUN virtualenv --seeder pip /venv
-
-ENV picard_version 2.26.5
-ADD https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar /libs/
 
 WORKDIR /app
 
@@ -21,6 +11,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Download Picard
+ENV picard_version 2.26.5
+ADD https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar /libs/
 
 #########
 # FINAL #
@@ -46,9 +39,10 @@ COPY . /home/worker/app
 # Copy virtual environment from builder
 ENV PATH="/venv/bin:$PATH"
 COPY --chown=worker:worker --from=builder /venv /venv
-COPY --chown=worker:worker --from=builder /libs /home/worker/libs
-
 RUN echo export PATH="/venv/bin:\$PATH" > /etc/profile.d/venv.sh
+
+# Copy Picard executable in user home, /libs
+COPY --chown=worker:worker --from=builder /libs /home/worker/libs
 
 # Install the app
 RUN pip install --no-cache-dir .
