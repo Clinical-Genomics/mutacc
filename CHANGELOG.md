@@ -1,11 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## []
+## [1.6]
 ### Changed
 - Build and use local Dockerfile when creating demo container in docker-compose
 - Minify Docker image by adding a multi-stage build and manually installing Picard and the Java Virtual Machine
-- Speed up Docker image compiling by basing it on another image with cyvcf2 already installed
+- Speed up Docker image building by basing it on another image with cyvcf2 already installed
 ### Fixed
 - Parse yaml config files using `yaml.safe_load` to avoid `missing Loader error` due to deprecation introduced by PyYAML 6.0
 - Typo in docker-compose file
