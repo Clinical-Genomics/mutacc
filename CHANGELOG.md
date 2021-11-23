@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## []
 ### Changed
 - Build and use local Dockerfile when creating demo container in docker-compose
+- Minify Docker image by adding a multi-stage build and manually installing Picard and the Java Virtual Machine
 ### Fixed
 - Parse yaml config files using `yaml.safe_load` to avoid `missing Loader error` due to deprecation introduced by PyYAML 6.0
 - Typo in docker-compose file

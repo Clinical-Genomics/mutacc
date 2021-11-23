@@ -22,7 +22,7 @@ services:
     depends_on:
       - mongodb
     command: bash -c "
-      mutacc --root-dir . extract --padding 600 -c mutacc/resources/case.yaml &&
+      mutacc --root-dir . extract --picard-executable /home/worker/libs/picard.jar --padding 600 -c mutacc/resources/case.yaml &&
       mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import_mutacc.json &&
       mutacc --root-dir . db -h mongodb -p 27017 export -m affected"
     volumes:
