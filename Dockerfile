@@ -7,7 +7,7 @@ ENV PATH="/venv/bin:$PATH"
 
 WORKDIR /app
 
-# Install Scout dependencies
+# Install Mutacc dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
