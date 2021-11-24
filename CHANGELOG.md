@@ -1,9 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.2]
+### Fixed
+- Token name used by PyPI push action once again
+
 ## [1.6.1]
 ### Fixed
-- Token name used by PyPI push action (x2)
+- Token name used by PyPI push action
 
 ## [1.6]
 ### Changed
