@@ -1,0 +1,12 @@
+name: Run tests and coveralls
+on: [pull_request]
+jobs:
+  tests_n_coverage:
+    steps:
+      - uses: actions/checkout@v2
+      - uses: s-weigand/setup-conda@v1
+        with:
+          activate-conda: true
+          python-version: 3.8
+      - run: conda --version
+      - run: which python
