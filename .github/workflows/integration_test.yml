@@ -1,4 +1,4 @@
-name: Run tests and coveralls
+name: Run an integration test
 on: [pull_request]
 jobs:
   tests_n_coverage:
@@ -18,10 +18,9 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Test with pytest & Coveralls
-        run: |
-          pytest --cov=tests/
-          coveralls
-        env:
-          GITHUB: 1
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      - name: Integration test
+        script:
+          - mutacc --demo extract --padding 100
+          - mutacc --demo db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
+          - mutacc --demo db export --all-variants --member child --proband --sample-name child
+          - mutacc --demo synthesize --query ./mutacc_demo_root/queries/child_query_mutacc.json
