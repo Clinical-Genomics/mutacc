@@ -19,9 +19,9 @@ jobs:
           pip install -e .
 
       - name: Test with pytest & coveralls
+        with:
+          github-token: ${{ github.token }}
         run: |
           pip install -r requirements-dev.txt
           pytest --cov=./
           coveralls
-        with:
-          github-token: ${{ github.token }}
