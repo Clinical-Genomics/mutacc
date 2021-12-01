@@ -13,6 +13,7 @@ jobs:
       - name: Start and run containers
         run: |
           docker-compose up -d
+          sleep 2m
           [ ! -f datasets/synthetic_child_father_R1.fastq.gz ] && exit 1
 
       - name: Stop containers
