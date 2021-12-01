@@ -24,23 +24,19 @@ jobs:
         with:
           activate-conda: true
           python-version: 3.8
-      - run: |
-          conda install --yes -c bioconda seqkit picard
-          which picard
 
       - name: Install repo and its dependencies
         run: |
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Create config file
+      - name: Download Picard
         run: |
-          echo First        > other.txt
-          echo Second Line >> other.txt
-          echo Third       >> other.txt
+          picard_version=2.26.5
+          wget https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar
 
       - name: Test run pipeline
         run: |
-          mutacc --root-dir . extract --picard-executable `which picard` --padding 600 -c mutacc/resources/case.yaml
+          mutacc --root-dir . extract --picard-executable picard.jar --padding 600 -c mutacc/resources/case.yaml
           mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import_mutacc.json
           mutacc --root-dir . db -h mongodb -p 27017 export --all-variants --member child --proband --sample-name child
