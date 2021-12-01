@@ -21,10 +21,11 @@ services:
       - mutacc-net
     depends_on:
       - mongodb
-    command: bash -c "
-      mutacc --root-dir . extract --picard-executable /home/worker/libs/picard.jar --padding 600 -c mutacc/resources/case.yaml &&
-      mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import_mutacc.json &&
-      mutacc --root-dir . db -h mongodb -p 27017 export -m affected"
+    command: -c "
+      mutacc --config-file mutacc/resources/config-demo.yml extract --picard-executable /home/worker/libs/picard.jar --padding 600 -c mutacc/resources/case.yaml &&
+      mutacc --config-file mutacc/resources/config-demo.yml db import /home/worker/app/imports/demo_trio_import_mutacc.json &&
+      mutacc --config-file mutacc/resources/config-demo.yml db export --all-variants --member child --proband --sample-name child &&
+      mutacc --config-file mutacc/resources/config-demo.yml synthesize --query queries/child_query_mutacc.json --background-bam mutacc/resources/father.bam -f mutacc/resources/father_R1.fastq.gz -f2 mutacc/resources/father_R2.fastq.gz"
     volumes:
         - ./:/home/worker/app
 

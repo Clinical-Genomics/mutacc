@@ -1,0 +1,10 @@
+# Example of a demo config file.
+# The following settinga are used by docker-compose.yaml to create a demo instance of Mutacc
+uri: "mongodb://mongodb:27017/mutacc-test"
+username: test_user
+password: test_pw
+database: mutacc-test
+root_dir: /home/worker/app
+binaries:
+  seqkit: "../libs/seqkit"
+  picard: "../libs/picard.jar"
