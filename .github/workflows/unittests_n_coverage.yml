@@ -11,7 +11,8 @@ jobs:
         with:
           activate-conda: true
           python-version: 3.8
-        run: conda install --yes -c bioconda seqkit picard
+          
+      -run: conda install --yes -c bioconda seqkit picard
 
       - name: Install repo and its dependencies
         run: |
