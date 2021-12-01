@@ -20,7 +20,8 @@ jobs:
 
       - name: Test with pytest & Coveralls
         run: |
-          pytest --cov=../
+          pip install -r requirements-dev.txt
+          pytest --cov=./
           coveralls
         env:
           GITHUB: 1
