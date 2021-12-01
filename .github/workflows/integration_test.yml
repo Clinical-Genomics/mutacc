@@ -18,7 +18,6 @@ jobs:
         uses: andstor/file-existence-action@v1
         with:
           files: "datasets/synthetic_child_father_R1.fastq.gz, datasets/synthetic_child_father_R2.fastq.gz"
-          allow_failure: false
 
       - name: Stop containers
         run: docker-compose down
