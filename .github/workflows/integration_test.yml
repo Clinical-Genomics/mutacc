@@ -1,6 +1,3 @@
-# This test is making sure all commands work
-# by running the repo docker-compose file and checking that outfiles are created
-
 name: Integration tests
 on: [pull_request]
 jobs:
