@@ -4,7 +4,8 @@ jobs:
   tests_n_coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Setup Conda and install python 3.8
         uses: s-weigand/setup-conda@v1

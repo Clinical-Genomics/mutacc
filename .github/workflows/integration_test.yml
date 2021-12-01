@@ -1,34 +1,24 @@
-name: Run an integration test
+# This test is making sure all commands work
+# by running the repo docker-compose file and checking that outfiles are created
+
+name: Integration tests
 on: [pull_request]
 jobs:
   integration_test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        mongodb-version: ['3.2', '4.4']
-
     steps:
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.7.0
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Start containers
+        run: docker-compose up -d --build
+
+      - name: Check file existence
+        id: check_files
+        uses: andstor/file-existence-action@v1
         with:
-          mongodb-version: ${{ matrix.mongodb-version }}
-      - uses: actions/checkout@v2
+          files: "datasets/synthetic_child_father_R1.fastq.gz, datasets/synthetic_child_father_R2.fastq.gz"
+          allow_failure: false
 
-      - name: Setup Conda and install python 3.8
-        uses: s-weigand/setup-conda@v1
-        with:
-          activate-conda: true
-          python-version: 3.8
-      - run: conda install --yes -c bioconda seqkit picard
-
-      - name: Install repo and its dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -e .
-
-      - name: Integration test
-        run: |
-          mutacc --root-dir . extract --padding 100 -c mutacc/resources/case.yaml
-          mutacc --root-dir . db import imports/demo_trio_import_mutacc.json
-          mutacc --root-dir . db export --all-variants --member child --proband --sample-name child
-          mutacc --root-dir . synthesize --query mutacc_demo_root/queries/child_query_mutacc.json
+      - name: Stop containers
+        run: docker-compose down
