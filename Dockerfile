@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download Picard and add it to the /libs dir
-ENV picard_version 2.26.5
+ENV picard_version 2.26.6
 ADD https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar /libs/
 
 # Download Seqkit and add it to the /libs dir
