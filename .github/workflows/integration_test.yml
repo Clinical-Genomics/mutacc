@@ -1,7 +1,7 @@
 name: Run an integration test
 on: [pull_request]
 jobs:
-  tests_n_coverage:
+  integration_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

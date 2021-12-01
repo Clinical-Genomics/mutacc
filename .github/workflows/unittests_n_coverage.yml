@@ -20,7 +20,7 @@ jobs:
 
       - name: Test with pytest & Coveralls
         run: |
-          pytest --cov=tests/
+          pytest --cov=../
           coveralls
         env:
           GITHUB: 1
