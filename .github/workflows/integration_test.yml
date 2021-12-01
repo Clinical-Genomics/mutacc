@@ -9,9 +9,8 @@ jobs:
     steps:
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.7.0
-        with:
-          mongodb-version: ${{ matrix.mongodb-version }}
-          
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
       - uses: actions/checkout@v2
 
       - name: Setup Conda and install python 3.8
@@ -28,7 +27,7 @@ jobs:
 
       - name: Integration test
         run: |
-          mutacc --root-dir . extract --padding 100
-          mutacc --root-dir . db import ./mutacc_demo_root/imports/demo_trio_import_mutacc.json
+          mutacc --root-dir . extract --padding 100 -c mutacc/resources/case.yaml
+          mutacc --root-dir . db import imports/demo_trio_import_mutacc.json
           mutacc --root-dir . db export --all-variants --member child --proband --sample-name child
-          mutacc --root-dir . synthesize --query ./mutacc_demo_root/queries/child_query_mutacc.json
+          mutacc --root-dir . synthesize --query mutacc_demo_root/queries/child_query_mutacc.json
