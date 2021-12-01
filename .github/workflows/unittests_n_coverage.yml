@@ -21,7 +21,7 @@ jobs:
       - name: Test with pytest & coveralls
         with:
           github-token: ${{ github.token }}
-        run: |
+      - run: |
           pip install -r requirements-dev.txt
           pytest --cov=./
           coveralls
