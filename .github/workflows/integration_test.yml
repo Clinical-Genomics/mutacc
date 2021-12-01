@@ -32,11 +32,11 @@ jobs:
 
       - name: Download Picard
         run: |
-          picard_version=2.26.5
+          picard_version=2.26.6
           wget https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar
 
       - name: Test run pipeline
         run: |
-          mutacc --root-dir . extract --picard-executable picard.jar --padding 600 -c mutacc/resources/case.yaml
+          mutacc --root-dir . extract --picard-executable /home/worker/app/picard.jar --padding 600 -c mutacc/resources/case.yaml
           mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import_mutacc.json
           mutacc --root-dir . db -h mongodb -p 27017 export --all-variants --member child --proband --sample-name child
