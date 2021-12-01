@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## []
+### Added
+- Seqkit lib in Dockerfile
+### Changed
+- Moved unit tests and integration tests from Travis to the GitHub actions
+### Fixed
+- unit tests and integration tests
+- Added missing part of the pipeline (mutacc synthesize) in docker-compose
+
 ## [1.6.3]
 ### Fixed
 - Freeze PyMongo lib to version<4.0 to keep supporting previous MongoDB versions
