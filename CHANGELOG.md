@@ -1,13 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## []
+## [1.7]
 ### Added
 - Seqkit lib in Dockerfile
 ### Changed
 - Moved unit tests and integration tests from Travis to the GitHub actions
 ### Fixed
-- unit tests and integration tests
+- Unit tests and integration tests
 - Added missing part of the pipeline (mutacc synthesize) in docker-compose
 
 ## [1.6.3]
