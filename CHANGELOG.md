@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.3]
+### Fixed
+- Freeze PyMongo lib to version<4.0 to keep supporting previous MongoDB versions
+
 ## [1.6.2]
 ### Fixed
 - Token name used by PyPI push action once again
