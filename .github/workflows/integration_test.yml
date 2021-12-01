@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        mongodb-version: ['3.2', '4.4']
+        mongodb-version: ['4.4']
 
     steps:
       - name: Start MongoDB
@@ -24,16 +24,23 @@ jobs:
         with:
           activate-conda: true
           python-version: 3.8
-      - run: conda install --yes -c bioconda seqkit picard
+      - run: |
+          conda install --yes -c bioconda seqkit picard
+          which picard
 
       - name: Install repo and its dependencies
         run: |
           pip install -r requirements.txt
           pip install -e .
 
+      - name: Create config file
+        run: |
+          echo First        > other.txt
+          echo Second Line >> other.txt
+          echo Third       >> other.txt
+
       - name: Test run pipeline
         run: |
-          mutacc --config-file mutacc/resources/config-demo.yml extract --picard-executable /home/worker/libs/picard.jar --padding 600 -c mutacc/resources/case.yaml &&
-          mutacc --config-file mutacc/resources/config-demo.yml db import /home/worker/app/imports/demo_trio_import_mutacc.json &&
-          mutacc --config-file mutacc/resources/config-demo.yml db export --all-variants --member child --proband --sample-name child &&
-          mutacc --config-file mutacc/resources/config-demo.yml synthesize --query queries/child_query_mutacc.json --background-bam mutacc/resources/father.bam -f mutacc/resources/father_R1.fastq.gz -f2 mutacc/resources/father_R2.fastq.gz"
+          mutacc --root-dir . extract --picard-executable `which picard` --padding 600 -c mutacc/resources/case.yaml
+          mutacc --root-dir . db -h mongodb -p 27017 import /home/worker/app/imports/demo_trio_import_mutacc.json
+          mutacc --root-dir . db -h mongodb -p 27017 export --all-variants --member child --proband --sample-name child
