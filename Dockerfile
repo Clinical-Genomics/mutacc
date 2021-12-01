@@ -54,10 +54,6 @@ RUN echo export PATH="/venv/bin:\$PATH" > /etc/profile.d/venv.sh
 # Copy Picard executable in user home, /libs
 COPY --chown=worker:worker --from=builder /libs /home/worker/libs
 
-# Create an alias for both Picard and Seqkit
-RUN echo 'alias picard="java -jar ../libs/picard.jar"' >> /home/worker/.bashrc
-RUN echo 'alias seqkit="./../libs/seqkit"' >> /home/worker/.bashrc
-
 # Install the app
 RUN pip install --no-cache-dir .
 
