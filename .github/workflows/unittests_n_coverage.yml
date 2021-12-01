@@ -23,5 +23,5 @@ jobs:
           pip install -r requirements-dev.txt
           pytest --cov=./
           coveralls
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        with:
+          github-token: ${{ github.token }}
