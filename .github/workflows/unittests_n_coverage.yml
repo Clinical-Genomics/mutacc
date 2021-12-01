@@ -9,5 +9,5 @@ jobs:
         with:
           activate-conda: true
           python-version: 3.8
-      - run: conda --version
-      - run: which python
+      - run: conda install --yes -c bioconda seqkit picard
+      - run: python --version
