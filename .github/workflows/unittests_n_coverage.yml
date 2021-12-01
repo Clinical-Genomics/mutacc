@@ -1,8 +1,8 @@
 name: Run tests and coveralls
 on: [pull_request]
 jobs:
-  runs-on: ubuntu-latest
   tests_n_coverage:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: s-weigand/setup-conda@v1
