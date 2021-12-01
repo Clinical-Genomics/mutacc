@@ -3,6 +3,10 @@
 ###########
 FROM clinicalgenomics/python3.7.3-slim-stretch-cyvcf2-venv:1.0 AS builder
 
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install -y --no-install-recommends wget
+
 ENV PATH="/venv/bin:$PATH"
 
 WORKDIR /app
@@ -11,9 +15,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download Picard
+# Download Picard and add it to the /libs dir
 ENV picard_version 2.26.5
 ADD https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar /libs/
+
+# Download Seqkit and add it to the /libs dir
+ENV seqkit_version 2.1.0
+RUN wget https://github.com/shenwei356/seqkit/releases/download/v${seqkit_version}/seqkit_linux_amd64.tar.gz -O /tmp/seqkit.tar.gz && \
+	tar zxvf /tmp/seqkit.tar.gz -C /libs/ && rm /tmp/seqkit.tar.gz
+
 
 #########
 # FINAL #
@@ -44,7 +54,13 @@ RUN echo export PATH="/venv/bin:\$PATH" > /etc/profile.d/venv.sh
 # Copy Picard executable in user home, /libs
 COPY --chown=worker:worker --from=builder /libs /home/worker/libs
 
+# Create an alias for both Picard and Seqkit
+RUN echo 'alias picard="java -jar ../libs/picard.jar"' >> /home/worker/.bashrc
+RUN echo 'alias seqkit="./../libs/seqkit"' >> /home/worker/.bashrc
+
 # Install the app
 RUN pip install --no-cache-dir .
 
 USER worker
+
+ENTRYPOINT ["/bin/bash"]
