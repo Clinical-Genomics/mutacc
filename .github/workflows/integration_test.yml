@@ -32,8 +32,7 @@ jobs:
 
       - name: Download Picard
         run: |
-          picard_version=2.26.6
-          wget https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar
+          wget https://github.com/broadinstitute/picard/releases/download/2.26.6/picard.jar
 
       - name: Test run pipeline
         run: |
