@@ -10,14 +10,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Start containers
-        run: docker-compose up -d
-
-      - name: Check oufiles existence
-        id: check_files
-        uses: andstor/file-existence-action@v1
-        with:
-          files: "datasets/synthetic_child_father_R1.fastq.gz, datasets/synthetic_child_father_R2.fastq.gz"
+      - name: Start and run containers
+        run: |
+          docker-compose up -d
+          [ ! -f datasets/synthetic_child_father_R1.fastq.gz ] && exit 1
 
       - name: Stop containers
         run: docker-compose down
