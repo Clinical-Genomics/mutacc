@@ -5,15 +5,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Setup Conda and install requirements
         uses: s-weigand/setup-conda@v1
         with:
           activate-conda: true
           python-version: 3.8
-          
-      -run: conda install --yes -c bioconda seqkit picard
-
+      - run: conda install --yes -c bioconda seqkit picard
       - name: Install repo and its dependencies
         run: |
           pip install -r requirements.txt
