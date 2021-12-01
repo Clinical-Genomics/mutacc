@@ -6,15 +6,34 @@ on: [pull_request]
 jobs:
   integration_test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mongodb-version: ['3.2', '4.4']
+
     steps:
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Start and run containers
-        run: |
-          docker-compose up -d
-          sleep 2m
-          [ ! -f datasets/synthetic_child_father_R1.fastq.gz ] && exit 1
+      - name: Setup Conda and install python 3.8
+        uses: s-weigand/setup-conda@v1
+        with:
+          activate-conda: true
+          python-version: 3.8
+      - run: conda install --yes -c bioconda seqkit picard
 
-      - name: Stop containers
-        run: docker-compose down
+      - name: Install repo and its dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Test run pipeline
+        run: |
+          mutacc --config-file mutacc/resources/config-demo.yml extract --picard-executable /home/worker/libs/picard.jar --padding 600 -c mutacc/resources/case.yaml &&
+          mutacc --config-file mutacc/resources/config-demo.yml db import /home/worker/app/imports/demo_trio_import_mutacc.json &&
+          mutacc --config-file mutacc/resources/config-demo.yml db export --all-variants --member child --proband --sample-name child &&
+          mutacc --config-file mutacc/resources/config-demo.yml synthesize --query queries/child_query_mutacc.json --background-bam mutacc/resources/father.bam -f mutacc/resources/father_R1.fastq.gz -f2 mutacc/resources/father_R2.fastq.gz"
