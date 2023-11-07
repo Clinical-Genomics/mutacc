@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+### Fixed
+- Unfreeze cyvcf2 lib to be able to install the software with Python>=3.8
+### Changed
+- Installation instructions on README page to install mutacc using Python 3.8
+
 ## [1.6.3]
 ### Fixed
 - Freeze PyMongo lib to version<4.0 to keep supporting previous MongoDB versions

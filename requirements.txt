@@ -2,7 +2,7 @@ Click
 pysam
 coloredlogs
 biopython
-cyvcf2<0.10.0
+cyvcf2
 mongo_adapter>=0.3.3
 ped_parser
 PyYaml>=5.1
