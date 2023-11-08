@@ -38,7 +38,7 @@ For installation of mutacc and the external prerequisites, this is made easy by
 creating conda environment
 
 ```consol
-conda create -n <env_name> python=3.6 pip numpy cython
+conda create -n <env_name> python=3.8 pip numpy cython
 ```
 
 activate environment
