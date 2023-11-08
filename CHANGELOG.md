@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Badge on Readme page
 - GitHub action to push the right image to Docker Hub
+- Replaced deprecated `pkg_resources` lib with `importlib_resources`
 
 ## [1.6.3]
 ### Fixed

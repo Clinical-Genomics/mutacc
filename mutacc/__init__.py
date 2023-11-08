@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import pkg_resources
+from importlib.metadata import version
 
 __title__ = 'mutacc'
-__version__ = pkg_resources.get_distribution(__title__).version
+__version__ = version(__title__)
