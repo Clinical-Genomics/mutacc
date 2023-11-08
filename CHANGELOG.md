@@ -2,10 +2,14 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
-### Fixed
-- Unfreeze cyvcf2 lib to be able to install the software with Python>=3.8
 ### Changed
+- Moved tests and coverage from Travis to GitHub actions
+- Updated python version and versions of some GitHub actions
+- Unfreeze cyvcf2 lib to be able to install the software with Python>=3.8
 - Installation instructions on README page to install mutacc using Python 3.8
+### Fixed
+- Badge on Readme page
+- GitHub action to push the right image to Docker Hub
 
 ## [1.6.3]
 ### Fixed

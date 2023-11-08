@@ -1,0 +1,28 @@
+name: Run tests and coveralls
+on: [pull_request]
+jobs:
+  tests_n_coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Conda and install python
+        uses: s-weigand/setup-conda@v1
+        with:
+          activate-conda: true
+          python-version: 3.11
+      - run: conda install --yes -c bioconda seqkit picard
+
+      - name: Install repo and its dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Test with pytest & Coveralls
+        run: |
+          pip install -r requirements-dev.txt
+          pytest --cov=./
+          coveralls
+        env:
+          GITHUB: 1
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
