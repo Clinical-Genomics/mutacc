@@ -1,6 +1,6 @@
 from importlib_resources import files
 
-BASE_PATH = "mutacc.resources"
+BASE_PATH : str = "mutacc.resources"
 
 case_filename : str = "case.yaml"
 father_fastq1_filename : str = "father_R1.fastq.gz"
