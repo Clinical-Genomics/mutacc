@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Moved tests and coverage from Travis to GitHub actions
 - Updated python version and versions of some GitHub actions
+- Unfreeze of cyvcf2 library in requirements file
 ### Fixed
 - Badge on Readme page
 - GitHub action to push the right image to Docker Hub
