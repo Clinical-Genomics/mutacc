@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Unfreeze cyvcf2 lib to be able to install the software with Python>=3.8
 - Installation instructions on README page to install mutacc using Python 3.8
 - Unfreeze pymongo requirement and removed deprecated pymongo code to support latest version of MongoDB
+- Updated pythin version to 3.11 in Dockerfile
+- Updated MongoDB version to 7 in docker-compose.yml file
 ### Fixed
 - Badge on Readme page
 - GitHub action to push the right image to Docker Hub

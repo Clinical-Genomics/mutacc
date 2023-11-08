@@ -1,7 +1,7 @@
 ###########
 # BUILDER #
 ###########
-FROM clinicalgenomics/python3.7.3-slim-stretch-cyvcf2-venv:1.0 AS builder
+FROM clinicalgenomics/python3.11-venv:1.0 AS builder
 
 ENV PATH="/venv/bin:$PATH"
 
@@ -12,23 +12,23 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download Picard
-ENV picard_version 2.26.5
-ADD https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar /libs/
+ENV picard_version 3.10
+ADD https://github.com/broadinstitute/picard/releases/download/3.1.0/picard.jar /libs/
 
 #########
 # FINAL #
 #########
 
-FROM python:3.7.3-slim-stretch as deployer
+FROM clinicalgenomics/python3.11-venv:1.0 as deployer
 
 LABEL about.home="https://github.com/Clinical-Genomics/mutacc"
 LABEL about.documentation="https://github.com/Clinical-Genomics/mutacc/blob/master/docs/demo.md"
 LABEL about.license="MIT License (MIT)"
 
 RUN mkdir -p /usr/share/man/man1 && \
- 		apt-get update && \
+ 	apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y install -y --no-install-recommends openjdk-8-jre
+    apt-get -y install -y --no-install-recommends openjdk-17-jre
 
 # Create a non-root user to run commands
 RUN groupadd --gid 10001 worker && useradd -g worker --uid 10001 --create-home worker
@@ -48,3 +48,4 @@ COPY --chown=worker:worker --from=builder /libs /home/worker/libs
 RUN pip install --no-cache-dir .
 
 USER worker
+
