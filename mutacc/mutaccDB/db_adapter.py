@@ -68,7 +68,7 @@ class MutaccAdapter(MongoAdapter):
 
         self.cases_collection.insert_one(case)
 
-    def case_exists(self, case_id:str) ->  bool:
+    def case_exists(self, case_id: str) ->  bool:
         """Check if collection with field 'case_id': case_id exists."""
 
         return self.cases_collection.count_documents({"case_id": case_id}) > 0
