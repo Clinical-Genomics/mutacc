@@ -1,5 +1,5 @@
 # mutacc
-[![Build Status](https://travis-ci.org/Clinical-Genomics/mutacc.png)](https://travis-ci.org/Clinical-Genomics/mutacc)
+![Build Status - Docker](https://github.com/Clinical-Genomics/mutacc/actions/workflows/docker_build_n_publish.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Clinical-Genomics/mutacc/badge.svg?branch=master)](https://coveralls.io/github/Clinical-Genomics/mutacc?branch=master)
 [![PyPI version](https://badge.fury.io/py/mutacc.svg)](https://badge.fury.io/py/mutacc)
 
@@ -38,7 +38,7 @@ For installation of mutacc and the external prerequisites, this is made easy by
 creating conda environment
 
 ```consol
-conda create -n <env_name> python=3.6 pip numpy cython
+conda create -n <env_name> python=3.8 pip numpy cython
 ```
 
 activate environment

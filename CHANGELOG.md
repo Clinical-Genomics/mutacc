@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+### Changed
+- Moved tests and coverage from Travis to GitHub actions
+### Fixed
+- Badge on Readme page
+
 ## [1.6.3]
 ### Fixed
 - Freeze PyMongo lib to version<4.0 to keep supporting previous MongoDB versions
