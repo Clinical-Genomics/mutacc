@@ -4,8 +4,10 @@ All notable changes to this project will be documented in this file.
 ## [unreleased]
 ### Changed
 - Moved tests and coverage from Travis to GitHub actions
+- Updated python version and versions of some GitHub actions
 ### Fixed
 - Badge on Readme page
+- GitHub action to push the right image to Docker Hub
 
 ## [1.6.3]
 ### Fixed
