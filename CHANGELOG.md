@@ -2,11 +2,14 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Added
+- Integration test with MongoDB v7 
 ### Changed
 - Moved tests and coverage from Travis to GitHub actions
 - Updated python version and versions of some GitHub actions
 - Unfreeze cyvcf2 lib to be able to install the software with Python>=3.8
 - Installation instructions on README page to install mutacc using Python 3.8
+- Unfreeze pymongo requirement and removed deprecated pymongo code to support latest version of MongoDB
 ### Fixed
 - Badge on Readme page
 - GitHub action to push the right image to Docker Hub
