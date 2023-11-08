@@ -21,15 +21,12 @@ jobs:
         with:
           activate-conda: true
           python-version: 3.11
+      - run: conda install --yes -c bioconda seqkit picard
 
       - name: Install repo and its dependencies
         run: |
           pip install -r requirements.txt
           pip install -e .
-      - name: Download Picard
-        uses: wei/wget@v1
-        with:
-          args: -O picard.jar https://github.com/broadinstitute/picard/releases/download/2.26.6/picard.jar
 
       - name: Test run pipeline
         run: |
