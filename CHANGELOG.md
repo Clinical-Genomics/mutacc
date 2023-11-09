@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [1.7]
 ### Added
 - Integration test with MongoDB v7 
 ### Changed
