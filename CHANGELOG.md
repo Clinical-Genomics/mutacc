@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Badge on Readme page
 - GitHub action to push the right image to Docker Hub
 - Replaced deprecated `pkg_resources` lib with `importlib_resources`
+- Path to app in tests_and_coverage.yml, coveralls step
 
 ## [1.6.3]
 ### Fixed
