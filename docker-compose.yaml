@@ -4,7 +4,7 @@ version: '3'
 # (sudo) docker-compose down
 services:
   mongodb:
-    image: mongo:4.4.9
+    image: mongo:7
     container_name: mongodb
     networks:
       - mutacc-net
