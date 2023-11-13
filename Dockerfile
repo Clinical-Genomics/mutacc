@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download Picard
-ENV picard_version 3.10
+ENV picard_version 3.1.0
 ADD https://github.com/broadinstitute/picard/releases/download/${picard_version}/picard.jar /libs/
 
 #########

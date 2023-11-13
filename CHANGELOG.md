@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.7.2]
+### Fixed
+- Picard version in Dockerfile to be 3.1.0
+
 ## [1.7.1]
 ### Fixed
 - workflow step version in `docker_build_n_publish` GitHub action
