@@ -28,9 +28,8 @@ class BAMContext:
         self.bam_file = parse_path(bam_file)
         self.file_name = self.bam_file.name
         reference_filename = str(parse_path(reference)) if reference else None
-        # mode "r" lets htslib detect BAM/CRAM from the file itself
         self.bam = pysam.AlignmentFile(
-            str(self.bam_file), "r", reference_filename=reference_filename
+            str(self.bam_file), "rb", reference_filename=reference_filename
         )
         self.paired, self.length, self.insert_size = self._check_bam()
         self.reads = {}
