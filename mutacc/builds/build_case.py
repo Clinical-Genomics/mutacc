@@ -19,7 +19,14 @@ class Case(dict):
     """
 
     def __init__(
-        self, input_case, read_dir, padding=None, sv_padding=None, picard_exe=None, vcf_parse=None
+        self,
+        input_case,
+        read_dir,
+        padding=None,
+        sv_padding=None,
+        picard_exe=None,
+        vcf_parse=None,
+        reference=None,
     ):
 
         """
@@ -34,6 +41,7 @@ class Case(dict):
                                alignment file.
                 picard_exe(str): path to picard executable
                 vcf_parse(str): path to yaml file with vcf parsing information
+                reference(str): path to reference fasta, needed for CRAM input
         """
 
         super(Case, self).__init__()
@@ -46,7 +54,7 @@ class Case(dict):
 
         # Build samples
         self["samples"] = self._build_samples(
-            read_dir=read_dir, padding=padding, picard_exe=picard_exe
+            read_dir=read_dir, padding=padding, picard_exe=picard_exe, reference=reference
         )
         # Build case
         self["case"] = self.input_case["case"]
@@ -80,7 +88,7 @@ class Case(dict):
 
         return variant_objects
 
-    def _build_samples(self, read_dir, padding=None, picard_exe=None):
+    def _build_samples(self, read_dir, padding=None, picard_exe=None, reference=None):
         """
             Method makes a list of sample objects, ready to load into a mongodb. This includes
             looking for the raw reads responsible for the variants in the vcf for each sample,
@@ -103,6 +111,7 @@ class Case(dict):
             padding=padding,
             picard_exe=picard_exe,
             case_dir=case_dir,
+            reference=reference,
         ):
 
             sample_objects.append(sample)

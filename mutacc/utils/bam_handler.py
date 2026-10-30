@@ -18,16 +18,20 @@ class BAMContext:
         Context manager to deal with bam files
     """
 
-    def __init__(self, bam_file, out_dir=None):
+    def __init__(self, bam_file, out_dir=None, reference=None):
         """
             Args:
                 bam_file (str): path to bam file
                 out_dir (Path): Directory where new bam-file is created
-                pared (bool): If bam containes paired reads
+                reference (str): path to reference fasta, needed to decode CRAM files
         """
         self.bam_file = parse_path(bam_file)
         self.file_name = self.bam_file.name
-        self.bam = pysam.AlignmentFile(self.bam_file, "rb")
+        reference_filename = str(parse_path(reference)) if reference else None
+        # mode "r" lets htslib detect BAM/CRAM from the file itself
+        self.bam = pysam.AlignmentFile(
+            str(self.bam_file), "r", reference_filename=reference_filename
+        )
         self.paired, self.length, self.insert_size = self._check_bam()
         self.reads = {}
         self.ends = 2 if self.paired else 1
@@ -35,7 +39,8 @@ class BAMContext:
         self.out_dir = out_dir
         if self.out_dir:
             self.out_dir = parse_path(out_dir, file_type="dir")
-            self.out_name = out_dir.joinpath("mutacc_" + self.file_name)
+            # output is always written as BAM, also when the input is CRAM
+            self.out_name = out_dir.joinpath("mutacc_" + self.bam_file.stem + ".bam")
             self.out_bam = pysam.AlignmentFile(self.out_name, "wb", template=self.bam)
 
     def __enter__(self):

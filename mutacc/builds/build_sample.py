@@ -17,7 +17,7 @@ class Sample(dict):
         Class to represent sample
     """
 
-    def __init__(self, input_sample, variants, padding, picard_exe, case_dir):
+    def __init__(self, input_sample, variants, padding, picard_exe, case_dir, reference=None):
 
         super(Sample, self).__init__(**input_sample)
 
@@ -26,6 +26,7 @@ class Sample(dict):
         self.padding = padding
         self.picard_exe = picard_exe
         self.case_dir = case_dir
+        self.reference = reference
         self.bam_file = parse_path(self.input_sample['bam_file'])
 
         # Build sample
@@ -48,7 +49,7 @@ class Sample(dict):
         # For each variant, the reads spanning this genomic region in
         # the bam file are found
 
-        with BAMContext(bam_file=self.bam_file) as bam_handle:
+        with BAMContext(bam_file=self.bam_file, reference=self.reference) as bam_handle:
             for variant in self.variants:
 
                 bam_handle.find_names_from_region(
@@ -80,7 +81,9 @@ class Sample(dict):
 
     def _extract_bam(self, sample_dir):
 
-        with BAMContext(self.bam_file, out_dir=sample_dir) as bam_handle:
+        with BAMContext(
+            self.bam_file, out_dir=sample_dir, reference=self.reference
+        ) as bam_handle:
 
             for variant in self.variants:
 
@@ -119,7 +122,7 @@ class Sample(dict):
         self["variant_fastq_files"] = [fastq1, fastq2]
         self["paired_reads"] = paired
 
-def get_samples(samples, variants, padding, picard_exe, case_dir):
+def get_samples(samples, variants, padding, picard_exe, case_dir, reference=None):
 
     """
         Parse a list of samples, given as input to importable sample objects
@@ -130,9 +133,10 @@ def get_samples(samples, variants, padding, picard_exe, case_dir):
             padding (int): padding to be used
             picard_exe (str): path to picard binary
             case_dir (Path): path to dir where reads for case are to be stored
+            reference (str): path to reference fasta, needed for CRAM input
 
     """
 
     for sample in samples:
 
-        yield Sample(sample, variants, padding, picard_exe, case_dir)
+        yield Sample(sample, variants, padding, picard_exe, case_dir, reference)
