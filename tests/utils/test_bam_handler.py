@@ -162,3 +162,36 @@ def test_BAMContext_passes_reference_to_pysam(monkeypatch, bam_path):
     # THEN the reference is handed to pysam only when given
     assert calls[0]["reference_filename"] is None
     assert calls[1]["reference_filename"].endswith("case.yaml")
+
+
+def test_BAMContext_contig_name_without_prefix(tmpdir, cram_with_reference):
+
+    # GIVEN a CRAM where the contig is named 'chr1'
+    cram, reference = cram_with_reference
+
+    with BAMContext(bam_file=cram, reference=str(reference)) as bam_handle:
+        # WHEN the contig is given as '1', 'chr1' and with other case
+        names = []
+        for chrom in ("chr1", "1", "Chr1"):
+            bam_handle.found_reads = set()
+            bam_handle.find_names_from_region(chrom=chrom, start=100, end=300)
+            names.append(set(bam_handle.found_reads))
+
+        # THEN the same reads are found
+        assert names[0]
+        assert names[0] == names[1] == names[2]
+
+        # AND names are resolved as expected, also for the mitochondrial contig
+        assert bam_handle._contig_name("1") == "chr1"
+        assert bam_handle._contig_name("MT") == "MT"
+
+
+def test_BAMContext_contig_name_with_prefix_missing(bam_path):
+
+    # GIVEN a BAM where the contig is named '4'
+    with BAMContext(bam_file=bam_path) as bam_handle:
+        # WHEN the contig is given with a 'chr' prefix THEN the prefix is removed
+        assert bam_handle._contig_name("chr4") == "4"
+        assert bam_handle._contig_name("4") == "4"
+        # AND an unknown contig is returned unchanged
+        assert bam_handle._contig_name("nonexisting") == "nonexisting"
