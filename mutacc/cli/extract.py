@@ -29,13 +29,8 @@ LOG = logging.getLogger(__name__)
 @click.option("--padding", type=int, help="padding around SNVs and indels")
 @click.option("--sv-padding", type=int, help="padding around SVs")
 @click.option("--picard-executable", type=click.Path(exists=True))
-@click.option(
-    "--reference",
-    type=click.Path(exists=True),
-    help="reference fasta, required to read CRAM files",
-)
 @click.pass_context
-def extract_command(context, case, padding, sv_padding, picard_executable, reference):
+def extract_command(context, case, padding, sv_padding, picard_executable):
 
     """
         extract reads from case
@@ -51,7 +46,6 @@ def extract_command(context, case, padding, sv_padding, picard_executable, refer
         input_case = yaml_parse(case)
 
     picard_executable = context.obj["binaries"].get("picard") or picard_executable
-    reference = reference or context.obj.get("reference")
     padding = padding or context.obj.get("padding") or PADDING
     sv_padding = sv_padding or context.obj.get("sv_padding") or SV_PADDING
     case_obj = Case(
@@ -61,7 +55,6 @@ def extract_command(context, case, padding, sv_padding, picard_executable, refer
         sv_padding=sv_padding,
         picard_exe=picard_executable,
         vcf_parse=context.obj.get("vcf_parser_import"),
-        reference=reference,
     )
 
     import_dir = context.obj.get("import_dir")

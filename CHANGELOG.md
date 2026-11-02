@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.8.0]
 ### Added
-- `--reference` option for `mutacc extract`, and `reference` key in the config file, to give a reference fasta needed to read CRAM files
+- Optional `reference` field under `case` in the case yaml, to give a reference fasta needed to read CRAM files
 
 ## [1.7.2]
 ### Fixed

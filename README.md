@@ -163,7 +163,13 @@ the --padding option takes the number of basepairs that the desired region is
 padded with.
 
 If `bam_file` is a CRAM file, a reference fasta is needed to decode it. Give it with
-`--reference /path/to/genome.fa` or set `reference: /path/to/genome.fa` in the config file.
+the `reference` field under `case:` in the case yaml file:
+
+```yaml
+case:
+    case_id: '12345'
+    reference: /path/to/genome.fa
+```
 
 This will create a file <case_id>.json stored in the directory specified in the
 /.../root_dir/imports directory.

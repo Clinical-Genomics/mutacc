@@ -97,9 +97,6 @@ def cli(context, loglevel, config_file, root_dir, demo, vcf_parser):
     mutacc_config["binaries"]["picard"] = binaries.get("picard")
     mutacc_config["binaries"]["seqkit"] = binaries.get("seqkit")
 
-    # Reference fasta used to decode CRAM files, optional
-    mutacc_config["reference"] = cli_config.get("reference")
-
     context.obj = mutacc_config
 
 

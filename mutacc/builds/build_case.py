@@ -26,7 +26,6 @@ class Case(dict):
         sv_padding=None,
         picard_exe=None,
         vcf_parse=None,
-        reference=None,
     ):
 
         """
@@ -41,13 +40,15 @@ class Case(dict):
                                alignment file.
                 picard_exe(str): path to picard executable
                 vcf_parse(str): path to yaml file with vcf parsing information
-                reference(str): path to reference fasta, needed for CRAM input
         """
 
         super(Case, self).__init__()
 
         self.input_case = input_case
         self.case_id = input_case["case"]["case_id"]
+
+        # Optional path to reference fasta, needed to read CRAM files
+        reference = input_case["case"].get("reference")
 
         # Build variants
         self["variants"] = self._build_variants(padding=padding, sv_padding=sv_padding, vcf_parse=vcf_parse)
