@@ -17,7 +17,7 @@ DESCRIPTION = 'The mutation accumulation database'
 URL = 'https://github.com/Clinical-Genomics/mutacc'
 EMAIL = 'adam.rosenbaum@scilifelab.se'
 AUTHOR = 'Adam Rosenbaum'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.11'
 VERSION = '1.8.0'
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -128,7 +128,7 @@ setup(
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.11',
         'Environment :: Console'
     ],
     # $ setup.py publish support.
