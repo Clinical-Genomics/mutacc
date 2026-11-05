@@ -1,3 +1,4 @@
+import shutil
 import pytest
 import pysam
 from pathlib import Path
@@ -117,7 +118,22 @@ def fixture_cram_with_reference(tmpdir):
                 read.template_length = 50 if mate == 0 else -50
                 out_cram.write(read)
     pysam.index(str(cram))
-    return cram, reference
+
+    moved_reference = Path(tmpdir.mkdir("reference")).joinpath("ref.fa")
+    for suffix in ("", ".fai"):
+        shutil.move(str(reference) + suffix, str(moved_reference) + suffix)
+    return cram, moved_reference
+
+
+def test_BAMContext_cram_without_reference_fails(cram_with_reference):
+
+    cram, _ = cram_with_reference
+
+    # WHEN extracting reads without giving the reference
+    # THEN the CRAM cannot be decoded
+    with pytest.raises((OSError, ValueError)):
+        with BAMContext(bam_file=cram) as bam_handle:
+            bam_handle.find_names_from_region(chrom="chr1", start=100, end=300)
 
 
 def test_BAMContext_cram_with_reference(tmpdir, cram_with_reference):
