@@ -1,9 +1,14 @@
 name: Publish to PyPI
 
 on:
+ pull_request:
+ workflow_dispatch:
  release:
   types:
    - created
+
+permissions:
+ contents: read
 
 jobs:
  build-n-publish:
@@ -11,30 +16,32 @@ jobs:
   runs-on: ubuntu-latest
   steps:
    - name: Check out git repository
-     uses: actions/checkout@v4
+     uses: actions/checkout@v7
 
    - name: Set up Python
-     uses: actions/setup-python@v4
+     uses: actions/setup-python@v7
      with:
-      python-version: 3.11
+      python-version: "3.11"
 
    - name: Install build tools
      run: >-
         python -m
         pip install
-        wheel
+        build
         twine
-        --user
 
    - name: Build a binary wheel and a source tarball
      run: >-
-        python
-        setup.py
-        sdist
-        bdist_wheel
+        python -m
+        build
+
+   - name: Check distribution metadata
+     run: twine check dist/*
 
    - name: Publish distribution 📦 to PyPI
-     uses: pypa/gh-action-pypi-publish@master
+     # Only publish for releases. Pull requests and manual runs just build and check.
+     if: github.event_name == 'release'
+     uses: pypa/gh-action-pypi-publish@release/v1
      with:
        user: __token__
        password: ${{ secrets.PYPI_TOKEN }}

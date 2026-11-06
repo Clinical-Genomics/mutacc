@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.8.1]
+### Changed
+- Github workflows updated to current action versions, and conda is now set up with `conda-incubator/setup-miniconda`
+- Building a package is done with `python -m build`
+- The PyPI and Docker workflows also run on pull requests, to build and check without publishing
+- Docker image is published with `docker/build-push-action`
+### Fixed
+- Test workflows failing since conda was no longer available on the github runners
+- PyPI publish action pinned to `release/v1` instead of the unsupported `master` branch
+
 ## [1.8.0]
 ### Added
 - Optional `reference` field under `case` in the case yaml, to give a reference fasta needed to read CRAM files
