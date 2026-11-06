@@ -1,9 +1,14 @@
 name: Publish to PyPI
 
 on:
+ pull_request:
+ workflow_dispatch:
  release:
   types:
    - created
+
+permissions:
+ contents: read
 
 jobs:
  build-n-publish:
@@ -23,14 +28,20 @@ jobs:
         python -m
         pip install
         build
+        twine
 
    - name: Build a binary wheel and a source tarball
      run: >-
         python -m
         build
 
+   - name: Check distribution metadata
+     run: twine check dist/*
+
    - name: Publish distribution 📦 to PyPI
+     # Only publish for releases. Pull requests and manual runs just build and check.
+     if: github.event_name == 'release'
      uses: pypa/gh-action-pypi-publish@release/v1
      with:
        user: __token__
-       password: ${{ secrets.PYPI_TOKEN2 }}
+       password: ${{ secrets.PYPI_TOKEN }}
