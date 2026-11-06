@@ -1,31 +1,42 @@
 name: Integration tests
 on: [pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   integration_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        mongodb-version: ['7']
+        mongodb-version: ["7"]
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.10.0
+        uses: supercharge/mongodb-github-action@1.12.1
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Setup Conda and install python
-        uses: s-weigand/setup-conda@v1
+      - name: Setup conda and install python
+        uses: conda-incubator/setup-miniconda@v4
         with:
-          activate-conda: true
-          python-version: 3.11
+          python-version: "3.11"
+          channels: conda-forge,bioconda
+          channel-priority: strict
+          auto-update-conda: false
 
       - name: Download Picard
-        uses: wei/wget@v1
-        with:
-          args: -O picard.jar https://github.com/broadinstitute/picard/releases/download/2.26.6/picard.jar
+        run: wget -q -O picard.jar https://github.com/broadinstitute/picard/releases/download/2.26.6/picard.jar
 
       - name: Install repo and its dependencies
         run: |
