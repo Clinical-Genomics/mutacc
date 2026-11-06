@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.8.0]
+### Added
+- Optional `reference` field under `case` in the case yaml, to give a reference fasta needed to read CRAM files
+### Changed
+- Required python version is now 3.11
+### Fixed
+- Reads are found when the contigs in the variants and in the alignment file are named differently, e.g. `16` and `chr16`
+
 ## [1.7.2]
 ### Fixed
 - Picard version in Dockerfile to be 3.1.0

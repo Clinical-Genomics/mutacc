@@ -41,3 +41,27 @@ def test_case(tmpdir, vcf_parser):
         for fastq_file in sample["variant_fastq_files"]:
 
             assert Path(fastq_file).exists()
+
+
+def test_case_reference_from_case_yaml(tmpdir, monkeypatch):
+    """The reference in the case yaml is given to the samples"""
+
+    import mutacc.builds.build_case as build_case_module
+
+    given = []
+
+    def fake_get_samples(**kwargs):
+        given.append(kwargs["reference"])
+        return []
+
+    monkeypatch.setattr(build_case_module, "get_samples", fake_get_samples)
+    monkeypatch.setattr(build_case_module, "get_variants", lambda **kwargs: [])
+
+    case_dict = {"case": {"case_id": "12345", "reference": "ref.fa"}, "samples": [], "variants": ""}
+    read_dir = Path(tmpdir.mkdir("reads"))
+
+    build_case_module.Case(case_dict, read_dir)
+    case_dict["case"].pop("reference")
+    build_case_module.Case(case_dict, read_dir)
+
+    assert given == ["ref.fa", None]

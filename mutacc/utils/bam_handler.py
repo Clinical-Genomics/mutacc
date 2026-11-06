@@ -18,16 +18,21 @@ class BAMContext:
         Context manager to deal with bam files
     """
 
-    def __init__(self, bam_file, out_dir=None):
+    def __init__(self, bam_file, out_dir=None, reference=None):
         """
             Args:
                 bam_file (str): path to bam file
-                out_dir (Path): Directory where new bam-file is created
-                pared (bool): If bam containes paired reads
+                out_dir (Path): Directory where new bam-file is created. The output is
+                    always written as BAM, also when the input is CRAM
+                reference (str): path to reference fasta, needed to decode CRAM files
         """
         self.bam_file = parse_path(bam_file)
         self.file_name = self.bam_file.name
-        self.bam = pysam.AlignmentFile(self.bam_file, "rb")
+        reference_filename = str(parse_path(reference)) if reference else None
+        self.bam = pysam.AlignmentFile(
+            str(self.bam_file), "rb", reference_filename=reference_filename
+        )
+        self.contigs = set(self.bam.references)
         self.paired, self.length, self.insert_size = self._check_bam()
         self.reads = {}
         self.ends = 2 if self.paired else 1
@@ -35,7 +40,7 @@ class BAMContext:
         self.out_dir = out_dir
         if self.out_dir:
             self.out_dir = parse_path(out_dir, file_type="dir")
-            self.out_name = out_dir.joinpath("mutacc_" + self.file_name)
+            self.out_name = out_dir.joinpath("mutacc_" + self.bam_file.stem + ".bam")
             self.out_bam = pysam.AlignmentFile(self.out_name, "wb", template=self.bam)
 
     def __enter__(self):
@@ -54,6 +59,30 @@ class BAMContext:
         except AttributeError:
             pass
 
+    def _contig_name(self, chrom):
+        """Returns the name the alignment file uses for contig chrom
+
+            The contig in the variants and in the alignment file can be named
+            differently, e.g. '16' and 'chr16', or 'MT' and 'chrM'.
+
+            Args:
+                chrom (str): name of contig
+        """
+        chrom = str(chrom)
+        if chrom in self.contigs:
+            return chrom
+
+        without_prefix = chrom[3:] if chrom.lower().startswith("chr") else chrom
+        candidates = [without_prefix, "chr" + without_prefix]
+        if without_prefix in ("MT", "M"):
+            candidates = ["MT", "chrM", "M", "chrMT"]
+        for candidate in candidates:
+            if candidate in self.contigs:
+                return candidate
+
+        # Leave it to pysam to report the unknown contig
+        return chrom
+
     def find_names_from_region(self, chrom, start, end, padding=None):
         """Adds the read names in region to the set found_reads
 
@@ -66,7 +95,9 @@ class BAMContext:
 
         adjusted_padding = self._adjust_padding(padding)
 
-        read_names = [read.query_name for read in self.bam.fetch(chrom, start-adjusted_padding, end+adjusted_padding)]
+        read_names = [read.query_name for read in self.bam.fetch(
+            self._contig_name(chrom), start-adjusted_padding, end+adjusted_padding
+        )]
         self.found_reads = self.found_reads.union(set(read_names))
 
     def find_reads_from_region(self, chrom, start, end, brute=False, find_mates=True, padding=None):
@@ -86,7 +117,9 @@ class BAMContext:
 
         """
         adjusted_padding = self._adjust_padding(padding)
-        for read in self.bam.fetch(chrom, start-adjusted_padding, end+adjusted_padding):
+        for read in self.bam.fetch(
+            self._contig_name(chrom), start-adjusted_padding, end+adjusted_padding
+        ):
             read_name = read.query_name
             if read_name in self.found_reads:
                 continue
@@ -159,7 +192,7 @@ class BAMContext:
         """
             Tries to find mates in specified region
         """
-        for read in self.bam.fetch(chrom, start, end):
+        for read in self.bam.fetch(self._contig_name(chrom), start, end):
             read_name = read.query_name
             if read_name in self.found_reads:
                 continue
