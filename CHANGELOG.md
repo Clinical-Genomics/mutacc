@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Github workflows updated to current action versions, and conda is now set up with `conda-incubator/setup-miniconda`
 - Building a package is done with `python -m build`
-- The PyPI and Docker workflows also run on pull requests, to build and check without publishing
+- New `build_test` workflow builds and checks the python package and the docker image on pull requests, without publishing
 - Docker image is published with `docker/build-push-action`
 ### Fixed
 - Test workflows failing since conda was no longer available on the github runners
