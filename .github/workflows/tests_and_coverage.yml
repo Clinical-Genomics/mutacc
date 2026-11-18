@@ -1,23 +1,39 @@
 name: Run tests and coveralls
 on: [pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests_n_coverage:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Setup Conda and install python
-        uses: s-weigand/setup-conda@v1
+      - name: Setup conda and install python
+        uses: conda-incubator/setup-miniconda@v4
         with:
-          activate-conda: true
-          python-version: 3.11
-      - run: conda install --yes -c bioconda seqkit picard
+          python-version: "3.11"
+          channels: conda-forge,bioconda
+          channel-priority: strict
+          auto-update-conda: false
+
+      - name: Install seqkit and picard
+        run: conda install --yes seqkit picard
 
       - name: Install repo and its dependencies
         run: |
           pip install -r requirements.txt
           pip install -e .
+
       - name: Test with pytest & Coveralls
         run: |
           pip install -r requirements-dev.txt

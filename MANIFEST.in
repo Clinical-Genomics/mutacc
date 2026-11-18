@@ -1,2 +1,3 @@
 # static files
 recursive-include mutacc/resources *
+include requirements.txt
